@@ -1,0 +1,503 @@
+<title>Galilée</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Mise en page : un banc de laboratoire. À gauche la loi en cours et le graphique des mesures ;
+   à droite les hypothèses rivales, la boucle de l'agent et son journal. */
+:root {
+  --bg: #f4f6f9; --surface: #fcfcfb; --ink: #0f1a2b; --ink-2: #4a5568; --ink-3: #7a8494; --line: #dde2ea;
+  --accent: #2a78d6; --accent-soft: #e3eefb; --on-accent: #ffffff;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --pt: #0f1a2b;
+  --good: #0a7d0a; --good-soft: #e2f3e2; --warn: #8a5a00; --warn-soft: #fdf0d2; --bad: #b92c2c; --bad-soft: #fbe4e4;
+  --f-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-math: "STIX Two Text", "Cambria Math", Georgia, serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c1118; --surface: #151b24; --ink: #eef1f5; --ink-2: #b4bcc8; --ink-3: #8691a0; --line: #2a3340;
+  --accent: #5a9cec; --accent-soft: #172a44; --on-accent: #08131f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --pt: #eef1f5;
+  --good: #5fd35f; --good-soft: #12301a; --warn: #f2c14e; --warn-soft: #3a2c0a; --bad: #f08a8a; --bad-soft: #3d1a1a;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0c1118; --surface: #151b24; --ink: #eef1f5; --ink-2: #b4bcc8; --ink-3: #8691a0; --line: #2a3340;
+  --accent: #5a9cec; --accent-soft: #172a44; --on-accent: #08131f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --pt: #eef1f5;
+  --good: #5fd35f; --good-soft: #12301a; --warn: #f2c14e; --warn-soft: #3a2c0a; --bad: #f08a8a; --bad-soft: #3d1a1a;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 20px; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0; line-height: 1.1; }
+h2 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+p { margin: 0; }
+.lede { color: var(--ink-2); max-width: 66ch; font-size: 16px; text-wrap: pretty; }
+header { display: flex; flex-direction: column; gap: 8px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field > span { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+select, input[type="text"], input[type="number"], textarea {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; min-width: 0; }
+textarea { font-family: var(--f-mono); font-size: 13px; width: 100%; min-height: 150px; resize: vertical; }
+input[type="number"] { width: 84px; font-variant-numeric: tabular-nums; }
+button { font: inherit; font-weight: 600; border-radius: 6px; padding: 7px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+button:disabled { opacity: 0.45; cursor: default; }
+:is(button, select, input, textarea, summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-2); padding-bottom: 7px; }
+.extra { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; padding: 14px; border: 1px dashed var(--line); border-radius: 8px; }
+.extra .grow { flex: 1 1 280px; }
+.extra input[type="text"] { width: 100%; font-family: var(--f-mono); font-size: 14px; }
+.hint { font-size: 13px; color: var(--ink-3); flex-basis: 100%; }
+.err { color: var(--bad); font-size: 14px; flex-basis: 100%; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+.law { font-family: var(--f-math); font-size: clamp(22px, 3.4vw, 34px); line-height: 1.25; overflow-wrap: anywhere; min-height: 1.25em; }
+.law .lhs { font-style: italic; }
+.law-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-2); font-size: 14px; font-variant-numeric: tabular-nums; }
+.law-meta b { color: var(--ink); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 11px; font-size: 13px; font-weight: 600; width: fit-content; }
+.pill.run { background: var(--accent-soft); color: var(--accent); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.verdict { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.verdict .truth { font-family: var(--f-math); font-size: 20px; color: var(--ink); overflow-wrap: anywhere; }
+.review { background: var(--warn-soft); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.review .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.chart-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { padding: 3px 10px; font-weight: 500; font-size: 13px; font-family: var(--f-math); font-style: italic; }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.chart text { font-family: var(--f-ui); font-size: 11px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.45; font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 2; }
+.tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+.legend i.dot { width: 8px; height: 8px; border-radius: 50%; }
+.legend code { font-family: var(--f-math); font-size: 14px; overflow-wrap: anywhere; }
+.caption { font-size: 13px; color: var(--ink-3); }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-size: 12px; font-weight: 500; color: var(--ink-3); padding: 0 8px 6px 0; white-space: nowrap; }
+td { padding: 7px 8px 7px 0; border-top: 1px solid var(--line); vertical-align: middle; font-variant-numeric: tabular-nums; }
+td.f { font-family: var(--f-math); font-size: 16px; overflow-wrap: anywhere; }
+td.num, th.num { text-align: right; padding-right: 0; padding-left: 8px; white-space: nowrap; }
+.bar { display: flex; align-items: center; gap: 8px; min-width: 92px; }
+.bar div { height: 6px; border-radius: 3px; background: var(--line); flex: 1; overflow: hidden; }
+.bar div i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.scroll-x { overflow-x: auto; }
+
+.loop { display: flex; flex-wrap: wrap; gap: 5px; list-style: none; margin: 0; padding: 0; }
+.loop li { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink-3); }
+.loop li.on { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.loop li.done { color: var(--ink-2); }
+.log { font-family: var(--f-mono); font-size: 12.5px; line-height: 1.55; max-height: 330px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.log div { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 8px; }
+.log .n { color: var(--ink-3); text-align: right; }
+.log b { font-weight: 500; color: var(--accent); }
+.log .x b { color: var(--bad); }
+
+details > summary { cursor: pointer; font-weight: 600; }
+.about { display: flex; flex-direction: column; gap: 12px; color: var(--ink-2); }
+.about p, .about li { max-width: 72ch; }
+.about ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+@media (prefers-reduced-motion: no-preference) { .bar div i { transition: width 0.25s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Galilée</h1>
+    <p class="lede">Une loi est cachée. L'agent ne la voit pas : il règle des variables, lit une mesure bruitée, et choisit lui-même l'expérience suivante, celle où ses hypothèses se contredisent le plus. Regardez-le la retrouver, ou cachez-lui la vôtre.</p>
+  </header>
+
+  <form class="controls" id="controls">
+    <label class="field"><span>Loi cachée</span>
+      <select id="monde"></select></label>
+    <label class="field"><span>Bruit de mesure</span>
+      <select id="bruit"><option value="0">aucun</option><option value="0.01" selected>1 %</option><option value="0.05">5 %</option><option value="0.1">10 %</option></select></label>
+    <label class="field"><span>Choix des expériences</span>
+      <select id="mode"><option value="actif">par l'agent</option><option value="aléatoire">au hasard (témoin)</option></select></label>
+    <label class="field"><span>Vitesse</span>
+      <select id="vitesse"><option value="420">lente</option><option value="140" selected>normale</option><option value="0">maximale</option></select></label>
+    <label class="field"><span>Tirage n°</span>
+      <input type="number" id="graine" value="1" min="1" max="9999"></label>
+    <label class="check"><input type="checkbox" id="superviser"> Me demander avant de sortir du domaine sûr</label>
+    <button type="submit" class="primary" id="lancer">Lancer</button>
+    <button type="button" id="pause">Pause</button>
+    <button type="button" id="pas">Un pas</button>
+  </form>
+
+  <div class="extra" id="perso" hidden>
+    <label class="field grow"><span>Votre formule (l'agent ne la lira pas)</span>
+      <input type="text" id="formule" value="3*x^2/(1+y)" spellcheck="false" autocomplete="off"></label>
+    <div id="bornes" class="controls"></div>
+    <p class="hint">Opérateurs <code class="k">+ - * / ^</code>, fonctions <code class="k">sqrt sin cos exp log tanh</code>, constante <code class="k">pi</code>. Jusqu'à 4 variables, nommées comme vous voulez.</p>
+    <p class="err" id="erreur" hidden></p>
+  </div>
+  <div class="extra" id="csvbox" hidden>
+    <label class="field grow"><span>Vos données : une ligne par observation, dernière colonne = grandeur à expliquer</span>
+      <textarea id="csv" spellcheck="false">x;y
+0.5;1.19
+1;2.72
+1.5;4.45
+2;7.41
+2.5;12.1
+3;20.2
+3.5;33.0
+4;54.7</textarea></label>
+    <p class="hint">Ici l'agent ne peut pas expérimenter : il cherche seulement la loi la plus simple compatible avec le tableau.</p>
+    <p class="err" id="erreur2" hidden></p>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel" aria-live="polite">
+        <div class="chart-head"><h2 id="law-title">Meilleure explication</h2><span class="pill run" id="etat">prêt</span></div>
+        <div class="law" id="law">…</div>
+        <div class="law-meta" id="law-meta"></div>
+        <div class="review" id="review" hidden>
+          <span id="review-text"></span>
+          <div class="btns"><button type="button" class="primary" id="oui">Autoriser l'extension</button><button type="button" id="non">Refuser</button></div>
+        </div>
+        <div class="verdict" id="verdict" hidden></div>
+      </section>
+
+      <section class="panel">
+        <div class="chart-head"><h2 id="chart-title">Mesures et hypothèses</h2><div class="tabs" id="tabs"></div></div>
+        <div class="chart" id="chart"></div>
+        <div class="legend" id="legend"></div>
+        <p class="caption" id="chart-cap"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Surprise à chaque expérience</h2>
+        <div class="chart" id="zchart"></div>
+        <p class="caption">Écart entre la mesure et ce que l'agent avait prédit, en nombre d'écarts-types du bruit. Au-delà de 3 σ, l'agent considère sa théorie contredite.</p>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel">
+        <h2>Hypothèses en lice</h2>
+        <div class="scroll-x"><table>
+          <thead><tr><th>Confiance</th><th id="th-f">Loi</th><th class="num">Compl.</th><th class="num" id="th-chi">χ² réd.</th></tr></thead>
+          <tbody id="hyps"><tr><td colspan="4" class="caption">Aucune hypothèse pour l'instant.</td></tr></tbody>
+        </table></div>
+        <p class="caption">La confiance pénalise la complexité : à ajustement égal, la loi la plus courte gagne. χ² réduit ≈ 1 signifie que l'écart aux mesures s'explique par le bruit seul.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Boucle de l'agent</h2>
+        <ol class="loop" id="loop"></ol>
+        <div class="log" id="log" tabindex="0" aria-label="Journal de l'agent"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel about">
+    <h2>Ce que vous regardez, et ses limites</h2>
+    <p>Tout tourne dans cette page, sans serveur et sans modèle de langage. Le moteur est une recherche d'équations par programmation génétique, avec ajustement des constantes par Levenberg–Marquardt. L'agent estime d'abord le bruit en répétant des expériences, puis classe ses hypothèses par vraisemblance pénalisée et mesure là où les mieux classées divergent le plus.</p>
+    <div id="bench"></div>
+    <ul>
+      <li>« Précise » : sur 2000 points neufs, moins de 0,5 % d'erreur dans le domaine et moins de 1 % en extrapolation. C'est le critère du verdict affiché plus haut ; une formule différente mais numériquement équivalente le satisfait.</li>
+      <li>« Bonne forme » : la structure est la bonne, même si le bruit a faussé une constante (4,9 arrondi à 5, par exemple).</li>
+      <li>L'agent ne cherche pas les fonctions emboîtées comme sin(exp(x)), ni les exposants variables comme x^y.</li>
+      <li>Avec beaucoup de bruit ou une loi longue, il peut rendre une approximation, et parfois s'en dire convaincu. La colonne « convaincu à tort » compte les arrêts sur une forme fausse.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+/*__ENGINE__*/
+const BENCH = /*__BENCH__*/null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (v, d = 3) => (Math.abs(v) >= 1e5 || (v !== 0 && Math.abs(v) < 1e-3) ? v.toExponential(1) : String(Number(v.toPrecision(d)))).replace('-', '−');
+const S = { agent: null, world: null, timer: null, paused: false, varIdx: 0, verdict: null, hover: null };
+
+// ------------------------------------------------------------------ commandes
+(function fillWorlds() {
+  let h = '<optgroup label="Lois de la physique">';
+  for (const w of G.CATALOG) h += `<option value="${w.id}">${esc(w.title)}</option>`;
+  h += '</optgroup><optgroup label="À vous"><option value="@perso">Votre propre formule…</option></optgroup>';
+  h += '<optgroup label="Données réelles, sans expérience"><option value="@kepler">Les huit planètes (Kepler)</option><option value="@csv">Vos données…</option></optgroup>';
+  $('monde').innerHTML = h;
+})();
+
+function rangesUI() {
+  let names = [];
+  try { names = G.freeNames($('formule').value); } catch (e) { /* ignore */ }
+  const old = {};
+  $('bornes').querySelectorAll('input').forEach((i) => { old[i.id] = i.value; });
+  $('bornes').innerHTML = names.slice(0, 4).map((n) =>
+    `<label class="field"><span>${esc(n)} min</span><input type="number" step="any" id="min-${esc(n)}" value="${old['min-' + n] ?? 1}"></label>` +
+    `<label class="field"><span>${esc(n)} max</span><input type="number" step="any" id="max-${esc(n)}" value="${old['max-' + n] ?? 5}"></label>`).join('');
+}
+$('formule').addEventListener('input', rangesUI);
+$('monde').addEventListener('change', () => {
+  $('perso').hidden = $('monde').value !== '@perso';
+  $('csvbox').hidden = $('monde').value !== '@csv';
+  if ($('monde').value !== '@perso' && $('monde').value !== '@csv') start();
+});
+$('controls').addEventListener('submit', (e) => { e.preventDefault(); start(); });
+$('pause').addEventListener('click', () => { S.paused = !S.paused; $('pause').textContent = S.paused ? 'Reprendre' : 'Pause'; if (!S.paused) loop(); });
+$('pas').addEventListener('click', () => { S.paused = true; $('pause').textContent = 'Reprendre'; advance(true); render(); });
+$('oui').addEventListener('click', () => { S.agent.approve(true); loop(); });
+$('non').addEventListener('click', () => { S.agent.approve(false); loop(); });
+
+function start() {
+  clearTimeout(S.timer);
+  $('erreur').hidden = $('erreur2').hidden = true;
+  const id = $('monde').value, seed = Math.max(1, Number($('graine').value) || 1), noise = Number($('bruit').value);
+  let world = null, data = null;
+  try {
+    if (id === '@perso') {
+      const ranges = {};
+      for (const n of G.freeNames($('formule').value)) ranges[n] = [Number($('min-' + n)?.value ?? 1), Number($('max-' + n)?.value ?? 5)];
+      world = G.customWorld($('formule').value, { ranges, noise, seed });
+    } else if (id === '@kepler') {
+      data = { names: G.PLANETS.names, target: G.PLANETS.target, X: G.PLANETS.rows.map((r) => [r[1]]), y: G.PLANETS.rows.map((r) => r[2]), labels: G.PLANETS.rows.map((r) => r[0]) };
+    } else if (id === '@csv') {
+      data = G.parseCsv($('csv').value);
+      if (data.y.length < 4) throw new Error('Il faut au moins 4 observations.');
+      if (data.names.length > 4) throw new Error('Quatre variables au maximum.');
+    } else world = G.getWorld(id, { seed, noise });
+  } catch (err) {
+    const box = id === '@csv' ? $('erreur2') : $('erreur');
+    box.textContent = err.message; box.hidden = false;
+    return;
+  }
+  S.world = world; S.data = data; S.varIdx = 0; S.verdict = null; S.paused = false; S.hover = null;
+  $('pause').textContent = 'Pause';
+  S.agent = new G.Agent(world, { seed, mode: $('mode').value, autoApprove: !$('superviser').checked, data });
+  $('tabs').innerHTML = S.agent.d > 1 ? S.agent.names.map((n, j) => `<button type="button" aria-pressed="${j === 0}" data-j="${j}">${esc(n)}</button>`).join('') : '';
+  render();
+  loop();
+}
+$('tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  S.varIdx = Number(b.dataset.j);
+  $('tabs').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+  render();
+});
+
+/** Avance l'agent : enchaîne sans attendre les étapes de calcul, s'arrête sur une étape racontée. */
+function advance(single) {
+  const a = S.agent;
+  const t0 = performance.now();
+  for (;;) {
+    const before = a.log.length;
+    const r = a.step();
+    if (r.status === 'terminé' || (r.status === 'revue' && a.decision === null)) return true;
+    if (a.log.length > before && (single || Number($('vitesse').value) > 0)) return false;
+    if (performance.now() - t0 > 40) return false;
+  }
+}
+function loop() {
+  clearTimeout(S.timer);
+  const a = S.agent;
+  if (!a || S.paused) return;
+  const stop = advance(false);
+  if (a.status === 'terminé' && !S.verdict) finish();
+  render();
+  if (!stop) S.timer = setTimeout(loop, Number($('vitesse').value));
+}
+function finish() {
+  const a = S.agent, best = a.best();
+  if (S.world && best) {
+    const v = G.verify(S.world, best.expr);
+    S.verdict = { ...v, truth: G.toString(G.simplify(G.parse(S.world.secret.formula, S.world.names)), S.world.names) };
+  } else S.verdict = { passive: true };
+}
+
+// ------------------------------------------------------------------ rendu
+function render() {
+  const a = S.agent; if (!a) return;
+  const best = a.best(), done = a.status === 'terminé', review = a.status === 'revue' && a.decision === null;
+  const st = $('etat');
+  if (review) { st.className = 'pill warn'; st.textContent = '⏸ en attente de votre décision'; }
+  else if (!done) { st.className = 'pill run'; st.textContent = S.paused ? 'en pause' : `cycle ${a.cycle} · ${a.phase ? a.phase.toLowerCase() : 'démarrage'}`; }
+  else if (S.verdict && S.verdict.passive) { st.className = 'pill good'; st.textContent = '✓ recherche terminée'; }
+  else if (S.verdict && S.verdict.recovered) { st.className = 'pill good'; st.textContent = '✓ loi retrouvée'; }
+  else { st.className = 'pill bad'; st.textContent = '✕ loi non retrouvée'; }
+  $('law-title').textContent = done ? 'Loi proposée par l\'agent' : 'Meilleure explication pour l\'instant';
+  $('law').innerHTML = best ? `<span class="lhs">${esc(a.target)}</span> = ${esc(best.text)}` : '<span class="caption">premières mesures…</span>';
+  const nExp = S.world ? S.world.experiments : a.y.length;
+  $('law-meta').innerHTML = `<span><b>${nExp}</b> ${S.world ? 'expériences' : 'observations'}</span>` +
+    (best ? `<span>confiance <b>${(best.weight * 100).toFixed(0)} %</b></span>` : '') +
+    (a.sigmaKnown ? `<span>bruit estimé <b>σ ≈ ${fmt(a.sigma, 2)}</b></span>` : '') +
+    (S.world ? `<span>budget <b>${a.budget}</b></span>` : '');
+  $('review').hidden = !review;
+  if (review) $('review-text').textContent = a.log[a.log.length - 1].msg + ` Nouveau domaine : ${a.pending.ext.map(([lo, hi], j) => `${a.names[j]} ∈ [${fmt(lo)}, ${fmt(hi)}]`).join(', ')}.`;
+  const vd = $('verdict');
+  vd.hidden = !(done && S.verdict && !S.verdict.passive);
+  if (!vd.hidden) {
+    const v = S.verdict;
+    vd.innerHTML = `<span>La loi qui était cachée :</span><span class="truth"><i>${esc(a.target)}</i> = ${esc(v.truth)}</span>` +
+      `<span>Vérification sur 2000 points neufs : erreur <b>${(v.inDomain * 100).toFixed(3)} %</b> dans le domaine, <b>${(v.extrapolation * 100).toFixed(3)} %</b> en extrapolation.` +
+      (v.recovered ? '' : (a.exhausted ? ' L\'agent a épuisé son budget sans conclure.' : ' L\'agent s\'est arrêté convaincu, à tort.')) + `</span>`;
+  }
+  renderHyps(); renderLoop(); renderChart(); renderZ();
+}
+
+function renderHyps() {
+  const a = S.agent;
+  $('th-f').textContent = `Loi : ${a.target} =`;
+  $('th-chi').textContent = a.sigmaKnown ? 'χ² réd.' : 'Erreur';
+  const cols = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+  const rows = a.hyps.slice(0, 7).map((h, i) => `<tr><td><div class="bar"><div><i style="width:${(h.weight * 100).toFixed(1)}%${i < 3 ? `;background:${cols[i]}` : ''}"></i></div>${(h.weight * 100).toFixed(0)} %</div></td>` +
+    `<td class="f">${esc(h.text)}</td><td class="num">${h.cx}</td><td class="num">${h.chi2red !== null ? fmt(h.chi2red, 2) : fmt(Math.sqrt(h.mse), 2)}</td></tr>`);
+  $('hyps').innerHTML = rows.join('') || '<tr><td colspan="4" class="caption">Aucune hypothèse pour l\'instant.</td></tr>';
+}
+
+function renderLoop() {
+  const a = S.agent;
+  const seen = new Set(a.log.filter((l) => l.cycle === a.cycle).map((l) => l.phase));
+  $('loop').innerHTML = G.PHASES.map((p) => `<li class="${p === a.phase && a.status !== 'terminé' ? 'on' : seen.has(p) ? 'done' : ''}">${p}</li>`).join('');
+  const el = $('log');
+  const stick = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+  if (el.childElementCount > a.log.length) el.innerHTML = '';
+  for (let i = el.childElementCount; i < a.log.length; i++) {
+    const l = a.log[i], d = document.createElement('div');
+    if (/Contradiction|épuisé|n'explique pas/.test(l.msg)) d.className = 'x';
+    d.innerHTML = `<span class="n">${l.cycle}</span><span><b>${l.phase}</b> ${esc(l.msg)}</span>`;
+    el.appendChild(d);
+  }
+  if (stick) el.scrollTop = el.scrollHeight;
+}
+
+function ticks(lo, hi, n) {
+  const span = hi - lo, step0 = Math.pow(10, Math.floor(Math.log10(span / n)));
+  const step = [1, 2, 5, 10].map((m) => m * step0).find((s) => span / s <= n) || step0 * 10;
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9 * span; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+  return out;
+}
+function logTicks(lo, hi) {
+  const out = [];
+  for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) for (const m of [1, 3]) { const v = m * 10 ** p; if (v >= lo && v <= hi) out.push(v); }
+  return out;
+}
+
+function renderChart() {
+  const a = S.agent, j = S.varIdx, d = a.d, n = a.y.length;
+  const W = 640, H = 360, m = { l: 52, r: 14, t: 12, b: 36 };
+  if (!n) { $('chart').innerHTML = ''; return; }
+  const xs = a.X.map((r) => r[j]);
+  let x0, x1;
+  if (a.domain) [x0, x1] = a.domain[j]; else { x0 = Math.min(...xs); x1 = Math.max(...xs); }
+  const top = a.hyps[0];
+  const mid = a.domain ? a.domain.map(([lo, hi], k) => { const b = S.world.domain[k]; return (b[0] + b[1]) / 2; })
+    : a.names.map((_, k) => { const c = a.X.map((r) => r[k]).sort((p, q) => p - q); return c[c.length >> 1]; });
+  const at = (v) => { const p = [...mid]; p[j] = v; return p; };
+  // points ramenés à la coupe : y − f(x) + f(x sur la coupe)
+  const ys = a.y.map((y, i) => (d > 1 && top ? y - G.evalPoint(top.expr, a.X[i]) + G.evalPoint(top.expr, at(xs[i])) : y));
+  const logX = !a.domain && x0 > 0 && x1 / x0 > 30, logY = logX && Math.min(...ys) > 0 && Math.max(...ys) / Math.min(...ys) > 30;
+  if (!a.domain) { const pad = logX ? 1.25 : 1; if (logX) { x0 /= pad; x1 *= pad; } else { const p = (x1 - x0) * 0.05; x0 -= p; x1 += p; } }
+  const curves = a.hyps.slice(0, 3).map((h) => {
+    const pts = [];
+    for (let k = 0; k <= 160; k++) { const v = logX ? x0 * Math.pow(x1 / x0, k / 160) : x0 + ((x1 - x0) * k) / 160; pts.push([v, G.evalPoint(h.expr, at(v))]); }
+    return pts;
+  });
+  let y0 = Math.min(...ys.filter(isFinite)), y1 = Math.max(...ys.filter(isFinite));
+  if (curves[0]) for (const [, v] of curves[0]) if (isFinite(v)) { y0 = Math.min(y0, v); y1 = Math.max(y1, v); }
+  if (logY) { y0 /= 1.4; y1 *= 1.4; } else { const p = (y1 - y0 || 1) * 0.08; y0 -= p; y1 += p; }
+  const fx = (v) => m.l + (W - m.l - m.r) * (logX ? Math.log(v / x0) / Math.log(x1 / x0) : (v - x0) / (x1 - x0));
+  const fy = (v) => H - m.b - (H - m.t - m.b) * (logY ? Math.log(v / y0) / Math.log(y1 / y0) : (v - y0) / (y1 - y0));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mesures et hypothèses en fonction de ${esc(a.names[j])}"><defs><clipPath id="cp"><rect x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}"/></clipPath></defs>`;
+  for (const t of (logY ? logTicks(y0, y1) : ticks(y0, y1, 5))) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${fy(t)}" y2="${fy(t)}" stroke="var(--line)" stroke-width="1"/><text x="${m.l - 8}" y="${fy(t) + 4}" text-anchor="end">${fmt(t)}</text>`;
+  for (const t of (logX ? logTicks(x0, x1) : ticks(x0, x1, 7))) s += `<text x="${fx(t)}" y="${H - m.b + 16}" text-anchor="middle">${fmt(t)}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--ink-3)" stroke-width="1"/>`;
+  s += `<text x="${W - m.r}" y="${H - 4}" text-anchor="end" style="font-family:var(--f-math);font-style:italic;font-size:14px;fill:var(--ink-2)">${esc(a.names[j])}</text>`;
+  s += `<text x="${m.l}" y="${m.t + 2}" style="font-family:var(--f-math);font-style:italic;font-size:14px;fill:var(--ink-2)" dx="6" dy="10">${esc(a.target)}</text>`;
+  if (a.extended && S.world && a.domain[j][1] > S.world.domain[j][1]) {
+    const bx = fx(S.world.domain[j][1]);
+    s += `<line x1="${bx}" x2="${bx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-3)" stroke-dasharray="4 4"/><text x="${bx + 6}" y="${H - m.b - 8}">hors du domaine sûr →</text>`;
+  }
+  const cols = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+  for (let c = curves.length - 1; c >= 0; c--) {
+    let dstr = '', pen = false;
+    for (const [v, y] of curves[c]) {
+      if (!isFinite(y) || (logY && y <= 0)) { pen = false; continue; }
+      const py = Math.max(-2000, Math.min(2000, fy(y)));
+      dstr += `${pen ? 'L' : 'M'}${fx(v).toFixed(1)},${py.toFixed(1)}`; pen = true;
+    }
+    s += `<path d="${dstr}" fill="none" stroke="${cols[c]}" stroke-width="${c === 0 ? 2.5 : 2}" ${c ? 'stroke-dasharray="' + (c === 1 ? '7 4' : '2 4') + '"' : ''} clip-path="url(#cp)" stroke-linejoin="round"/>`;
+  }
+  if (a.next && a.status !== 'terminé' && a.domain) {
+    const nx = fx(a.next.x[j]);
+    s += `<line x1="${nx}" x2="${nx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-2)" stroke-width="1"/><text x="${nx > W - 150 ? nx - 6 : nx + 6}" y="${m.t + 24}" text-anchor="${nx > W - 150 ? 'end' : 'start'}" style="fill:var(--ink-2)">prochaine expérience</text>`;
+  }
+  for (let i = 0; i < n; i++) {
+    if (!isFinite(ys[i])) continue;
+    const last = i === n - 1 && a.domain;
+    s += `<circle cx="${fx(xs[i]).toFixed(1)}" cy="${fy(ys[i]).toFixed(1)}" r="${last ? 5.5 : 4}" fill="var(--pt)" stroke="var(--surface)" stroke-width="2"/>`;
+    if (S.data && S.data.labels && n <= 12) s += `<text x="${fx(xs[i]) + 8}" y="${fy(ys[i]) + 14}">${esc(S.data.labels[i])}</text>`;
+  }
+  if (S.hover !== null) { const hx = fx(S.hover); s += `<line x1="${hx}" x2="${hx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-3)" stroke-width="1"/>`; }
+  s += '</svg>';
+  const box = $('chart');
+  box.innerHTML = s;
+  if (S.hover !== null) {
+    const tip = document.createElement('div'); tip.className = 'tip';
+    tip.innerHTML = `${esc(a.names[j])} = ${fmt(S.hover)}` + a.hyps.slice(0, 3).map((h, c) => { const v = G.evalPoint(h.expr, at(S.hover)); return `<br><i style="background:${cols[c]}"></i>${isFinite(v) ? fmt(v, 4) : 'non défini'}`; }).join('');
+    box.appendChild(tip);
+    const px = (fx(S.hover) / W) * box.clientWidth;
+    tip.style.top = '8px';
+    tip.style.left = Math.max(0, Math.min(box.clientWidth - tip.offsetWidth, px + (px > box.clientWidth / 2 ? -tip.offsetWidth - 10 : 10))) + 'px';
+  }
+  S.inv = (clientX) => { const r = box.getBoundingClientRect(); const u = (((clientX - r.left) / r.width) * W - m.l) / (W - m.l - m.r); if (u < 0 || u > 1) return null; return logX ? x0 * Math.pow(x1 / x0, u) : x0 + u * (x1 - x0); };
+  const styles = ['', 'background:repeating-linear-gradient(90deg,var(--s2) 0 5px,transparent 5px 8px)', 'background:repeating-linear-gradient(90deg,var(--s3) 0 2px,transparent 2px 5px)'];
+  $('legend').innerHTML = `<span><i class="dot" style="background:var(--pt)"></i>mesures</span>` +
+    a.hyps.slice(0, 3).map((h, c) => `<span><i style="${c ? styles[c] : 'background:var(--s1)'}"></i><code>${esc(h.text)}</code></span>`).join('');
+  $('chart-title').textContent = `${a.target} en fonction de ${a.names[j]}`;
+  $('chart-cap').textContent = d > 1
+    ? `Coupe à ${a.names.map((nm, k) => (k === j ? null : `${nm} = ${fmt(mid[k])}`)).filter(Boolean).join(', ')}. Chaque mesure est ramenée sur cette coupe à l'aide de la meilleure hypothèse ; son écart à la courbe bleue est son écart réel à cette hypothèse.`
+    : (logX ? 'Axes logarithmiques. ' : '') + 'Les trois hypothèses les mieux classées sont tracées ; survolez le graphique pour comparer leurs prédictions.';
+}
+$('chart').addEventListener('pointermove', (e) => { if (!S.inv) return; const v = S.inv(e.clientX); if (v !== S.hover) { S.hover = v; renderChart(); } });
+$('chart').addEventListener('pointerleave', () => { S.hover = null; renderChart(); });
+
+function renderZ() {
+  const a = S.agent, ps = a.predictions, W = 640, H = 110, m = { l: 52, r: 14, t: 10, b: 22 };
+  if (!S.world) { $('zchart').innerHTML = '<p class="caption">Sans expérience, pas de prédiction à mettre à l\'épreuve.</p>'; return; }
+  const cap = 6, nmax = Math.max(12, ps.length);
+  const fx = (i) => m.l + ((W - m.l - m.r) * (i + 0.5)) / nmax, fy = (v) => H - m.b - ((H - m.t - m.b) * Math.min(v, cap)) / cap;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Écart entre prédiction et mesure à chaque expérience">`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--ink-3)"/>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${fy(3)}" y2="${fy(3)}" stroke="var(--bad)" stroke-dasharray="4 4"/><text x="${W - m.r}" y="${fy(3) - 5}" text-anchor="end">3 σ : contradiction</text>`;
+  for (const t of [0, 3, 6]) s += `<text x="${m.l - 8}" y="${fy(t) + 4}" text-anchor="end">${t === 6 ? '≥ 6' : t} σ</text>`;
+  ps.forEach((p, i) => {
+    const z = Math.abs(p.z), bad = z > 3, x = fx(i), w = Math.min(14, ((W - m.l - m.r) / nmax) * 0.6);
+    s += `<rect x="${x - w / 2}" y="${fy(z)}" width="${w}" height="${Math.max(1.5, H - m.b - fy(z))}" rx="2" fill="${bad ? 'var(--bad)' : 'var(--ink-3)'}"><title>Expérience ${i + 1} : écart de ${z.toFixed(1)} σ (prédit ${fmt(p.pred, 4)}, mesuré ${fmt(p.y, 4)})</title></rect>`;
+    if (bad) s += `<text x="${x}" y="${fy(z) - 3}" text-anchor="middle" style="fill:var(--bad);font-weight:600">✕</text>`;
+  });
+  s += `<text x="${m.l}" y="${H - 5}">expériences choisies après le plan initial →</text></svg>`;
+  $('zchart').innerHTML = s;
+}
+
+(function renderBench() {
+  if (!BENCH) return;
+  const row = (noise) => { const a = BENCH.summary.find((s) => s.noise === noise && s.mode === 'actif'), b = BENCH.summary.find((s) => s.noise === noise && s.mode === 'aléatoire');
+    return a && b ? `<tr><td>${noise * 100} %</td><td class="num">${a.sameForm} %</td><td class="num">${a.recovered} %</td><td class="num">${b.sameForm} %</td><td class="num">${b.recovered} %</td><td class="num">${a.experiments.toFixed(0)}</td><td class="num">${a.falseCertainty} / ${a.runs}</td></tr>` : ''; };
+  $('bench').innerHTML = `<p>Banc d'essai du ${BENCH.date.slice(0, 10)} : ${G.CATALOG.length} lois × ${BENCH.seeds} tirages par configuration, expériences choisies par l'agent ou tirées au hasard.</p><div class="scroll-x"><table style="max-width:760px;margin-top:8px"><thead><tr><th>Bruit</th><th class="num">Agent : bonne forme</th><th class="num">et précise</th><th class="num">Hasard : bonne forme</th><th class="num">et précise</th><th class="num">Expériences</th><th class="num">Convaincu à tort</th></tr></thead><tbody>${BENCH.noises.map(row).join('')}</tbody></table></div>`;
+})();
+
+rangesUI();
+start();
+</script>

@@ -102,9 +102,8 @@ export function niceForm(v) {
     if (Math.abs(p - Math.round(p)) > 1e-9) continue;
     if (a <= (q === 1 ? 20 : q === 2 ? 6 : 2)) return { p: Math.round(p), q, pi: false };
   }
-  for (const q of [1, 2, 3, 4]) {
-    const p = (v / Math.PI) * q;
-    if (Math.abs(p - Math.round(p)) < 1e-9 && Math.abs(Math.round(p)) <= 4 && Math.round(p) !== 0) return { p: Math.round(p), q, pi: true };
+  for (const [p, q] of [[1, 2], [1, 1], [2, 1]]) {   // π/2, π, 2π seulement : au-delà, on « reconnaît » π partout
+    if (Math.abs(a - (p / q) * Math.PI) < 1e-9) return { p: Math.sign(v) * p, q, pi: true };
   }
   return null;
 }

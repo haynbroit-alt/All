@@ -1,0 +1,1921 @@
+<title>Galilée</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Mise en page : un banc de laboratoire. À gauche la loi en cours et le graphique des mesures ;
+   à droite les hypothèses rivales, la boucle de l'agent et son journal. */
+:root {
+  --bg: #f4f6f9; --surface: #fcfcfb; --ink: #0f1a2b; --ink-2: #4a5568; --ink-3: #7a8494; --line: #dde2ea;
+  --accent: #2a78d6; --accent-soft: #e3eefb; --on-accent: #ffffff;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --pt: #0f1a2b;
+  --good: #0a7d0a; --good-soft: #e2f3e2; --warn: #8a5a00; --warn-soft: #fdf0d2; --bad: #b92c2c; --bad-soft: #fbe4e4;
+  --f-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-math: "STIX Two Text", "Cambria Math", Georgia, serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c1118; --surface: #151b24; --ink: #eef1f5; --ink-2: #b4bcc8; --ink-3: #8691a0; --line: #2a3340;
+  --accent: #5a9cec; --accent-soft: #172a44; --on-accent: #08131f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --pt: #eef1f5;
+  --good: #5fd35f; --good-soft: #12301a; --warn: #f2c14e; --warn-soft: #3a2c0a; --bad: #f08a8a; --bad-soft: #3d1a1a;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0c1118; --surface: #151b24; --ink: #eef1f5; --ink-2: #b4bcc8; --ink-3: #8691a0; --line: #2a3340;
+  --accent: #5a9cec; --accent-soft: #172a44; --on-accent: #08131f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --pt: #eef1f5;
+  --good: #5fd35f; --good-soft: #12301a; --warn: #f2c14e; --warn-soft: #3a2c0a; --bad: #f08a8a; --bad-soft: #3d1a1a;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 20px; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0; line-height: 1.1; }
+h2 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+p { margin: 0; }
+.lede { color: var(--ink-2); max-width: 66ch; font-size: 16px; text-wrap: pretty; }
+header { display: flex; flex-direction: column; gap: 8px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field > span { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+select, input[type="text"], input[type="number"], textarea {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; min-width: 0; }
+textarea { font-family: var(--f-mono); font-size: 13px; width: 100%; min-height: 150px; resize: vertical; }
+input[type="number"] { width: 84px; font-variant-numeric: tabular-nums; }
+button { font: inherit; font-weight: 600; border-radius: 6px; padding: 7px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+button:disabled { opacity: 0.45; cursor: default; }
+:is(button, select, input, textarea, summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-2); padding-bottom: 7px; }
+.extra { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; padding: 14px; border: 1px dashed var(--line); border-radius: 8px; }
+.extra .grow { flex: 1 1 280px; }
+.extra input[type="text"] { width: 100%; font-family: var(--f-mono); font-size: 14px; }
+.hint { font-size: 13px; color: var(--ink-3); flex-basis: 100%; }
+.err { color: var(--bad); font-size: 14px; flex-basis: 100%; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+.law { font-family: var(--f-math); font-size: clamp(22px, 3.4vw, 34px); line-height: 1.25; overflow-wrap: anywhere; min-height: 1.25em; }
+.law .lhs { font-style: italic; }
+.law-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-2); font-size: 14px; font-variant-numeric: tabular-nums; }
+.law-meta b { color: var(--ink); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 11px; font-size: 13px; font-weight: 600; width: fit-content; }
+.pill.run { background: var(--accent-soft); color: var(--accent); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.verdict { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.verdict .truth { font-family: var(--f-math); font-size: 20px; color: var(--ink); overflow-wrap: anywhere; }
+.review { background: var(--warn-soft); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.review .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.chart-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { padding: 3px 10px; font-weight: 500; font-size: 13px; font-family: var(--f-math); font-style: italic; }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.chart text { font-family: var(--f-ui); font-size: 11px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.45; font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 2; }
+.tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+.legend i.dot { width: 8px; height: 8px; border-radius: 50%; }
+.legend code { font-family: var(--f-math); font-size: 14px; overflow-wrap: anywhere; }
+.caption { font-size: 13px; color: var(--ink-3); }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-size: 12px; font-weight: 500; color: var(--ink-3); padding: 0 8px 6px 0; white-space: nowrap; }
+td { padding: 7px 8px 7px 0; border-top: 1px solid var(--line); vertical-align: middle; font-variant-numeric: tabular-nums; }
+td.f { font-family: var(--f-math); font-size: 16px; overflow-wrap: anywhere; }
+td.num, th.num { text-align: right; padding-right: 0; padding-left: 8px; white-space: nowrap; }
+.bar { display: flex; align-items: center; gap: 8px; min-width: 92px; }
+.bar div { height: 6px; border-radius: 3px; background: var(--line); flex: 1; overflow: hidden; }
+.bar div i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.scroll-x { overflow-x: auto; }
+
+.loop { display: flex; flex-wrap: wrap; gap: 5px; list-style: none; margin: 0; padding: 0; }
+.loop li { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink-3); }
+.loop li.on { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.loop li.done { color: var(--ink-2); }
+.log { font-family: var(--f-mono); font-size: 12.5px; line-height: 1.55; max-height: 330px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.log div { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 8px; }
+.log .n { color: var(--ink-3); text-align: right; }
+.log b { font-weight: 500; color: var(--accent); }
+.log .x b { color: var(--bad); }
+
+details > summary { cursor: pointer; font-weight: 600; }
+.about { display: flex; flex-direction: column; gap: 12px; color: var(--ink-2); }
+.about p, .about li { max-width: 72ch; }
+.about ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+@media (prefers-reduced-motion: no-preference) { .bar div i { transition: width 0.25s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Galilée</h1>
+    <p class="lede">Une loi est cachée. L'agent ne la voit pas : il règle des variables, lit une mesure bruitée, et choisit lui-même l'expérience suivante, celle où ses hypothèses se contredisent le plus. Regardez-le la retrouver, ou cachez-lui la vôtre.</p>
+  </header>
+
+  <form class="controls" id="controls">
+    <label class="field"><span>Loi cachée</span>
+      <select id="monde"></select></label>
+    <label class="field"><span>Bruit de mesure</span>
+      <select id="bruit"><option value="0">aucun</option><option value="0.01" selected>1 %</option><option value="0.05">5 %</option><option value="0.1">10 %</option></select></label>
+    <label class="field"><span>Choix des expériences</span>
+      <select id="mode"><option value="actif">par l'agent</option><option value="aléatoire">au hasard (témoin)</option></select></label>
+    <label class="field"><span>Vitesse</span>
+      <select id="vitesse"><option value="420">lente</option><option value="140" selected>normale</option><option value="0">maximale</option></select></label>
+    <label class="field"><span>Tirage n°</span>
+      <input type="number" id="graine" value="1" min="1" max="9999"></label>
+    <label class="check"><input type="checkbox" id="superviser"> Me demander avant de sortir du domaine sûr</label>
+    <button type="submit" class="primary" id="lancer">Lancer</button>
+    <button type="button" id="pause">Pause</button>
+    <button type="button" id="pas">Un pas</button>
+  </form>
+
+  <div class="extra" id="perso" hidden>
+    <label class="field grow"><span>Votre formule (l'agent ne la lira pas)</span>
+      <input type="text" id="formule" value="3*x^2/(1+y)" spellcheck="false" autocomplete="off"></label>
+    <div id="bornes" class="controls"></div>
+    <p class="hint">Opérateurs <code class="k">+ - * / ^</code>, fonctions <code class="k">sqrt sin cos exp log tanh</code>, constante <code class="k">pi</code>. Jusqu'à 4 variables, nommées comme vous voulez.</p>
+    <p class="err" id="erreur" hidden></p>
+  </div>
+  <div class="extra" id="csvbox" hidden>
+    <label class="field grow"><span>Vos données : une ligne par observation, dernière colonne = grandeur à expliquer</span>
+      <textarea id="csv" spellcheck="false">x;y
+0.5;1.19
+1;2.72
+1.5;4.45
+2;7.41
+2.5;12.1
+3;20.2
+3.5;33.0
+4;54.7</textarea></label>
+    <p class="hint">Ici l'agent ne peut pas expérimenter : il cherche seulement la loi la plus simple compatible avec le tableau.</p>
+    <p class="err" id="erreur2" hidden></p>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel" aria-live="polite">
+        <div class="chart-head"><h2 id="law-title">Meilleure explication</h2><span class="pill run" id="etat">prêt</span></div>
+        <div class="law" id="law">…</div>
+        <div class="law-meta" id="law-meta"></div>
+        <div class="review" id="review" hidden>
+          <span id="review-text"></span>
+          <div class="btns"><button type="button" class="primary" id="oui">Autoriser l'extension</button><button type="button" id="non">Refuser</button></div>
+        </div>
+        <div class="verdict" id="verdict" hidden></div>
+      </section>
+
+      <section class="panel">
+        <div class="chart-head"><h2 id="chart-title">Mesures et hypothèses</h2><div class="tabs" id="tabs"></div></div>
+        <div class="chart" id="chart"></div>
+        <div class="legend" id="legend"></div>
+        <p class="caption" id="chart-cap"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Surprise à chaque expérience</h2>
+        <div class="chart" id="zchart"></div>
+        <p class="caption">Écart entre la mesure et ce que l'agent avait prédit, en nombre d'écarts-types du bruit. Au-delà de 3 σ, l'agent considère sa théorie contredite.</p>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel">
+        <h2>Hypothèses en lice</h2>
+        <div class="scroll-x"><table>
+          <thead><tr><th>Confiance</th><th id="th-f">Loi</th><th class="num">Compl.</th><th class="num" id="th-chi">χ² réd.</th></tr></thead>
+          <tbody id="hyps"><tr><td colspan="4" class="caption">Aucune hypothèse pour l'instant.</td></tr></tbody>
+        </table></div>
+        <p class="caption">La confiance pénalise la complexité : à ajustement égal, la loi la plus courte gagne. χ² réduit ≈ 1 signifie que l'écart aux mesures s'explique par le bruit seul.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Boucle de l'agent</h2>
+        <ol class="loop" id="loop"></ol>
+        <div class="log" id="log" tabindex="0" aria-label="Journal de l'agent"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel about">
+    <h2>Ce que vous regardez, et ses limites</h2>
+    <p>Tout tourne dans cette page, sans serveur et sans modèle de langage. Le moteur est une recherche d'équations par programmation génétique, avec ajustement des constantes par Levenberg–Marquardt. L'agent estime d'abord le bruit en répétant des expériences, puis classe ses hypothèses par vraisemblance pénalisée et mesure là où les mieux classées divergent le plus.</p>
+    <div id="bench"></div>
+    <ul>
+      <li>« Précise » : sur 2000 points neufs, moins de 0,5 % d'erreur dans le domaine et moins de 1 % en extrapolation. C'est le critère du verdict affiché plus haut ; une formule différente mais numériquement équivalente le satisfait.</li>
+      <li>« Bonne forme » : la structure est la bonne, même si le bruit a faussé une constante (4,9 arrondi à 5, par exemple).</li>
+      <li>L'agent ne cherche pas les fonctions emboîtées comme sin(exp(x)), ni les exposants variables comme x^y.</li>
+      <li>Avec beaucoup de bruit ou une loi longue, il peut rendre une approximation, et parfois s'en dire convaincu. La colonne « convaincu à tort » compte les arrêts sur une forme fausse.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const G = (() => {
+// Expressions symboliques : représentation, évaluation vectorisée, simplification,
+// affichage et analyse syntaxique. Aucune dépendance, aucun eval().
+
+const UNARY = ['sqrt', 'sin', 'cos', 'exp', 'log'];
+const BINARY = ['+', '-', '*', '/', '^'];
+
+const C = (v) => ({ t: 'c', v });
+const V = (i) => ({ t: 'v', i });
+const U = (op, a) => ({ t: 'u', op, a });
+const B = (op, a, b) => ({ t: 'b', op, a, b });
+
+function clone(e) {
+  switch (e.t) {
+    case 'c': return { t: 'c', v: e.v };
+    case 'v': return { t: 'v', i: e.i };
+    case 'u': return { t: 'u', op: e.op, a: clone(e.a) };
+    default: return { t: 'b', op: e.op, a: clone(e.a), b: clone(e.b) };
+  }
+}
+
+const OPC = { '+': 2, '-': 3, '*': 4, '/': 5, '^': 6, sqrt: 7, sin: 8, cos: 9, exp: 10, log: 11 };
+
+/**
+ * Compile l'expression en programme postfixé. Renvoie run(cols, n, out) qui évalue sur n points
+ * sans allocation. Les constantes sont relues à chaque appel : on peut les modifier entre deux exécutions.
+ */
+function compile(e) {
+  const code = [], ref = [];
+  (function post(n) {
+    if (n.t === 'c') { code.push(0); ref.push(n); }
+    else if (n.t === 'v') { code.push(1); ref.push(n.i); }
+    else if (n.t === 'u') { post(n.a); code.push(OPC[n.op]); ref.push(null); }
+    else { post(n.a); post(n.b); code.push(OPC[n.op]); ref.push(null); }
+  })(e);
+  const L = code.length;
+  const st = new Float64Array(L + 1), cv = new Float64Array(L);
+  return function run(cols, n, out) {
+    for (let i = 0; i < L; i++) if (code[i] === 0) cv[i] = ref[i].v;
+    for (let k = 0; k < n; k++) {
+      let sp = 0;
+      for (let i = 0; i < L; i++) {
+        switch (code[i]) {
+          case 0: st[sp++] = cv[i]; break;
+          case 1: st[sp++] = cols[ref[i]][k]; break;
+          case 2: sp--; st[sp - 1] += st[sp]; break;
+          case 3: sp--; st[sp - 1] -= st[sp]; break;
+          case 4: sp--; st[sp - 1] *= st[sp]; break;
+          case 5: sp--; st[sp - 1] /= st[sp]; break;
+          case 6: {
+            sp--; const x = st[sp - 1], p = st[sp];
+            st[sp - 1] = p === 2 ? x * x : p === 0.5 ? Math.sqrt(x) : p === -1 ? 1 / x : Math.pow(x, p);
+            break;
+          }
+          case 7: st[sp - 1] = Math.sqrt(st[sp - 1]); break;
+          case 8: st[sp - 1] = Math.sin(st[sp - 1]); break;
+          case 9: st[sp - 1] = Math.cos(st[sp - 1]); break;
+          case 10: st[sp - 1] = Math.exp(st[sp - 1]); break;
+          default: st[sp - 1] = Math.log(st[sp - 1]);
+        }
+      }
+      out[k] = st[0];
+    }
+    return out;
+  };
+}
+
+/** Évalue l'expression sur n points. cols[i] = Float64Array des valeurs de la variable i. */
+function evaluate(e, cols, n) {
+  return compile(e)(cols, n, new Float64Array(n));
+}
+
+/** Évalue en un seul point (x = tableau des variables). */
+function evalPoint(e, x) {
+  switch (e.t) {
+    case 'c': return e.v;
+    case 'v': return x[e.i];
+    case 'u': {
+      const a = evalPoint(e.a, x);
+      return e.op === 'sqrt' ? Math.sqrt(a) : e.op === 'sin' ? Math.sin(a) : e.op === 'cos' ? Math.cos(a)
+        : e.op === 'exp' ? Math.exp(a) : Math.log(a);
+    }
+    default: {
+      const a = evalPoint(e.a, x), b = evalPoint(e.b, x);
+      return e.op === '+' ? a + b : e.op === '-' ? a - b : e.op === '*' ? a * b : e.op === '/' ? a / b : Math.pow(a, b);
+    }
+  }
+}
+
+function size(e) {
+  return e.t === 'c' || e.t === 'v' ? 1 : e.t === 'u' ? 1 + size(e.a) : 1 + size(e.a) + size(e.b);
+}
+function depth(e) {
+  return e.t === 'c' || e.t === 'v' ? 1 : e.t === 'u' ? 1 + depth(e.a) : 1 + Math.max(depth(e.a), depth(e.b));
+}
+
+/** Une constante « simple » est un petit rationnel, ou un petit rationnel fois π. */
+function niceForm(v) {
+  if (!isFinite(v)) return null;
+  const a = Math.abs(v);
+  for (const q of [1, 2, 3, 4]) {
+    const p = v * q;
+    if (Math.abs(p - Math.round(p)) > 1e-9) continue;
+    if (a <= (q === 1 ? 20 : q === 2 ? 6 : 2)) return { p: Math.round(p), q, pi: false };
+  }
+  for (const [p, q] of [[1, 2], [1, 1], [2, 1]]) {   // π/2, π, 2π seulement : au-delà, on « reconnaît » π partout
+    if (Math.abs(a - (p / q) * Math.PI) < 1e-9) return { p: Math.sign(v) * p, q, pi: true };
+  }
+  return null;
+}
+
+/** Complexité : chaque nœud coûte 1 ; une constante réelle arbitraire coûte 3 (elle porte de l'information). */
+function complexity(e) {
+  switch (e.t) {
+    case 'c': return niceForm(e.v) ? 1 : 3;
+    case 'v': return 1;
+    case 'u': return 1 + complexity(e.a);
+    default: return 1 + complexity(e.a) + complexity(e.b);
+  }
+}
+
+function constants(e, out = []) {
+  if (e.t === 'c') out.push(e);
+  else if (e.t === 'u') constants(e.a, out);
+  else if (e.t === 'b') { constants(e.a, out); constants(e.b, out); }
+  return out;
+}
+function nodes(e, out = []) {
+  out.push(e);
+  if (e.t === 'u') nodes(e.a, out);
+  else if (e.t === 'b') { nodes(e.a, out); nodes(e.b, out); }
+  return out;
+}
+function usesVar(e, i) {
+  return e.t === 'v' ? e.i === i : e.t === 'c' ? false : e.t === 'u' ? usesVar(e.a, i) : usesVar(e.a, i) || usesVar(e.b, i);
+}
+
+const isC = (e, v) => e.t === 'c' && (v === undefined || e.v === v);
+
+/** Simplification algébrique légère (pliage de constantes, éléments neutres, fusion de puissances). */
+function simplify(e) {
+  if (e.t === 'c' || e.t === 'v') return e;
+  if (e.t === 'u') {
+    const a = simplify(e.a);
+    if (a.t === 'c') { const v = evalPoint(U(e.op, a), []); if (isFinite(v)) return C(v); }
+    if (e.op === 'sqrt') return simplify(B('^', a, C(0.5)));
+    if (e.op === 'exp' && a.t === 'u' && a.op === 'log') return a.a;
+    if (e.op === 'log' && a.t === 'u' && a.op === 'exp') return a.a;
+    if ((e.op === 'cos' || e.op === 'sin') && a.t === 'b' && a.op === '*' && a.a.t === 'c' && a.a.v < 0) {
+      const flipped = U(e.op, B('*', C(-a.a.v), a.b));       // cos(−u) = cos(u) ; sin(−u) = −sin(u)
+      return e.op === 'cos' ? flipped : B('*', C(-1), flipped);
+    }
+    return U(e.op, a);
+  }
+  let a = simplify(e.a), b = simplify(e.b);
+  const op = e.op;
+  if (a.t === 'c' && b.t === 'c') { const v = evalPoint(B(op, a, b), []); if (isFinite(v)) return C(v); }
+  switch (op) {
+    case '+':
+      if (isC(a, 0)) return b;
+      if (isC(b, 0)) return a;
+      if (a.t === 'c') [a, b] = [b, a]; // constante à droite
+      if (b.t === 'c' && a.t === 'b' && (a.op === '+' || a.op === '-') && a.b.t === 'c')
+        return simplify(B('+', a.a, C(a.op === '+' ? a.b.v + b.v : b.v - a.b.v)));
+      if (b.t === 'c' && b.v < 0) return B('-', a, C(-b.v));
+      break;
+    case '-':
+      if (isC(b, 0)) return a;
+      if (b.t === 'c' && a.t !== 'c') return simplify(B('+', a, C(-b.v)));
+      if (equal(a, b)) return C(0);
+      break;
+    case '*':
+      if (isC(a, 0) || isC(b, 0)) return C(0);
+      if (isC(a, 1)) return b;
+      if (isC(b, 1)) return a;
+      if (b.t === 'c') [a, b] = [b, a]; // constante à gauche
+      if (a.t === 'c' && b.t === 'b' && b.op === '*' && b.a.t === 'c') return simplify(B('*', C(a.v * b.a.v), b.b));
+      if (a.t === 'c' && b.t === 'b' && b.op === '/' && b.a.t === 'c') return simplify(B('/', C(a.v * b.a.v), b.b));
+      if (a.t === 'c' && b.t === 'b' && b.op === '/' && b.b.t === 'c') return simplify(B('*', C(a.v / b.b.v), b.a));
+      if (equal(a, b)) return simplify(B('^', a, C(2)));
+      { // x^p * x^q -> x^(p+q)
+        const [ba, pa] = basePow(a), [bb, pb] = basePow(b);
+        if (pa !== null && pb !== null && equal(ba, bb)) return simplify(B('^', ba, C(pa + pb)));
+      }
+      break;
+    case '/':
+      if (isC(a, 0)) return C(0);
+      if (isC(b, 1)) return a;
+      if (b.t === 'c' && b.v !== 0) return simplify(B('*', C(1 / b.v), a));
+      if (equal(a, b)) return C(1);
+      if (a.t === 'b' && a.op === '*' && a.a.t === 'c' && b.t === 'b' && b.op === '*' && b.a.t === 'c')
+        return simplify(B('/', B('*', C(a.a.v / b.a.v), a.b), b.b));
+      if (b.t === 'b' && b.op === '*' && b.a.t === 'c' && b.a.v !== 0)
+        return simplify(B('/', B('*', C(1 / b.a.v), a), b.b));
+      {
+        const [ba, pa] = basePow(a), [bb, pb] = basePow(b);
+        if (pa !== null && pb !== null && equal(ba, bb)) return simplify(B('^', ba, C(pa - pb)));
+      }
+      break;
+    case '^':
+      if (isC(b, 1)) return a;
+      if (isC(b, 0)) return C(1);
+      if (isC(a, 1)) return C(1);
+      if (b.t === 'c' && a.t === 'b' && a.op === '^' && a.b.t === 'c') {
+        // (x^p)^q = x^(pq), valable sans condition si p n'est pas un entier pair
+        const p = a.b.v;
+        if (!(Number.isInteger(p) && p % 2 === 0)) return simplify(B('^', a.a, C(p * b.v)));
+      }
+      if (b.t === 'c' && a.t === 'u' && a.op === 'exp') return simplify(U('exp', B('*', C(b.v), a.a)));   // exp(u)^p = exp(p·u)
+      if (b.t === 'c' && a.t === 'b' && (a.op === '*' || a.op === '/')) {                                  // (c·X)^p = c^p · X^p
+        const [coef, rest] = splitCoef(a);
+        if (rest && coef > 0 && coef !== 1) return simplify(B('*', C(Math.pow(coef, b.v)), B('^', rest, C(b.v))));
+      }
+      break;
+  }
+  return B(op, a, b);
+}
+
+/** Sépare le coefficient numérique d'un produit/quotient : e = coef · reste (reste = null si e est constant). */
+function splitCoef(e) {
+  if (e.t === 'c') return [e.v, null];
+  if (e.t === 'b' && (e.op === '*' || e.op === '/')) {
+    const [ca, ra] = splitCoef(e.a), [cb, rb] = splitCoef(e.b);
+    const coef = e.op === '*' ? ca * cb : ca / cb;
+    if (!isFinite(coef) || coef === 0) return [1, e];
+    if (e.op === '*') return [coef, ra && rb ? B('*', ra, rb) : ra || rb];
+    return [coef, rb ? B('/', ra || C(1), rb) : ra];
+  }
+  return [1, e];
+}
+
+function basePow(e) {
+  if (e.t === 'b' && e.op === '^' && e.b.t === 'c') return [e.a, e.b.v];
+  if (e.t === 'v') return [e, 1];
+  return [e, e.t === 'c' ? null : 1];
+}
+
+function equal(a, b) {
+  if (a.t !== b.t) return false;
+  switch (a.t) {
+    case 'c': return a.v === b.v;
+    case 'v': return a.i === b.i;
+    case 'u': return a.op === b.op && equal(a.a, b.a);
+    default: return a.op === b.op && equal(a.a, b.a) && equal(a.b, b.b);
+  }
+}
+
+function fmtNum(v, digits = 4) {
+  const nf = niceForm(v);
+  if (nf) {
+    const frac = nf.q === 1 ? `${nf.p}` : `${nf.p}/${nf.q}`;
+    if (!nf.pi) return frac;
+    if (nf.q === 1) return nf.p === 1 ? 'π' : nf.p === -1 ? '-π' : `${nf.p}π`;
+    return `${nf.p === 1 ? '' : nf.p === -1 ? '-' : nf.p}π/${nf.q}`;
+  }
+  const a = Math.abs(v);
+  if (a !== 0 && (a < 1e-3 || a >= 1e5)) return v.toExponential(digits - 1).replace(/\.?0+e/, 'e').replace('e+', 'e');
+  return String(Number(v.toPrecision(digits)));
+}
+
+/** Décompose un produit en coefficient × facteurs^exposants. */
+function mulParts(e, exp, acc) {
+  if (e.t === 'c') {
+    const v = Math.pow(e.v, exp);
+    if (isFinite(v)) { acc.coef *= v; return; }
+  }
+  if (e.t === 'b' && e.op === '*') { mulParts(e.a, exp, acc); mulParts(e.b, exp, acc); return; }
+  if (e.t === 'b' && e.op === '/') { mulParts(e.a, exp, acc); mulParts(e.b, -exp, acc); return; }
+  if (e.t === 'b' && e.op === '^' && e.b.t === 'c') {
+    const inner = e.a;
+    if (inner.t === 'b' && (inner.op === '*' || inner.op === '/' || inner.op === '^') && Number.isInteger(e.b.v)) mulParts(inner, exp * e.b.v, acc);
+    else if (inner.t === 'b' && inner.op === '/' && exp * e.b.v < 0) addFactor(acc, B('/', inner.b, inner.a), -exp * e.b.v); // (A/B)^(−p) = (B/A)^p
+    else addFactor(acc, inner, exp * e.b.v);
+    return;
+  }
+  if (e.t === 'u' && e.op === 'sqrt') { addFactor(acc, e.a, exp / 2); return; }
+  addFactor(acc, e, exp);
+}
+function addFactor(acc, base, exp) {
+  const f = acc.factors.find((q) => equal(q.base, base));
+  if (f) f.exp += exp; else acc.factors.push({ base, exp });
+}
+function addParts(e, sign, out) {
+  if (e.t === 'b' && e.op === '+') { addParts(e.a, sign, out); addParts(e.b, sign, out); }
+  else if (e.t === 'b' && e.op === '-') { addParts(e.a, sign, out); addParts(e.b, -sign, out); }
+  else out.push({ sign, e });
+}
+
+/** Affichage lisible, proche de l'écriture manuscrite : 2π·√(L/g), m·v^2 / 2, 5 − 5·exp(−t/2). */
+function toString(e, names, digits = 4) {
+  const atomic = (s) => /^[\p{L}\p{N}_.]+$/u.test(s) || /^(√|sin|cos|exp|log)\([^()]*(\([^()]*\)[^()]*)*\)$/.test(s);
+  const wrap = (s) => (atomic(s) ? s : `(${s})`);
+  const prodStr = (list) => list.join('·');
+  function term(e) { // -> { neg, s }
+    if (e.t === 'c') return { neg: e.v < 0, s: fmtNum(Math.abs(e.v), digits) };
+    if (e.t === 'v') return { neg: false, s: names ? names[e.i] : `x${e.i}` };
+    if (e.t === 'u') return { neg: false, s: `${e.op === 'sqrt' ? '√' : e.op}(${sum(e.a)})` };
+    if (e.op === '+' || e.op === '-') return { neg: false, s: sum(e) };
+    const acc = { coef: 1, factors: [] };
+    mulParts(e, 1, acc);
+    const neg = acc.coef < 0;
+    let coef = Math.abs(acc.coef);
+    const num = [], den = [], sn = [], sd = [];
+    for (const f of acc.factors) {
+      if (f.exp === 0) continue;
+      if (f.exp < 0 && f.base.t === 'u' && f.base.op === 'exp') { f.exp = -f.exp; f.base = U('exp', simplify(B('*', C(-1), f.base.a))); } // 1/exp(u) = exp(−u)
+      const b = sum(f.base), a = Math.abs(f.exp);
+      const tgt = f.exp > 0 ? (a === 0.5 ? sn : num) : (a === 0.5 ? sd : den);
+      if (a === 0.5) tgt.push(b);
+      else tgt.push(a === 1 ? (atomic(b) ? b : `(${b})`) : `${wrap(b)}^${fmtNum(a, digits).includes('/') ? `(${fmtNum(a, digits)})` : fmtNum(a, digits)}`);
+    }
+    if (sn.length) {
+      num.push(`√(${prodStr(sn.map((x) => (sn.length + sd.length > 1 ? wrap(x) : x)))}${sd.length ? ' / ' + (sd.length > 1 ? `(${prodStr(sd.map(wrap))})` : wrap(sd[0])) : ''})`);
+    } else if (sd.length) den.push(`√(${sd.length > 1 ? prodStr(sd.map(wrap)) : sd[0]})`);
+    const nf = niceForm(coef);
+    let cnum = '', cden = '';
+    if (nf && nf.q > 1 && (num.length || den.length)) {
+      cnum = nf.pi ? (nf.p === 1 ? 'π' : `${nf.p}π`) : (nf.p === 1 ? '' : `${nf.p}`); cden = `${nf.q}`;
+    } else if (coef !== 1 || !num.length) cnum = fmtNum(coef, digits);
+    const top = [cnum, ...num].filter(Boolean);
+    const bot = [...den, cden].filter(Boolean);
+    let s = top.length ? prodStr(top) : '1';
+    if (bot.length) s += ' / ' + (bot.length > 1 ? `(${prodStr(bot)})` : bot[0]);
+    return { neg, s };
+  }
+  function sum(e) {
+    const parts = [];
+    addParts(e, 1, parts);
+    const ts = parts.map((p) => { const t = term(p.e); return { neg: (p.sign < 0) !== t.neg, s: t.s, isC: p.e.t === 'c' }; });
+    ts.sort((a, b) => (a.isC - b.isC) || (a.neg - b.neg));   // termes positifs d'abord, constante en dernier
+    if (ts.length > 1 && ts[0].neg) { const i = ts.findIndex((t) => !t.neg); if (i > 0) ts.unshift(ts.splice(i, 1)[0]); }
+    let out = '';
+    ts.forEach((t, i) => {
+      const body = ts.length > 1 && / [+−] /.test(t.s) && !atomic(t.s) && !t.s.includes('·') && !t.s.includes('/') ? `(${t.s})` : t.s;
+      out += i === 0 ? (t.neg ? '−' : '') + body : (t.neg ? ' − ' : ' + ') + body;
+    });
+    return out;
+  }
+  return sum(e);
+}
+
+/** Clé canonique pour repérer les doublons (constantes arrondies). */
+function key(e) {
+  switch (e.t) {
+    case 'c': return e.v.toPrecision(6);
+    case 'v': return 'x' + e.i;
+    case 'u': return `${e.op}(${key(e.a)})`;
+    default: {
+      let ka = key(e.a), kb = key(e.b);
+      if ((e.op === '+' || e.op === '*') && ka > kb) [ka, kb] = [kb, ka];
+      return `(${ka}${e.op}${kb})`;
+    }
+  }
+}
+/** Clé de structure : les constantes sont anonymisées. */
+function shapeKey(e) {
+  switch (e.t) {
+    case 'c': return 'c';
+    case 'v': return 'x' + e.i;
+    case 'u': return `${e.op}(${shapeKey(e.a)})`;
+    default: {
+      let ka = shapeKey(e.a), kb = shapeKey(e.b);
+      if ((e.op === '+' || e.op === '*') && ka > kb) [ka, kb] = [kb, ka];
+      return `(${ka}${e.op}${kb})`;
+    }
+  }
+}
+
+// ---------------------------------------------------------------- analyse syntaxique
+
+/** Analyse une formule texte, ex. "2*pi*sqrt(L/g)". names = variables autorisées. */
+function parse(src, names) {
+  const s = src.replace(/·|×/g, '*').replace(/−/g, '-').replace(/(\d)\s*π/g, '$1*pi').replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/\*\*/g, '^');
+  let i = 0;
+  const ws = () => { while (i < s.length && /\s/.test(s[i])) i++; };
+  const fail = (m) => { throw new Error(`Formule invalide (position ${i + 1}) : ${m}`); };
+  const peek = () => { ws(); return s[i]; };
+  function expr() {
+    let a = term();
+    for (;;) { const c = peek(); if (c === '+' || c === '-') { i++; a = B(c, a, term()); } else return a; }
+  }
+  function term() {
+    let a = unary();
+    for (;;) { const c = peek(); if (c === '*' || c === '/') { i++; a = B(c, a, unary()); } else return a; }
+  }
+  function unary() {
+    const c = peek();
+    if (c === '-') { i++; const a = unary(); return a.t === 'c' ? C(-a.v) : B('*', C(-1), a); }
+    if (c === '+') { i++; return unary(); }
+    return power();
+  }
+  function power() {
+    const a = atom();
+    if (peek() === '^') { i++; return B('^', a, unary()); }
+    return a;
+  }
+  function atom() {
+    const c = peek();
+    if (c === undefined) fail('fin inattendue');
+    if (c === '(') { i++; const a = expr(); if (peek() !== ')') fail('")" attendue'); i++; return a; }
+    const num = /^(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/.exec(s.slice(i));
+    if (num) { i += num[0].length; return C(parseFloat(num[0])); }
+    const id = /^[A-Za-z_À-ɏͰ-Ͽ][A-Za-z_0-9À-ɏͰ-Ͽ]*/.exec(s.slice(i));
+    if (!id) fail(`caractère inattendu « ${c} »`);
+    i += id[0].length;
+    const name = id[0];
+    if (peek() === '(' && (UNARY.includes(name) || name === 'ln' || name === 'abs' || name === 'tan' || name === 'tanh')) {
+      i++; const a = expr(); if (peek() !== ')') fail('")" attendue'); i++;
+      if (name === 'ln') return U('log', a);
+      if (name === 'tan') return B('/', U('sin', a), U('cos', clone(a)));
+      if (name === 'tanh') { // (e^{2a} - 1)/(e^{2a} + 1)
+        const e2 = () => U('exp', B('*', C(2), clone(a)));
+        return B('/', B('-', e2(), C(1)), B('+', e2(), C(1)));
+      }
+      if (name === 'abs') return B('^', B('^', a, C(2)), C(0.5));
+      return U(name, a);
+    }
+    if (name === 'pi') return C(Math.PI);
+    if (name === 'e' && !(names || []).includes('e')) return C(Math.E);
+    const idx = (names || []).indexOf(name);
+    if (idx < 0) fail(`variable inconnue « ${name} »`);
+    return V(idx);
+  }
+  const e = expr();
+  if (peek() !== undefined) fail(`caractère inattendu « ${s[i]} »`);
+  return e;
+}
+
+/** Devine les variables d'une formule (identifiants qui ne sont ni fonctions ni constantes). */
+function freeNames(src) {
+  const s = src.replace(/π/g, 'pi').replace(/√/g, 'sqrt');
+  const out = [];
+  const re = /[A-Za-z_À-ɏͰ-Ͽ][A-Za-z_0-9À-ɏͰ-Ͽ]*/g;
+  let m;
+  while ((m = re.exec(s))) {
+    const n = m[0];
+    if (/^\d/.test(n)) continue;
+    const before = s[m.index - 1];
+    if (before && /[\d.]/.test(before) && /^[eE]\d*$/.test(n)) continue; // 1e5
+    if ([...UNARY, 'ln', 'abs', 'tan', 'tanh', 'pi', 'e'].includes(n)) continue;
+    if (!out.includes(n)) out.push(n);
+  }
+  return out;
+}
+
+// Outils numériques : générateur pseudo-aléatoire reproductible, moindres carrés linéaires,
+// ajustement non linéaire des constantes (Levenberg–Marquardt).
+
+/** PRNG déterministe (mulberry32). */
+function rng(seed) {
+  let a = (seed >>> 0) || 1;
+  const r = () => {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  r.int = (n) => Math.floor(r() * n);
+  r.pick = (arr) => arr[Math.floor(r() * arr.length)];
+  r.normal = () => {
+    let u = 0, v = 0;
+    while (u === 0) u = r();
+    v = r();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  };
+  return r;
+}
+
+/** Résout A x = b (A carrée, petite) par élimination de Gauss avec pivot partiel. null si singulière. */
+function solve(A, b) {
+  const n = b.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let p = c;
+    for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    if (Math.abs(M[p][c]) < 1e-300 || !isFinite(M[p][c])) return null;
+    [M[c], M[p]] = [M[p], M[c]];
+    for (let r = c + 1; r < n; r++) {
+      const f = M[r][c] / M[c][c];
+      if (f === 0) continue;
+      for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k];
+    }
+  }
+  const x = new Array(n);
+  for (let r = n - 1; r >= 0; r--) {
+    let s = M[r][n];
+    for (let k = r + 1; k < n; k++) s -= M[r][k] * x[k];
+    x[r] = s / M[r][r];
+    if (!isFinite(x[r])) return null;
+  }
+  return x;
+}
+
+/** Moindres carrés linéaires : y ≈ Σ w_j · feats[j]. */
+function linearFit(feats, y, n) {
+  const m = feats.length;
+  const A = Array.from({ length: m }, () => new Array(m).fill(0));
+  const b = new Array(m).fill(0);
+  for (let i = 0; i < m; i++) {
+    for (let j = i; j < m; j++) {
+      let s = 0;
+      for (let k = 0; k < n; k++) s += feats[i][k] * feats[j][k];
+      A[i][j] = A[j][i] = s;
+    }
+    let s = 0;
+    for (let k = 0; k < n; k++) s += feats[i][k] * y[k];
+    b[i] = s;
+    A[i][i] *= 1 + 1e-12;
+  }
+  return solve(A, b);
+}
+
+/** Erreur quadratique moyenne ; Infinity si l'expression n'est pas définie sur les données. */
+function mse(e, data) { return mseRun(compile(e), data, new Float64Array(data.n)); }
+function mseRun(run, data, buf) {
+  const p = run(data.cols, data.n, buf), y = data.y;
+  let s = 0;
+  for (let k = 0; k < data.n; k++) { const d = p[k] - y[k]; s += d * d; }
+  s /= data.n;
+  return isFinite(s) ? s : Infinity;
+}
+
+/**
+ * Ajuste en place les constantes de l'expression (Levenberg–Marquardt, jacobien numérique).
+ * only : sous-ensemble de constantes à ajuster (les autres restent gelées). Renvoie la MSE obtenue.
+ */
+function fitConstants(e, data, iters = 12, only = null) {
+  const cs = only || constants(e);
+  const m = cs.length, n = data.n, y = data.y;
+  const run = compile(e);
+  const buf = new Float64Array(n);
+  let best = mseRun(run, data, buf);
+  if (m === 0 || n === 0 || !isFinite(best)) return best;
+  let lambda = 1e-2;
+  const r0 = new Float64Array(n);
+  const J = Array.from({ length: m }, () => new Float64Array(n));
+  const A = Array.from({ length: m }, () => new Array(m).fill(0));
+  const g = new Array(m).fill(0), old = new Array(m);
+  for (let it = 0; it < iters; it++) {
+    run(data.cols, n, r0);
+    for (let k = 0; k < n; k++) r0[k] -= y[k];
+    for (let j = 0; j < m; j++) {
+      const v = cs[j].v, h = Math.abs(v) * 1e-6 + 1e-8, Jj = J[j];
+      cs[j].v = v + h;
+      run(data.cols, n, Jj);
+      cs[j].v = v;
+      for (let k = 0; k < n; k++) Jj[k] = (Jj[k] - y[k] - r0[k]) / h;
+    }
+    let ok = true;
+    for (let i = 0; i < m; i++) {
+      for (let j = i; j < m; j++) {
+        let s = 0;
+        for (let k = 0; k < n; k++) s += J[i][k] * J[j][k];
+        A[i][j] = A[j][i] = s;
+      }
+      let s = 0;
+      for (let k = 0; k < n; k++) s += J[i][k] * r0[k];
+      g[i] = -s;
+      if (!isFinite(s)) ok = false;
+    }
+    if (!ok) break;
+    let improved = false;
+    for (let tries = 0; tries < 6; tries++) {
+      const Ad = A.map((row, i) => row.map((v, j) => (i === j ? v * (1 + lambda) + 1e-12 : v)));
+      const step = solve(Ad, g);
+      if (!step) { lambda *= 10; continue; }
+      for (let j = 0; j < m; j++) { old[j] = cs[j].v; cs[j].v = old[j] + step[j]; }
+      const cur = mseRun(run, data, buf);
+      if (cur < best) {
+        const rel = (best - cur) / (best + 1e-300);
+        best = cur; lambda = Math.max(lambda / 5, 1e-9); improved = true;
+        if (rel < 1e-10) it = iters;
+        break;
+      }
+      for (let j = 0; j < m; j++) cs[j].v = old[j];
+      lambda *= 10;
+    }
+    if (!improved) break;
+  }
+  return best;
+}
+
+function makeData(X, y) {
+  const n = y.length, d = n ? X[0].length : 0;
+  const cols = Array.from({ length: d }, (_, j) => Float64Array.from(X, (r) => r[j]));
+  return { n, d, cols, y: Float64Array.from(y), X };
+}
+
+function variance(y) {
+  const n = y.length;
+  if (!n) return 0;
+  let m = 0;
+  for (const v of y) m += v;
+  m /= n;
+  let s = 0;
+  for (const v of y) s += (v - m) * (v - m);
+  return s / n;
+}
+
+// Recherche d'équations : programmation génétique avec ajustement des constantes,
+// amorcée par des a priori « de physicien » (lois de puissance, relations linéaires, oscillations).
+
+const BIN_W = ['+', '+', '-', '*', '*', '*', '/', '/', '^'];
+const POW_EXP = [2, 2, 3, 0.5, -1, -1, -2, 1.5];
+const TRANSCENDENTAL = new Set(['sin', 'cos', 'exp', 'log']);
+
+/** Valeur « simple » la plus proche (petit rationnel, éventuellement fois π). */
+function nearestNice(v) {
+  let best = null, bd = Infinity;
+  for (const pi of [1, Math.PI]) {
+    for (const q of [1, 2, 3, 4]) {
+      const cand = (Math.round((v / pi) * q) / q) * pi;
+      if (cand === 0 || !niceForm(cand)) continue;
+      const d = Math.abs(cand - v) / Math.abs(v || 1);
+      if (d < bd - 1e-12) { bd = d; best = cand; }
+    }
+  }
+  return best === null ? null : { value: best, rel: bd };
+}
+
+function valid(e, maxSize) {
+  if (size(e) > maxSize) return false;
+  const walk = (n, inT) => {
+    if (n.t === 'c') return isFinite(n.v);
+    if (n.t === 'v') return true;
+    if (n.t === 'u') {
+      const tr = TRANSCENDENTAL.has(n.op);
+      if (tr && inT) return false;           // pas de sin(exp(…)) : a priori de plausibilité
+      if (n.a.t === 'c') return false;
+      return walk(n.a, inT || tr);
+    }
+    if (n.op === '^' && n.b.t !== 'c') return false; // exposants constants uniquement
+    if (n.op === '^' && n.a.t === 'c') return false;
+    return walk(n.a, inT) && walk(n.b, inT);
+  };
+  return walk(e, false);
+}
+
+class Search {
+  /**
+   * @param {object} o  d = nombre de variables ; seed ; maxSize = taille max des arbres ;
+   *                    popSize ; unary = opérateurs unaires autorisés.
+   */
+  constructor({ d, seed = 1, maxSize = 21, popSize = 300, unary = UNARY, parsimony = 0.035 } = {}) {
+    this.d = d;
+    this.r = rng(seed);
+    this.maxSize = maxSize;
+    this.popSize = popSize;
+    this.unary = unary;
+    this.parsimony = parsimony;
+    this.pop = [];
+    this.hof = new Map();      // complexité -> meilleur membre
+    this.seen = new Map();
+    this.data = null;
+    this.varY = 1;
+    this.floor = 0;            // plancher de MSE (variance du bruit), si connue
+    this.evals = 0;
+  }
+
+  setNoise(sigma) { this.floor = sigma * sigma; this._refit(); }
+
+  setData(data) {
+    this.data = data;
+    this.varY = variance(data.y) || 1;
+    this.seen.clear();
+    this._refit();
+    for (const e of this._seeds()) this._offer(e, true);
+    while (this.pop.length < this.popSize) this._offer(this._randTree(1 + this.r.int(3)), true);
+  }
+
+  _fitness(m) {
+    return Math.log(Math.max(m.mse, this.floor * 0.9) / this.varY + 1e-18) + this.parsimony * m.cx;
+  }
+
+  _refit() {
+    if (!this.data) return;
+    for (const m of this.pop) { m.mse = mse(m.e, this.data); m.fit = this._fitness(m); }
+    const old = [...this.hof.values()];
+    this.hof.clear();
+    for (const m of old) {
+      const raw = { e: m.e, mse: mse(m.e, this.data), cx: m.cx };
+      raw.fit = this._fitness(raw);
+      this._hofOffer(raw);
+      const e = clone(m.e);
+      if (constants(e).length) {
+        const v = fitConstants(e, this.data, 10);
+        const mm = { e, mse: v, cx: complexity(e) };
+        mm.fit = this._fitness(mm);
+        this._hofOffer(mm);
+      }
+    }
+  }
+
+  _hofOffer(m) {
+    if (!isFinite(m.mse)) return false;
+    const cur = this.hof.get(m.cx);
+    if (!cur || m.mse < cur.mse) { this.hof.set(m.cx, m); return true; }
+    return false;
+  }
+
+  /** Évalue un candidat, ajuste ses constantes et l'insère dans la population. */
+  _offer(e0, force = false) {
+    let e = simplify(e0);
+    if (!valid(e, this.maxSize)) return null;
+    const k0 = key(e);
+    if (!force && this.seen.has(k0)) return null;
+    if (this.seen.size > 200000) this.seen.clear();
+    this.seen.set(k0, 1);
+    this.evals++;
+    let v = mse(e, this.data);
+    if (constants(e).length) {
+      if (!isFinite(v)) return null;
+      v = fitConstants(e, this.data, 7);
+      e = simplify(e);
+      if (!valid(e, this.maxSize)) return null;
+    }
+    if (!isFinite(v)) return null;
+    const m = { e, mse: v, cx: complexity(e) };
+    m.fit = this._fitness(m);
+    this._hofOffer(m);
+    if (this.pop.length < this.popSize) this.pop.push(m);
+    else {
+      // remplace le moins bon de 3 tirés au hasard
+      let w = this.r.int(this.pop.length);
+      for (let t = 0; t < 2; t++) { const j = this.r.int(this.pop.length); if (this.pop[j].fit > this.pop[w].fit) w = j; }
+      if (force || m.fit < this.pop[w].fit) this.pop[w] = m;
+    }
+    return m;
+  }
+
+  _leaf() {
+    const r = this.r;
+    if (r() < 0.7) return V(r.int(this.d));
+    return C(r() < 0.5 ? r.pick([1, 2, 3, 0.5, -1]) : Number((r.normal() * 3).toPrecision(3)));
+  }
+  _randTree(depthLeft) {
+    const r = this.r;
+    if (depthLeft <= 0 || r() < 0.25) return this._leaf();
+    if (r() < 0.22 && this.unary.length) return U(r.pick(this.unary), this._randTree(depthLeft - 1));
+    const op = r.pick(BIN_W);
+    if (op === '^') return B('^', this._randTree(depthLeft - 1), C(r.pick(POW_EXP)));
+    return B(op, this._randTree(depthLeft - 1), this._randTree(depthLeft - 1));
+  }
+
+  _tournament(k = 5) {
+    let b = this.r.pick(this.pop);
+    for (let t = 1; t < k; t++) { const c = this.r.pick(this.pop); if (c.fit < b.fit) b = c; }
+    return b;
+  }
+
+  _mutate(parent) {
+    const r = this.r;
+    const e = clone(parent);
+    const ns = nodes(e);
+    const n = r.pick(ns);
+    const replace = (target, src) => { for (const k of Object.keys(target)) delete target[k]; Object.assign(target, src); };
+    const kind = r();
+    if (kind < 0.16) {                       // perturbation d'une constante
+      const cs = constants(e);
+      if (!cs.length) return null;
+      const c = r.pick(cs);
+      const u = r();
+      if (u < 0.5) c.v *= 1 + r.normal() * 0.3;
+      else if (u < 0.7) c.v = -c.v;
+      else if (u < 0.85) c.v = r.pick([1, 2, 3, 4, 0.5, -1, -2, 1.5, Math.PI, 2 * Math.PI]);
+      else c.v = r.normal() * 5;
+    } else if (kind < 0.30) {                // changement d'opérateur
+      const ops = ns.filter((x) => x.t === 'u' || x.t === 'b');
+      if (!ops.length) return null;
+      const o = r.pick(ops);
+      if (o.t === 'u') o.op = r.pick(this.unary);
+      else { o.op = r.pick(BIN_W); if (o.op === '^') o.b = C(r.pick(POW_EXP)); }
+    } else if (kind < 0.44) {                // remplacement d'un sous-arbre
+      replace(n, this._randTree(r.int(3)));
+    } else if (kind < 0.60) {                // insertion au-dessus d'un nœud
+      const inner = clone(n);
+      const u = r();
+      if (u < 0.25 && this.unary.length) replace(n, U(r.pick(this.unary), inner));
+      else if (u < 0.40) replace(n, B('^', inner, C(r.pick(POW_EXP))));
+      else if (u < 0.55) replace(n, B('+', B('*', C(1 + r.normal() * 0.2), inner), C(r.normal())));
+      else {
+        const op = r.pick(['+', '-', '*', '/']);
+        replace(n, r() < 0.5 ? B(op, inner, this._leaf()) : B(op, this._leaf(), inner));
+      }
+    } else if (kind < 0.72) {                // suppression : un nœud est remplacé par un de ses enfants
+      const ops = ns.filter((x) => x.t === 'u' || x.t === 'b');
+      if (!ops.length) return null;
+      const o = r.pick(ops);
+      replace(o, clone(o.t === 'u' ? o.a : r() < 0.5 ? o.a : o.b));
+    } else if (kind < 0.90) {                // croisement
+      const other = this.r() < 0.3 && this.hof.size ? r.pick([...this.hof.values()]) : this._tournament();
+      replace(n, clone(r.pick(nodes(other.e))));
+    } else if (kind < 0.95) {                // échange d'opérandes
+      const ops = ns.filter((x) => x.t === 'b' && x.op !== '^');
+      if (!ops.length) return null;
+      const o = r.pick(ops);
+      [o.a, o.b] = [o.b, o.a];
+    } else {                                 // changement de variable
+      const vs = ns.filter((x) => x.t === 'v');
+      if (!vs.length || this.d < 2) return null;
+      r.pick(vs).i = r.int(this.d);
+    }
+    return e;
+  }
+
+  /** Effectue n tentatives de mutation. */
+  step(n) {
+    for (let i = 0; i < n; i++) {
+      const fromHof = this.r() < 0.12 && this.hof.size;
+      const parent = fromHof ? this.r.pick([...this.hof.values()]) : this._tournament();
+      const child = this._mutate(parent.e);
+      if (child) this._offer(child);
+    }
+  }
+
+  /** Tente de remplacer les constantes ajustées par des valeurs simples (2, 1/2, 2π…). */
+  polish() {
+    for (const m of [...this.hof.values()]) {
+      let e = clone(m.e);
+      for (let pass = 0; pass < 4; pass++) {
+        const cs = constants(e).filter((c) => !niceForm(c.v));
+        let bestC = null, bestRel = 0.04, bestV = 0;
+        for (const c of cs) {
+          const nn = nearestNice(c.v);
+          if (nn && nn.rel < bestRel) { bestRel = nn.rel; bestC = c; bestV = nn.value; }
+        }
+        if (!bestC) break;
+        const trial = clone(e);
+        const tc = constants(trial)[constants(e).indexOf(bestC)];
+        tc.v = bestV;
+        // réajuste les autres constantes en gelant celles qui sont déjà « simples »
+        const free = constants(trial).filter((c) => !niceForm(c.v));
+        if (free.length) fitConstants(trial, this.data, 8, free);
+        const s = simplify(trial);
+        if (!valid(s, this.maxSize)) break;
+        const v = mse(s, this.data);
+        if (!isFinite(v)) break;
+        const mm = { e: s, mse: v, cx: complexity(s) };
+        mm.fit = this._fitness(mm);
+        this._hofOffer(mm);
+        e = s;
+      }
+    }
+  }
+
+  /** Front de Pareto (complexité croissante, erreur strictement décroissante). */
+  front() {
+    const ms = [...this.hof.values()].sort((a, b) => a.cx - b.cx);
+    const out = [];
+    let best = Infinity;
+    for (const m of ms) if (m.mse < best * 0.999) { out.push(m); best = m.mse; }
+    return out;
+  }
+
+  // ------------------------------------------------------------ a priori (amorces)
+  _seeds() {
+    const { cols, y, n } = this.data, d = this.d;
+    const out = [];
+    const ones = new Float64Array(n).fill(1);
+    let mean = 0;
+    for (let k = 0; k < n; k++) mean += y[k];
+    out.push(C(mean / n));
+    // relation affine
+    const w = linearFit([ones, ...cols], y, n);
+    if (w) {
+      let e = C(w[0]);
+      for (let j = 0; j < d; j++) e = B('+', e, B('*', C(w[j + 1]), V(j)));
+      out.push(e);
+    }
+    // loi de puissance  y = c · Π x_j^a_j  (régression log-linéaire)
+    const pos = cols.every((c) => c.every((v) => v > 0));
+    const sgn = y.every((v) => v > 0) ? 1 : y.every((v) => v < 0) ? -1 : 0;
+    if (pos && sgn !== 0 && n >= d + 2) {
+      const ly = Float64Array.from(y, (v) => Math.log(sgn * v));
+      const lx = cols.map((c) => Float64Array.from(c, Math.log));
+      const a = linearFit([ones, ...lx], ly, n);
+      if (a) {
+        const snap = (v) => {
+          for (const q of [1, 2, 3]) { const p = Math.round(v * q); if (Math.abs(v - p / q) < 0.06) return p / q; }
+          return v;
+        };
+        for (const exps of [a.slice(1), a.slice(1).map(snap)]) {
+          let e = C(sgn * Math.exp(a[0]));
+          for (let j = 0; j < d; j++) if (exps[j] !== 0) e = B('*', e, B('^', V(j), C(exps[j])));
+          out.push(e);
+        }
+      }
+    }
+    // gabarits à une variable : y ≈ a·f(x_j) + b
+    const tpl = [
+      (x) => B('^', x, C(2)), (x) => B('/', C(1), x), (x) => B('^', x, C(0.5)), (x) => U('log', x),
+      (x) => U('exp', x), (x) => U('exp', B('*', C(-1), x)), (x) => B('^', x, C(-2)),
+      (x) => U('exp', B('/', C(-1), x)), (x) => U('exp', B('/', C(-4), x)),
+    ];
+    for (let j = 0; j < d; j++) {
+      for (const f of tpl) {
+        const fe = f(V(j));
+        const fv = evaluate(fe, cols, n);
+        if (!fv.every(isFinite)) continue;
+        const ww = linearFit([ones, fv], y, n);
+        if (ww) out.push(B('+', B('*', C(ww[1]), fe), C(ww[0])));
+      }
+      // oscillation : balayage de fréquence puis moindres carrés sur sin/cos
+      let lo = Infinity, hi = -Infinity;
+      for (const v of cols[j]) { if (v < lo) lo = v; if (v > hi) hi = v; }
+      const span = hi - lo;
+      if (span > 0 && n >= 8) {
+        let bestW = 0, bestErr = Infinity, bestCoef = null;
+        for (let s = 1; s <= 60; s++) {
+          const om = (s * 0.25 * 2 * Math.PI) / span;
+          const sn = Float64Array.from(cols[j], (v) => Math.sin(om * v));
+          const cn = Float64Array.from(cols[j], (v) => Math.cos(om * v));
+          const ww = linearFit([ones, sn, cn], y, n);
+          if (!ww) continue;
+          let err = 0;
+          for (let k = 0; k < n; k++) { const dd = ww[0] + ww[1] * sn[k] + ww[2] * cn[k] - y[k]; err += dd * dd; }
+          if (err < bestErr) { bestErr = err; bestW = om; bestCoef = ww; }
+        }
+        if (bestCoef && bestErr / n < 0.5 * this.varY) {
+          const arg = () => B('*', C(bestW), V(j));
+          out.push(B('+', B('+', B('*', C(bestCoef[1]), U('sin', arg())), B('*', C(bestCoef[2]), U('cos', arg()))), C(bestCoef[0])));
+          out.push(B('*', C(Math.hypot(bestCoef[1], bestCoef[2])), U('sin', B('+', arg(), C(Math.atan2(bestCoef[2], bestCoef[1]))))));
+          out.push(B('*', C(bestCoef[1]), U('sin', arg())));
+          out.push(B('*', C(bestCoef[2]), U('cos', arg())));
+        }
+      }
+    }
+    return out;
+  }
+}
+
+
+// Les « mondes » : des lois cachées que l'agent ne peut qu'interroger par l'expérience.
+
+/**
+ * Crée un monde à partir d'une formule. L'agent n'a accès qu'à measure(x).
+ * vars : [{ name, min, max, unit?, label? }] ; noise : écart-type du bruit, en fraction de l'amplitude de y.
+ */
+function makeWorld({ id, title, formula, vars, noise = 0.01, target = 'y', story = '', seed = 1, extend = 2 }) {
+  const names = vars.map((v) => v.name);
+  const truth = parse(formula, names);
+  const r = rng(seed * 7919 + 13);
+  // amplitude typique de y sur le domaine, pour dimensionner le bruit
+  const pr = rng(4242);
+  const ys = [];
+  for (let k = 0; k < 400; k++) {
+    const v = evalPoint(truth, vars.map((q) => q.min + pr() * (q.max - q.min)));
+    if (isFinite(v)) ys.push(v);
+  }
+  const mean = ys.reduce((a, b) => a + b, 0) / ys.length;
+  const scale = Math.sqrt(ys.reduce((a, b) => a + (b - mean) ** 2, 0) / ys.length) || Math.abs(mean) || 1;
+  const sigma = noise * scale;
+  let count = 0;
+  return {
+    id, title, story, target, vars, names, noise, extend,
+    domain: vars.map((v) => [v.min, v.max]),
+    /** Réalise une expérience : renvoie une mesure bruitée. */
+    measure(x) { count++; return evalPoint(truth, x) + sigma * r.normal(); },
+    get experiments() { return count; },
+    // --- réservé à la vérification finale : l'agent n'y touche jamais ---
+    secret: { formula, truth, sigma, f: (x) => evalPoint(truth, x) },
+  };
+}
+
+const CATALOG = [
+  { id: 'pendule', title: 'Pendule simple', target: 'T', formula: '2*pi*sqrt(L/g)',
+    story: 'Période d’un pendule de longueur L sur une planète de gravité g.',
+    vars: [{ name: 'L', min: 0.2, max: 3, unit: 'm' }, { name: 'g', min: 1.5, max: 25, unit: 'm/s²' }] },
+  { id: 'gravitation', title: 'Gravitation universelle', target: 'F', formula: 'm1*m2/r^2',
+    story: 'Force entre deux masses (unités où G = 1).',
+    vars: [{ name: 'm1', min: 1, max: 10 }, { name: 'm2', min: 1, max: 10 }, { name: 'r', min: 1, max: 5 }] },
+  { id: 'gaz', title: 'Gaz parfait', target: 'P', formula: '8.314*n*T/V',
+    story: 'Pression de n moles à la température T dans un volume V.',
+    vars: [{ name: 'n', min: 0.5, max: 5, unit: 'mol' }, { name: 'T', min: 250, max: 500, unit: 'K' }, { name: 'V', min: 0.01, max: 0.1, unit: 'm³' }] },
+  { id: 'lentille', title: 'Lentille mince', target: 'f', formula: 'a*b/(a+b)',
+    story: 'Distance focale à partir des distances objet et image (même loi que deux résistances en parallèle).',
+    vars: [{ name: 'a', min: 0.5, max: 10 }, { name: 'b', min: 0.5, max: 10 }] },
+  { id: 'relativite', title: 'Facteur de Lorentz', target: 'γ', formula: '1/sqrt(1-v^2)',
+    story: 'Dilatation du temps en fonction de la vitesse v (en fraction de c).',
+    vars: [{ name: 'v', min: 0, max: 0.95 }], extend: 1 },
+  { id: 'condensateur', title: 'Charge d’un condensateur', target: 'U', formula: '5*(1-exp(-t/2))',
+    story: 'Tension aux bornes d’un condensateur en charge.',
+    vars: [{ name: 't', min: 0, max: 8, unit: 's' }] },
+  { id: 'enzyme', title: 'Michaelis–Menten', target: 'v', formula: '3*S/(S+0.8)',
+    story: 'Vitesse d’une réaction enzymatique selon la concentration S du substrat.',
+    vars: [{ name: 'S', min: 0.05, max: 10 }] },
+  { id: 'arrhenius', title: 'Loi d’Arrhenius', target: 'k', formula: '50*exp(-8/T)',
+    story: 'Constante de vitesse d’une réaction selon la température (unités réduites).',
+    vars: [{ name: 'T', min: 1, max: 10 }] },
+  { id: 'oscillateur', title: 'Oscillateur harmonique', target: 'x', formula: '2*cos(3*t)',
+    story: 'Position d’une masse au bout d’un ressort.',
+    vars: [{ name: 't', min: 0, max: 6, unit: 's' }] },
+  { id: 'amorti', title: 'Oscillateur amorti', target: 'x', formula: 'exp(-t/2)*cos(3*t)',
+    story: 'La même masse, avec frottement.',
+    vars: [{ name: 't', min: 0, max: 6, unit: 's' }] },
+  { id: 'saturation', title: 'Capteur qui sature', target: 's', formula: 'x/(1+x/40)', extend: 8,
+    story: 'Réponse d’un capteur : une droite en apparence, tant qu’on reste dans la plage sûre. Seule une expérience hors domaine révèle la saturation.',
+    vars: [{ name: 'x', min: 0, max: 2 }] },
+  { id: 'chute', title: 'Chute libre', target: 'h', formula: 'v*t-4.905*t^2',
+    story: 'Hauteur d’un projectile lancé vers le haut à la vitesse v.',
+    vars: [{ name: 'v', min: 0, max: 30, unit: 'm/s' }, { name: 't', min: 0, max: 5, unit: 's' }] },
+  { id: 'cinetique', title: 'Énergie cinétique', target: 'E', formula: 'm*v^2/2',
+    story: 'Énergie d’une masse m à la vitesse v.',
+    vars: [{ name: 'm', min: 1, max: 20, unit: 'kg' }, { name: 'v', min: 1, max: 30, unit: 'm/s' }] },
+  { id: 'coulomb-ecran', title: 'Potentiel de Yukawa', target: 'U', formula: 'exp(-r)/r',
+    story: 'Potentiel écranté à la distance r.',
+    vars: [{ name: 'r', min: 0.3, max: 5 }] },
+  { id: 'stefan', title: 'Rayonnement du corps noir', target: 'P', formula: '5.67*A*T^4',
+    story: 'Puissance rayonnée par une surface A à la température T (unités réduites).',
+    vars: [{ name: 'A', min: 0.5, max: 5 }, { name: 'T', min: 1, max: 6 }] },
+];
+
+function getWorld(id, opts = {}) {
+  const spec = CATALOG.find((w) => w.id === id);
+  if (!spec) throw new Error(`Monde inconnu : ${id}. Disponibles : ${CATALOG.map((w) => w.id).join(', ')}`);
+  return makeWorld({ ...spec, ...opts });
+}
+
+/** Monde défini par l'utilisateur : une formule libre, des bornes par variable. */
+function customWorld(formula, { ranges = {}, noise = 0.01, seed = 1 } = {}) {
+  const names = freeNames(formula);
+  if (!names.length) throw new Error('La formule doit contenir au moins une variable.');
+  if (names.length > 4) throw new Error('Quatre variables au maximum.');
+  const vars = names.map((name) => ({ name, min: (ranges[name] || [1, 5])[0], max: (ranges[name] || [1, 5])[1] }));
+  for (const v of vars) if (!(v.max > v.min)) throw new Error(`Bornes invalides pour ${v.name}.`);
+  const w = makeWorld({ id: 'perso', title: 'Loi personnalisée', formula, vars, noise, seed, target: names.includes('y') ? 'f' : 'y' });
+  let bad = 0;
+  const pr = rng(99);
+  for (let k = 0; k < 200; k++) if (!isFinite(w.secret.f(vars.map((q) => q.min + pr() * (q.max - q.min))))) bad++;
+  if (bad) throw new Error('La formule n’est pas définie sur tout le domaine choisi (division par zéro, racine d’un négatif…).');
+  return w;
+}
+
+/** Données réelles : demi-grand axe (UA) et période orbitale (années) des huit planètes. */
+const PLANETS = {
+  title: 'Planètes du système solaire (données réelles)',
+  names: ['a'], target: 'T',
+  rows: [
+    ['Mercure', 0.3871, 0.2408], ['Vénus', 0.7233, 0.6152], ['Terre', 1.0, 1.0], ['Mars', 1.5237, 1.8808],
+    ['Jupiter', 5.2034, 11.862], ['Saturne', 9.5371, 29.457], ['Uranus', 19.191, 84.011], ['Neptune', 30.069, 164.79],
+  ],
+};
+
+/** Lit un tableau CSV (séparateur virgule, point-virgule, tabulation ou espaces). Dernière colonne = grandeur à expliquer. */
+function parseCsv(text) {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+  const split = (l) => l.split(/[;,\t]|\s+/).map((c) => c.trim()).filter((c) => c !== '');
+  let header = split(lines[0]);
+  let rows = lines;
+  if (header.some((c) => isNaN(Number(c)))) rows = lines.slice(1);
+  else header = header.map((_, i, a) => (i === a.length - 1 ? 'y' : `x${i + 1}`));
+  const data = rows.map((l) => split(l).map(Number));
+  if (data.some((r) => r.length !== header.length || r.some((v) => !isFinite(v)))) throw new Error('CSV invalide : toutes les lignes doivent être numériques et de même longueur.');
+  return { names: header.slice(0, -1), target: header[header.length - 1], X: data.map((r) => r.slice(0, -1)), y: data.map((r) => r[r.length - 1]) };
+}
+
+
+// L'agent scientifique : il choisit ses expériences, confronte ses hypothèses aux mesures,
+// révise ses croyances et s'arrête quand une loi s'impose.
+//
+// Boucle : OBSERVER → COMPRENDRE → CONFRONTER → (HYPOTHÈSES) → ANTICIPER → PRIORISER → DÉCIDER
+//          → SIMULER → EXÉCUTER | REVUE HUMAINE → MESURER → APPRENDRE → RÉVISER → DREAMING → ↺
+
+const PHASES = ['OBSERVER', 'COMPRENDRE', 'CONFRONTER', 'HYPOTHÈSES', 'ANTICIPER', 'PRIORISER', 'DÉCIDER',
+  'SIMULER', 'EXÉCUTER', 'REVUE HUMAINE', 'MESURER', 'APPRENDRE', 'RÉVISER', 'DREAMING'];
+
+/**
+ * Classe les hypothèses du front de Pareto par vraisemblance pénalisée (type BIC, corrigé pour petits échantillons).
+ * sigma connu  : score = χ² + pénalité ;  sinon : score = N·ln(MSE) + pénalité.
+ * Renvoie les hypothèses triées, avec un poids a posteriori normalisé.
+ */
+function rank(front, n, sigma, varY, names) {
+  const hs = front.map((m) => {
+    const pen = m.cx * Math.log(Math.max(n, 2)) * (n / Math.max(n - m.cx - 1, 1));
+    const fitTerm = sigma > 0 ? (n * m.mse) / (sigma * sigma) : n * Math.log(Math.max(m.mse, 1e-12 * varY) / varY);
+    return { expr: m.e, cx: m.cx, mse: m.mse, score: fitTerm + pen, chi2red: sigma > 0 ? m.mse / (sigma * sigma) : null };
+  });
+  hs.sort((a, b) => a.score - b.score);
+  if (!hs.length) return hs;
+  const s0 = hs[0].score;
+  let z = 0;
+  for (const h of hs) { h.weight = Math.exp(-(h.score - s0) / 2); z += h.weight; }
+  for (const h of hs) { h.weight /= z; h.text = toString(h.expr, names); }
+  // deux écritures identiques à l'affichage : on ne garde que la mieux classée
+  const seen = new Set();
+  return hs.filter((h) => (seen.has(h.text) ? false : seen.add(h.text)));
+}
+
+class Agent {
+  /**
+   * @param world  monde à explorer (voir worlds.js) ; null en mode « données fournies ».
+   * @param o      budget : nombre max d'expériences ; mode : 'actif' | 'aléatoire' ;
+   *               effort : mutations explorées par cycle ; autoApprove : accepte seul les extensions de domaine.
+   */
+  constructor(world, { seed = 1, budget = 60, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40 } = {}) {
+    this.world = world;
+    this.mode = mode;
+    this.budget = budget;
+    this.effort = effort;
+    this.autoApprove = autoApprove;
+    this.maxCycles = maxCycles;
+    this.r = rng(seed * 104729 + 7);
+    this.names = world ? world.names : data.names;
+    this.target = world ? world.target : data.target || 'y';
+    this.d = this.names.length;
+    this.domain = world ? world.domain.map((b) => [...b]) : null;
+    this.X = data ? data.X.map((r) => [...r]) : [];
+    this.y = data ? [...data.y] : [];
+    this.sigma = 0;
+    this.noiseSS = 0; this.noiseDF = 0;
+    this.sigmaKnown = false;
+    this.search = new Search({ d: this.d, seed: seed * 31 + 5 });
+    this.hyps = [];
+    this.log = [];
+    this.history = [];      // { cycle, n, top, weight }
+    this.predictions = [];  // { x, pred, y, z }
+    this.cycle = 0;
+    this.status = 'prêt';
+    this.phase = null;
+    this.pending = null;    // proposition en attente de validation humaine
+    this.decision = null;
+    this.next = null;       // prochaine expérience choisie
+    this.extended = false;
+    this.holdUntil = 0;
+    this.stable = 0;
+    this._gen = this._loop();
+  }
+
+  /** Avance d'une phase. Renvoie { phase, status }. */
+  step() {
+    if (this.status === 'terminé') return { phase: this.phase, status: this.status };
+    if (this.status === 'revue' && this.decision === null) return { phase: this.phase, status: this.status };
+    const r = this._gen.next();
+    if (r.done) this.status = 'terminé';
+    return { phase: this.phase, status: this.status };
+  }
+  /** Exécute jusqu'à la fin (ou jusqu'à une demande de revue humaine). */
+  run() { while (this.status !== 'terminé' && !(this.status === 'revue' && this.decision === null)) this.step(); return this.best(); }
+  approve(ok) { this.decision = !!ok; }
+  best() { return this.hyps[0] || null; }
+
+  _say(phase, msg) { this.phase = phase; this.log.push({ cycle: this.cycle, phase, msg }); }
+  _fmtX(x) { return x.map((v, j) => `${this.names[j]}=${Number(v.toPrecision(3))}`).join(', '); }
+  _data() { return makeData(this.X, this.y); }
+  _varY() { const n = this.y.length; const m = this.y.reduce((a, b) => a + b, 0) / n; return this.y.reduce((a, b) => a + (b - m) ** 2, 0) / n || 1; }
+  _rand(dom = this.domain) { return dom.map(([a, b]) => a + this.r() * (b - a)); }
+  _measure(x) {
+    const y = this.world.measure(x);
+    if (isFinite(y)) { this.X.push([...x]); this.y.push(y); }
+    return y;
+  }
+  /** Répète k fois la même expérience en un point neuf et affine l'estimation du bruit. */
+  _replicate(k) {
+    const x = this._rand();
+    const vals = [];
+    for (let i = 0; i < k; i++) { const v = this._measure(x); if (isFinite(v)) vals.push(v); }
+    if (vals.length >= 2) {
+      const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+      this.noiseSS += vals.reduce((a, b) => a + (b - m) ** 2, 0); this.noiseDF += vals.length - 1;
+    }
+    this.sigma = Math.max(this.noiseDF ? Math.sqrt(this.noiseSS / this.noiseDF) : 0, 1e-7 * Math.sqrt(this._varY()));
+  }
+  _believe() {
+    this.search.polish();
+    this.hyps = rank(this.search.front(), this.y.length, this.sigmaKnown ? this.sigma : 0, this._varY(), this.names);
+  }
+  _minDist(x) {
+    let best = Infinity;
+    for (const p of this.X) {
+      let s = 0;
+      for (let j = 0; j < this.d; j++) { const w = this.domain[j][1] - this.domain[j][0]; const dd = (x[j] - p[j]) / w; s += dd * dd; }
+      if (s < best) best = s;
+    }
+    return Math.sqrt(best);
+  }
+  /** Désaccord attendu (en σ²) entre la meilleure hypothèse et ses rivales en un point x. */
+  _utility(x) {
+    const hs = this.hyps;
+    if (hs.length < 2) return 0;
+    const top = evalPoint(hs[0].expr, x);
+    if (!isFinite(top)) return 0;
+    const s1 = hs[1].score;
+    let u = 0, z = 0;
+    for (let i = 1; i < Math.min(hs.length, 9); i++) {
+      const w = Math.exp(-(hs[i].score - s1) / 6);
+      const f = evalPoint(hs[i].expr, x);
+      if (!isFinite(f)) continue;
+      u += w * (f - top) ** 2; z += w;
+    }
+    return z ? u / z / (this.sigma * this.sigma) : 0;
+  }
+
+  *_loop() {
+    const passive = !this.world;
+    this.status = 'en cours';
+
+    // ------------------------------------------------------------------ OBSERVER
+    if (!passive) {
+      const n0 = Math.max(8, 5 * this.d + 2);
+      // plan initial : hypercube latin
+      const perms = this.domain.map(() => Array.from({ length: n0 }, (_, i) => i).sort(() => this.r() - 0.5));
+      for (let i = 0; i < n0; i++) this._measure(this.domain.map(([a, b], j) => a + ((perms[j][i] + this.r()) / n0) * (b - a)));
+      // répétitions : la même expérience plusieurs fois, pour estimer le bruit de mesure
+      for (let g = 0; g < 3; g++) this._replicate(3);
+      this.sigmaKnown = true;
+      this._say('OBSERVER', `${this.y.length} mesures initiales, dont 3 expériences répétées 3 fois : bruit de mesure estimé σ ≈ ${Number(this.sigma.toPrecision(2))}.`);
+    } else {
+      this._say('OBSERVER', `${this.y.length} observations fournies ; aucune expérience possible, le bruit est inconnu.`);
+    }
+    this.search.setData(this._data());
+    if (this.sigmaKnown) this.search.setNoise(this.sigma);
+    yield;
+
+    let extraEffort = 1, contradiction = false, prevShape = null, calibrated = 0;
+    for (this.cycle = 1; this.cycle <= this.maxCycles; this.cycle++) {
+      // ---------------------------------------------------------------- COMPRENDRE
+      const chunks = 4;
+      for (let c = 0; c < chunks; c++) {
+        this.search.step(Math.round((this.effort * extraEffort) / chunks));
+        this.phase = 'COMPRENDRE';
+        yield;
+      }
+      this._believe();
+      const top = this.hyps[0];
+      this._say('COMPRENDRE', `Meilleure explication : ${this.target} = ${top.text}  (confiance ${(top.weight * 100).toFixed(0)} %, ${this.hyps.length} hypothèses en lice).`);
+      yield;
+
+      // ---------------------------------------------------------------- CONFRONTER
+      const last = this.predictions[this.predictions.length - 1];
+      if (last && last.cycle === this.cycle - 1) {
+        contradiction = Math.abs(last.z) > 3;
+        this._say('CONFRONTER', contradiction
+          ? `Contradiction : la mesure s'écarte de ${Math.abs(last.z).toFixed(1)} σ de ma prédiction. Ma théorie était fausse à cet endroit.`
+          : `Confirmation : la mesure tombe à ${Math.abs(last.z).toFixed(1)} σ de ma prédiction.`);
+        yield;
+      } else contradiction = false;
+
+      // ---------------------------------------------------------------- HYPOTHÈSES
+      if (contradiction) {
+        this.search.step(this.effort);
+        this._believe();
+        this._say('HYPOTHÈSES', `Je cherche de nouvelles formes de loi. Candidate actuelle : ${this.target} = ${this.hyps[0].text}.`);
+        yield;
+      }
+      const shape = shapeKey(this.hyps[0].expr);
+      this.stable = shape === prevShape ? this.stable + 1 : 0;
+      prevShape = shape;
+      this.history.push({ cycle: this.cycle, n: this.y.length, top: this.hyps[0].text, weight: this.hyps[0].weight });
+
+      if (passive) {
+        this._say('DREAMING', `Auto-audit : forme ${this.stable ? `stable depuis ${this.stable} cycle(s)` : 'encore changeante'}.`);
+        yield;
+        if (this.stable >= 4 && this.cycle >= 6) break;
+        continue;
+      }
+
+      // ---------------------------------------------------------------- ANTICIPER
+      const cands = [];
+      for (let k = 0; k < 400; k++) { const x = this._rand(); cands.push({ x, u: this._utility(x), dmin: this._minDist(x) }); }
+      const spacing = Math.pow(this.y.length, -1 / this.d);
+      let maxU = 0;
+      for (const c of cands) { c.gain = c.u * (0.4 + Math.min(c.dmin / spacing, 1.5)); if (c.u > maxU) maxU = c.u; }
+      this.candidates = cands;
+      this._say('ANTICIPER', maxU >= 0.25
+        ? `Mes hypothèses se contredisent jusqu'à ${Math.sqrt(maxU).toFixed(1)} σ dans le domaine : une expérience peut les départager.`
+        : `Mes hypothèses sont indiscernables dans le domaine (écart max ${Math.sqrt(maxU).toFixed(2)} σ).`);
+      yield;
+
+      // ---------------------------------------------------------------- PRIORISER
+      let choice;
+      if (this.mode === 'aléatoire') choice = { x: this._rand(), why: 'tirage au hasard (mode témoin)' };
+      else if (maxU >= 0.25) {
+        const c = cands.reduce((a, b) => (b.gain > a.gain ? b : a));
+        choice = { x: c.x, why: `désaccord attendu ${Math.sqrt(c.u).toFixed(1)} σ` };
+      } else {
+        const c = cands.reduce((a, b) => (b.dmin > a.dmin ? b : a));
+        choice = { x: c.x, why: 'zone la moins explorée' };
+      }
+      this.next = choice;
+      this._say('PRIORISER', `Expérience la plus utile : ${this._fmtX(choice.x)} (${choice.why}).`);
+      yield;
+
+      // ---------------------------------------------------------------- DÉCIDER
+      const topH = this.hyps[0];
+      const recent = this.predictions.slice(-3);
+      const confirmed = recent.length >= 3 && recent.every((p) => Math.abs(p.z) < 3);
+      const adequate = topH.chi2red !== null && topH.chi2red < 2.2;
+      const settled = topH.weight >= 0.9 && this.stable >= 3 && confirmed && adequate;
+      const left = this.budget - this.world.experiments;
+      if (settled && this.mode === 'actif' && maxU < 0.25 && !this.extended && this.world.extend > 1) {
+        // Risque : sortir du domaine sûr pour tester la loi en extrapolation.
+        const ext = this.domain.map(([a, b]) => [a, a + (b - a) * this.world.extend]);
+        let bestExt = null;
+        for (let k = 0; k < 300; k++) { const x = this._rand(ext); const u = this._utility(x); if (!bestExt || u > bestExt.u) bestExt = { x, u }; }
+        if (bestExt && bestExt.u > 9) {
+          this.pending = { ext, x: bestExt.x, u: bestExt.u };
+          this.status = 'revue'; this.decision = this.autoApprove ? true : null;
+          this._say('REVUE HUMAINE', `Dans le domaine sûr, plus rien ne distingue mes hypothèses ; hors domaine (${this._fmtX(bestExt.x)}) elles divergent de ${Math.sqrt(bestExt.u).toFixed(0)} σ. Je demande l'autorisation d'élargir le domaine d'expérience.`);
+          yield;
+          while (this.decision === null) yield;
+          this.status = 'en cours';
+          if (this.decision) {
+            this.domain = ext; this.extended = true; this.next = { x: bestExt.x, why: 'extrapolation autorisée' };
+            this.holdUntil = this.world.experiments + 3;   // au moins 3 mesures hors de l'ancien domaine avant de conclure
+            this._say('DÉCIDER', this.autoApprove ? 'Extension approuvée automatiquement (mode sans supervision).' : 'Extension approuvée par l’humain.');
+          } else {
+            this.extended = true;
+            this._say('DÉCIDER', 'Extension refusée : je reste dans le domaine sûr.');
+          }
+          this.pending = null; this.decision = null;
+          yield;
+        }
+      }
+      if (settled && this.world.experiments >= this.holdUntil && (maxU < 0.25 || this.stable >= 10)) {
+        this._say('DÉCIDER', `J'arrête : la même loi tient depuis ${this.stable} cycles, mes 3 dernières prédictions ont été confirmées et χ² réduit = ${topH.chi2red.toFixed(2)}.`);
+        yield;
+        break;
+      }
+      if (left <= 0) {
+        this._say('DÉCIDER', `Budget d'expériences épuisé (${this.budget}). Je rends ma meilleure hypothèse sans certitude.`);
+        this.exhausted = true;
+        yield;
+        break;
+      }
+      this._say('DÉCIDER', `Je continue (${left} expérience(s) restante(s)).`);
+      yield;
+
+      // ---------------------------------------------------------------- SIMULER
+      const x = this.next.x;
+      const pred = evalPoint(topH.expr, x);
+      const rivals = this.hyps.slice(1, 4).map((h) => evalPoint(h.expr, x)).filter(isFinite);
+      this._say('SIMULER', `Si ma loi est juste, je mesurerai ${this.target} ≈ ${Number(pred.toPrecision(4))}` +
+        (rivals.length ? ` ; mes rivales prédisent ${rivals.map((v) => Number(v.toPrecision(4))).join(', ')}.` : '.'));
+      yield;
+
+      // ---------------------------------------------------------------- EXÉCUTER + MESURER
+      this.phase = 'EXÉCUTER';
+      const y = this._measure(x);
+      if (!isFinite(y)) {
+        this._say('MESURER', `L'expérience ${this._fmtX(x)} est impossible (résultat non défini). Je l'écarte.`);
+        yield;
+        continue;
+      }
+      const z = (y - pred) / this.sigma;
+      this.predictions.push({ cycle: this.cycle, x, pred, y, z });
+      this._say('MESURER', `Mesuré ${this.target} = ${Number(y.toPrecision(4))} en ${this._fmtX(x)}.`);
+      yield;
+
+      // ---------------------------------------------------------------- APPRENDRE + RÉVISER
+      this.search.setData(this._data());
+      this._believe();
+      this._say('RÉVISER', `Croyances mises à jour sur ${this.y.length} mesures. En tête : ${this.target} = ${this.hyps[0].text} (${(this.hyps[0].weight * 100).toFixed(0)} %).`);
+      yield;
+
+      // ---------------------------------------------------------------- DREAMING (auto-audit)
+      const zs = this.predictions.slice(-8).map((p) => Math.abs(p.z));
+      calibrated = zs.filter((v) => v < 2).length / zs.length;
+      const chi = this.hyps[0].chi2red;
+      const left2 = this.budget - this.world.experiments;
+      if (chi > 1.6 && this.noiseDF < 16 && left2 >= 3 && this.stable >= 1) {
+        // Avant d'accuser la loi, je doute de ma propre estimation du bruit.
+        const before = this.sigma;
+        this._replicate(3);
+        this.search.setNoise(this.sigma);
+        this.search.setData(this._data());
+        this._believe();
+        this._say('DREAMING', `Auto-audit : χ² réduit = ${chi.toFixed(1)}. Soit ma loi est fausse, soit j'ai sous-estimé le bruit : je répète une expérience 3 fois. σ : ${Number(before.toPrecision(2))} → ${Number(this.sigma.toPrecision(2))}.`);
+      } else if (chi > 2.2 && this.cycle >= 3) {
+        extraEffort = Math.min(extraEffort * 1.5, 4);
+        this._say('DREAMING', `Auto-audit : χ² réduit = ${chi.toFixed(1)} — ma meilleure loi n'explique pas les données. J'augmente l'effort de recherche (×${extraEffort.toFixed(1)}).`);
+      } else {
+        extraEffort = Math.max(1, extraEffort / 1.5);
+        this._say('DREAMING', `Auto-audit : ${(calibrated * 100).toFixed(0)} % de mes dernières prédictions à moins de 2 σ ; χ² réduit = ${chi.toFixed(2)}.`);
+      }
+      yield;
+    }
+    this._believe();
+    this.phase = null;
+    this.status = 'terminé';
+  }
+}
+
+/**
+ * Vérification indépendante : compare une loi trouvée à la vérité sur des points neufs,
+ * dans le domaine puis en extrapolation (domaine élargi de 50 %). Erreurs normalisées par l'écart-type de la vérité.
+ */
+function verify(world, expr, seed = 12345) {
+  const r = rng(seed);
+  const nrmse = (dom) => {
+    let se = 0, n = 0; const ys = [];
+    for (let k = 0; k < 2000; k++) {
+      const x = dom.map(([a, b]) => a + r() * (b - a));
+      const t = world.secret.f(x);
+      if (!isFinite(t)) continue;
+      const p = evalPoint(expr, x);
+      se += isFinite(p) ? (p - t) ** 2 : Infinity; n++; ys.push(t);
+    }
+    const m = ys.reduce((a, b) => a + b, 0) / n;
+    const v = ys.reduce((a, b) => a + (b - m) ** 2, 0) / n;
+    return Math.sqrt(se / n / v);
+  };
+  const base = world.vars.map((v) => [v.min, v.max]);
+  const k = world.extend > 2 ? world.extend : world.extend > 1 ? 1.5 : 1;   // les mondes à grande extension sont jugés sur toute leur plage
+  const inDomain = nrmse(base);
+  const extrapolation = nrmse(base.map(([a, b]) => [a, a + (b - a) * k]));
+  // Même forme ? On réajuste les constantes de la loi trouvée sur la vérité sans bruit (domaine élargi) :
+  // si l'erreur tombe sous 0,1 %, la structure est la bonne et seules les constantes étaient imprécises.
+  const wide = base.map(([a, b]) => [a, a + (b - a) * k]);
+  const X = [], y = [];
+  for (let i = 0; i < 300; i++) { const x = wide.map(([a, b]) => a + r() * (b - a)); const t = world.secret.f(x); if (isFinite(t)) { X.push(x); y.push(t); } }
+  const refit = clone(expr);
+  const data = makeData(X, y);
+  const m = y.reduce((a, b) => a + b, 0) / y.length, varT = y.reduce((a, b) => a + (b - m) ** 2, 0) / y.length;
+  const sameForm = Math.sqrt(fitConstants(refit, data, 40) / varT) < 1e-3;
+  return { inDomain, extrapolation, sameForm, recovered: inDomain < 0.005 && extrapolation < 0.01 };
+}
+
+return { CATALOG, PLANETS, PHASES, Agent, verify, getWorld, customWorld, parseCsv, freeNames, parse, simplify, toString, evalPoint };
+})();
+const BENCH = {"date":"2026-11-12T18:21:26.981Z","seeds":5,"noises":[0.01,0.05],"summary":[{"noise":0.01,"mode":"actif","recovered":96,"runs":70,"experiments":25.714285714285715,"seconds":0.9844714285714286,"falseCertainty":3},{"noise":0.01,"mode":"aléatoire","recovered":87,"runs":70,"experiments":27.642857142857142,"seconds":2.156,"falseCertainty":7},{"noise":0.05,"mode":"actif","recovered":63,"runs":70,"experiments":26.185714285714287,"seconds":0.8731285714285714,"falseCertainty":26},{"noise":0.05,"mode":"aléatoire","recovered":63,"runs":70,"experiments":27.714285714285715,"seconds":0.917,"falseCertainty":26}]};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (v, d = 3) => (Math.abs(v) >= 1e5 || (v !== 0 && Math.abs(v) < 1e-3) ? v.toExponential(1) : String(Number(v.toPrecision(d)))).replace('-', '−');
+const S = { agent: null, world: null, timer: null, paused: false, varIdx: 0, verdict: null, hover: null };
+
+// ------------------------------------------------------------------ commandes
+(function fillWorlds() {
+  let h = '<optgroup label="Lois de la physique">';
+  for (const w of G.CATALOG) h += `<option value="${w.id}">${esc(w.title)}</option>`;
+  h += '</optgroup><optgroup label="À vous"><option value="@perso">Votre propre formule…</option></optgroup>';
+  h += '<optgroup label="Données réelles, sans expérience"><option value="@kepler">Les huit planètes (Kepler)</option><option value="@csv">Vos données…</option></optgroup>';
+  $('monde').innerHTML = h;
+})();
+
+function rangesUI() {
+  let names = [];
+  try { names = G.freeNames($('formule').value); } catch (e) { /* ignore */ }
+  const old = {};
+  $('bornes').querySelectorAll('input').forEach((i) => { old[i.id] = i.value; });
+  $('bornes').innerHTML = names.slice(0, 4).map((n) =>
+    `<label class="field"><span>${esc(n)} min</span><input type="number" step="any" id="min-${esc(n)}" value="${old['min-' + n] ?? 1}"></label>` +
+    `<label class="field"><span>${esc(n)} max</span><input type="number" step="any" id="max-${esc(n)}" value="${old['max-' + n] ?? 5}"></label>`).join('');
+}
+$('formule').addEventListener('input', rangesUI);
+$('monde').addEventListener('change', () => {
+  $('perso').hidden = $('monde').value !== '@perso';
+  $('csvbox').hidden = $('monde').value !== '@csv';
+  if ($('monde').value !== '@perso' && $('monde').value !== '@csv') start();
+});
+$('controls').addEventListener('submit', (e) => { e.preventDefault(); start(); });
+$('pause').addEventListener('click', () => { S.paused = !S.paused; $('pause').textContent = S.paused ? 'Reprendre' : 'Pause'; if (!S.paused) loop(); });
+$('pas').addEventListener('click', () => { S.paused = true; $('pause').textContent = 'Reprendre'; advance(true); render(); });
+$('oui').addEventListener('click', () => { S.agent.approve(true); loop(); });
+$('non').addEventListener('click', () => { S.agent.approve(false); loop(); });
+
+function start() {
+  clearTimeout(S.timer);
+  $('erreur').hidden = $('erreur2').hidden = true;
+  const id = $('monde').value, seed = Math.max(1, Number($('graine').value) || 1), noise = Number($('bruit').value);
+  let world = null, data = null;
+  try {
+    if (id === '@perso') {
+      const ranges = {};
+      for (const n of G.freeNames($('formule').value)) ranges[n] = [Number($('min-' + n)?.value ?? 1), Number($('max-' + n)?.value ?? 5)];
+      world = G.customWorld($('formule').value, { ranges, noise, seed });
+    } else if (id === '@kepler') {
+      data = { names: G.PLANETS.names, target: G.PLANETS.target, X: G.PLANETS.rows.map((r) => [r[1]]), y: G.PLANETS.rows.map((r) => r[2]), labels: G.PLANETS.rows.map((r) => r[0]) };
+    } else if (id === '@csv') {
+      data = G.parseCsv($('csv').value);
+      if (data.y.length < 4) throw new Error('Il faut au moins 4 observations.');
+      if (data.names.length > 4) throw new Error('Quatre variables au maximum.');
+    } else world = G.getWorld(id, { seed, noise });
+  } catch (err) {
+    const box = id === '@csv' ? $('erreur2') : $('erreur');
+    box.textContent = err.message; box.hidden = false;
+    return;
+  }
+  S.world = world; S.data = data; S.varIdx = 0; S.verdict = null; S.paused = false; S.hover = null;
+  $('pause').textContent = 'Pause';
+  S.agent = new G.Agent(world, { seed, mode: $('mode').value, autoApprove: !$('superviser').checked, data });
+  $('tabs').innerHTML = S.agent.d > 1 ? S.agent.names.map((n, j) => `<button type="button" aria-pressed="${j === 0}" data-j="${j}">${esc(n)}</button>`).join('') : '';
+  render();
+  loop();
+}
+$('tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  S.varIdx = Number(b.dataset.j);
+  $('tabs').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+  render();
+});
+
+/** Avance l'agent : enchaîne sans attendre les étapes de calcul, s'arrête sur une étape racontée. */
+function advance(single) {
+  const a = S.agent;
+  const t0 = performance.now();
+  for (;;) {
+    const before = a.log.length;
+    const r = a.step();
+    if (r.status === 'terminé' || (r.status === 'revue' && a.decision === null)) return true;
+    if (a.log.length > before && (single || Number($('vitesse').value) > 0)) return false;
+    if (performance.now() - t0 > 40) return false;
+  }
+}
+function loop() {
+  clearTimeout(S.timer);
+  const a = S.agent;
+  if (!a || S.paused) return;
+  const stop = advance(false);
+  if (a.status === 'terminé' && !S.verdict) finish();
+  render();
+  if (!stop) S.timer = setTimeout(loop, Number($('vitesse').value));
+}
+function finish() {
+  const a = S.agent, best = a.best();
+  if (S.world && best) {
+    const v = G.verify(S.world, best.expr);
+    S.verdict = { ...v, truth: G.toString(G.simplify(G.parse(S.world.secret.formula, S.world.names)), S.world.names) };
+  } else S.verdict = { passive: true };
+}
+
+// ------------------------------------------------------------------ rendu
+function render() {
+  const a = S.agent; if (!a) return;
+  const best = a.best(), done = a.status === 'terminé', review = a.status === 'revue' && a.decision === null;
+  const st = $('etat');
+  if (review) { st.className = 'pill warn'; st.textContent = '⏸ en attente de votre décision'; }
+  else if (!done) { st.className = 'pill run'; st.textContent = S.paused ? 'en pause' : `cycle ${a.cycle} · ${a.phase ? a.phase.toLowerCase() : 'démarrage'}`; }
+  else if (S.verdict && S.verdict.passive) { st.className = 'pill good'; st.textContent = '✓ recherche terminée'; }
+  else if (S.verdict && S.verdict.recovered) { st.className = 'pill good'; st.textContent = '✓ loi retrouvée'; }
+  else { st.className = 'pill bad'; st.textContent = '✕ loi non retrouvée'; }
+  $('law-title').textContent = done ? 'Loi proposée par l\'agent' : 'Meilleure explication pour l\'instant';
+  $('law').innerHTML = best ? `<span class="lhs">${esc(a.target)}</span> = ${esc(best.text)}` : '<span class="caption">premières mesures…</span>';
+  const nExp = S.world ? S.world.experiments : a.y.length;
+  $('law-meta').innerHTML = `<span><b>${nExp}</b> ${S.world ? 'expériences' : 'observations'}</span>` +
+    (best ? `<span>confiance <b>${(best.weight * 100).toFixed(0)} %</b></span>` : '') +
+    (a.sigmaKnown ? `<span>bruit estimé <b>σ ≈ ${fmt(a.sigma, 2)}</b></span>` : '') +
+    (S.world ? `<span>budget <b>${a.budget}</b></span>` : '');
+  $('review').hidden = !review;
+  if (review) $('review-text').textContent = a.log[a.log.length - 1].msg + ` Nouveau domaine : ${a.pending.ext.map(([lo, hi], j) => `${a.names[j]} ∈ [${fmt(lo)}, ${fmt(hi)}]`).join(', ')}.`;
+  const vd = $('verdict');
+  vd.hidden = !(done && S.verdict && !S.verdict.passive);
+  if (!vd.hidden) {
+    const v = S.verdict;
+    vd.innerHTML = `<span>La loi qui était cachée :</span><span class="truth"><i>${esc(a.target)}</i> = ${esc(v.truth)}</span>` +
+      `<span>Vérification sur 2000 points neufs : erreur <b>${(v.inDomain * 100).toFixed(3)} %</b> dans le domaine, <b>${(v.extrapolation * 100).toFixed(3)} %</b> en extrapolation.` +
+      (v.recovered ? '' : (a.exhausted ? ' L\'agent a épuisé son budget sans conclure.' : ' L\'agent s\'est arrêté convaincu, à tort.')) + `</span>`;
+  }
+  renderHyps(); renderLoop(); renderChart(); renderZ();
+}
+
+function renderHyps() {
+  const a = S.agent;
+  $('th-f').textContent = `Loi : ${a.target} =`;
+  $('th-chi').textContent = a.sigmaKnown ? 'χ² réd.' : 'Erreur';
+  const cols = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+  const rows = a.hyps.slice(0, 7).map((h, i) => `<tr><td><div class="bar"><div><i style="width:${(h.weight * 100).toFixed(1)}%${i < 3 ? `;background:${cols[i]}` : ''}"></i></div>${(h.weight * 100).toFixed(0)} %</div></td>` +
+    `<td class="f">${esc(h.text)}</td><td class="num">${h.cx}</td><td class="num">${h.chi2red !== null ? fmt(h.chi2red, 2) : fmt(Math.sqrt(h.mse), 2)}</td></tr>`);
+  $('hyps').innerHTML = rows.join('') || '<tr><td colspan="4" class="caption">Aucune hypothèse pour l\'instant.</td></tr>';
+}
+
+function renderLoop() {
+  const a = S.agent;
+  const seen = new Set(a.log.filter((l) => l.cycle === a.cycle).map((l) => l.phase));
+  $('loop').innerHTML = G.PHASES.map((p) => `<li class="${p === a.phase && a.status !== 'terminé' ? 'on' : seen.has(p) ? 'done' : ''}">${p}</li>`).join('');
+  const el = $('log');
+  const stick = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+  if (el.childElementCount > a.log.length) el.innerHTML = '';
+  for (let i = el.childElementCount; i < a.log.length; i++) {
+    const l = a.log[i], d = document.createElement('div');
+    if (/Contradiction|épuisé|n'explique pas/.test(l.msg)) d.className = 'x';
+    d.innerHTML = `<span class="n">${l.cycle}</span><span><b>${l.phase}</b> ${esc(l.msg)}</span>`;
+    el.appendChild(d);
+  }
+  if (stick) el.scrollTop = el.scrollHeight;
+}
+
+function ticks(lo, hi, n) {
+  const span = hi - lo, step0 = Math.pow(10, Math.floor(Math.log10(span / n)));
+  const step = [1, 2, 5, 10].map((m) => m * step0).find((s) => span / s <= n) || step0 * 10;
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9 * span; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+  return out;
+}
+function logTicks(lo, hi) {
+  const out = [];
+  for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) for (const m of [1, 3]) { const v = m * 10 ** p; if (v >= lo && v <= hi) out.push(v); }
+  return out;
+}
+
+function renderChart() {
+  const a = S.agent, j = S.varIdx, d = a.d, n = a.y.length;
+  const W = 640, H = 360, m = { l: 52, r: 14, t: 12, b: 36 };
+  if (!n) { $('chart').innerHTML = ''; return; }
+  const xs = a.X.map((r) => r[j]);
+  let x0, x1;
+  if (a.domain) [x0, x1] = a.domain[j]; else { x0 = Math.min(...xs); x1 = Math.max(...xs); }
+  const top = a.hyps[0];
+  const mid = a.domain ? a.domain.map(([lo, hi], k) => { const b = S.world.domain[k]; return (b[0] + b[1]) / 2; })
+    : a.names.map((_, k) => { const c = a.X.map((r) => r[k]).sort((p, q) => p - q); return c[c.length >> 1]; });
+  const at = (v) => { const p = [...mid]; p[j] = v; return p; };
+  // points ramenés à la coupe : y − f(x) + f(x sur la coupe)
+  const ys = a.y.map((y, i) => (d > 1 && top ? y - G.evalPoint(top.expr, a.X[i]) + G.evalPoint(top.expr, at(xs[i])) : y));
+  const logX = !a.domain && x0 > 0 && x1 / x0 > 30, logY = logX && Math.min(...ys) > 0 && Math.max(...ys) / Math.min(...ys) > 30;
+  if (!a.domain) { const pad = logX ? 1.25 : 1; if (logX) { x0 /= pad; x1 *= pad; } else { const p = (x1 - x0) * 0.05; x0 -= p; x1 += p; } }
+  const curves = a.hyps.slice(0, 3).map((h) => {
+    const pts = [];
+    for (let k = 0; k <= 160; k++) { const v = logX ? x0 * Math.pow(x1 / x0, k / 160) : x0 + ((x1 - x0) * k) / 160; pts.push([v, G.evalPoint(h.expr, at(v))]); }
+    return pts;
+  });
+  let y0 = Math.min(...ys.filter(isFinite)), y1 = Math.max(...ys.filter(isFinite));
+  if (curves[0]) for (const [, v] of curves[0]) if (isFinite(v)) { y0 = Math.min(y0, v); y1 = Math.max(y1, v); }
+  if (logY) { y0 /= 1.4; y1 *= 1.4; } else { const p = (y1 - y0 || 1) * 0.08; y0 -= p; y1 += p; }
+  const fx = (v) => m.l + (W - m.l - m.r) * (logX ? Math.log(v / x0) / Math.log(x1 / x0) : (v - x0) / (x1 - x0));
+  const fy = (v) => H - m.b - (H - m.t - m.b) * (logY ? Math.log(v / y0) / Math.log(y1 / y0) : (v - y0) / (y1 - y0));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mesures et hypothèses en fonction de ${esc(a.names[j])}"><defs><clipPath id="cp"><rect x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}"/></clipPath></defs>`;
+  for (const t of (logY ? logTicks(y0, y1) : ticks(y0, y1, 5))) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${fy(t)}" y2="${fy(t)}" stroke="var(--line)" stroke-width="1"/><text x="${m.l - 8}" y="${fy(t) + 4}" text-anchor="end">${fmt(t)}</text>`;
+  for (const t of (logX ? logTicks(x0, x1) : ticks(x0, x1, 7))) s += `<text x="${fx(t)}" y="${H - m.b + 16}" text-anchor="middle">${fmt(t)}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--ink-3)" stroke-width="1"/>`;
+  s += `<text x="${W - m.r}" y="${H - 4}" text-anchor="end" style="font-family:var(--f-math);font-style:italic;font-size:14px;fill:var(--ink-2)">${esc(a.names[j])}</text>`;
+  s += `<text x="${m.l}" y="${m.t + 2}" style="font-family:var(--f-math);font-style:italic;font-size:14px;fill:var(--ink-2)" dx="6" dy="10">${esc(a.target)}</text>`;
+  if (a.extended && S.world && a.domain[j][1] > S.world.domain[j][1]) {
+    const bx = fx(S.world.domain[j][1]);
+    s += `<line x1="${bx}" x2="${bx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-3)" stroke-dasharray="4 4"/><text x="${bx + 6}" y="${H - m.b - 8}">hors du domaine sûr →</text>`;
+  }
+  const cols = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+  for (let c = curves.length - 1; c >= 0; c--) {
+    let dstr = '', pen = false;
+    for (const [v, y] of curves[c]) {
+      if (!isFinite(y) || (logY && y <= 0)) { pen = false; continue; }
+      const py = Math.max(-2000, Math.min(2000, fy(y)));
+      dstr += `${pen ? 'L' : 'M'}${fx(v).toFixed(1)},${py.toFixed(1)}`; pen = true;
+    }
+    s += `<path d="${dstr}" fill="none" stroke="${cols[c]}" stroke-width="${c === 0 ? 2.5 : 2}" ${c ? 'stroke-dasharray="' + (c === 1 ? '7 4' : '2 4') + '"' : ''} clip-path="url(#cp)" stroke-linejoin="round"/>`;
+  }
+  if (a.next && a.status !== 'terminé' && a.domain) {
+    const nx = fx(a.next.x[j]);
+    s += `<line x1="${nx}" x2="${nx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-2)" stroke-width="1"/><text x="${nx > W - 150 ? nx - 6 : nx + 6}" y="${m.t + 24}" text-anchor="${nx > W - 150 ? 'end' : 'start'}" style="fill:var(--ink-2)">prochaine expérience</text>`;
+  }
+  for (let i = 0; i < n; i++) {
+    if (!isFinite(ys[i])) continue;
+    const last = i === n - 1 && a.domain;
+    s += `<circle cx="${fx(xs[i]).toFixed(1)}" cy="${fy(ys[i]).toFixed(1)}" r="${last ? 5.5 : 4}" fill="var(--pt)" stroke="var(--surface)" stroke-width="2"/>`;
+    if (S.data && S.data.labels && n <= 12) s += `<text x="${fx(xs[i]) + 8}" y="${fy(ys[i]) + 14}">${esc(S.data.labels[i])}</text>`;
+  }
+  if (S.hover !== null) { const hx = fx(S.hover); s += `<line x1="${hx}" x2="${hx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-3)" stroke-width="1"/>`; }
+  s += '</svg>';
+  const box = $('chart');
+  box.innerHTML = s;
+  if (S.hover !== null) {
+    const tip = document.createElement('div'); tip.className = 'tip';
+    tip.innerHTML = `${esc(a.names[j])} = ${fmt(S.hover)}` + a.hyps.slice(0, 3).map((h, c) => { const v = G.evalPoint(h.expr, at(S.hover)); return `<br><i style="background:${cols[c]}"></i>${isFinite(v) ? fmt(v, 4) : 'non défini'}`; }).join('');
+    box.appendChild(tip);
+    const px = (fx(S.hover) / W) * box.clientWidth;
+    tip.style.top = '8px';
+    tip.style.left = Math.max(0, Math.min(box.clientWidth - tip.offsetWidth, px + (px > box.clientWidth / 2 ? -tip.offsetWidth - 10 : 10))) + 'px';
+  }
+  S.inv = (clientX) => { const r = box.getBoundingClientRect(); const u = (((clientX - r.left) / r.width) * W - m.l) / (W - m.l - m.r); if (u < 0 || u > 1) return null; return logX ? x0 * Math.pow(x1 / x0, u) : x0 + u * (x1 - x0); };
+  const styles = ['', 'background:repeating-linear-gradient(90deg,var(--s2) 0 5px,transparent 5px 8px)', 'background:repeating-linear-gradient(90deg,var(--s3) 0 2px,transparent 2px 5px)'];
+  $('legend').innerHTML = `<span><i class="dot" style="background:var(--pt)"></i>mesures</span>` +
+    a.hyps.slice(0, 3).map((h, c) => `<span><i style="${c ? styles[c] : 'background:var(--s1)'}"></i><code>${esc(h.text)}</code></span>`).join('');
+  $('chart-title').textContent = `${a.target} en fonction de ${a.names[j]}`;
+  $('chart-cap').textContent = d > 1
+    ? `Coupe à ${a.names.map((nm, k) => (k === j ? null : `${nm} = ${fmt(mid[k])}`)).filter(Boolean).join(', ')}. Chaque mesure est ramenée sur cette coupe à l'aide de la meilleure hypothèse ; son écart à la courbe bleue est son écart réel à cette hypothèse.`
+    : (logX ? 'Axes logarithmiques. ' : '') + 'Les trois hypothèses les mieux classées sont tracées ; survolez le graphique pour comparer leurs prédictions.';
+}
+$('chart').addEventListener('pointermove', (e) => { if (!S.inv) return; const v = S.inv(e.clientX); if (v !== S.hover) { S.hover = v; renderChart(); } });
+$('chart').addEventListener('pointerleave', () => { S.hover = null; renderChart(); });
+
+function renderZ() {
+  const a = S.agent, ps = a.predictions, W = 640, H = 110, m = { l: 52, r: 14, t: 10, b: 22 };
+  if (!S.world) { $('zchart').innerHTML = '<p class="caption">Sans expérience, pas de prédiction à mettre à l\'épreuve.</p>'; return; }
+  const cap = 6, nmax = Math.max(12, ps.length);
+  const fx = (i) => m.l + ((W - m.l - m.r) * (i + 0.5)) / nmax, fy = (v) => H - m.b - ((H - m.t - m.b) * Math.min(v, cap)) / cap;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Écart entre prédiction et mesure à chaque expérience">`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--ink-3)"/>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${fy(3)}" y2="${fy(3)}" stroke="var(--bad)" stroke-dasharray="4 4"/><text x="${W - m.r}" y="${fy(3) - 5}" text-anchor="end">3 σ : contradiction</text>`;
+  for (const t of [0, 3, 6]) s += `<text x="${m.l - 8}" y="${fy(t) + 4}" text-anchor="end">${t === 6 ? '≥ 6' : t} σ</text>`;
+  ps.forEach((p, i) => {
+    const z = Math.abs(p.z), bad = z > 3, x = fx(i), w = Math.min(14, ((W - m.l - m.r) / nmax) * 0.6);
+    s += `<rect x="${x - w / 2}" y="${fy(z)}" width="${w}" height="${Math.max(1.5, H - m.b - fy(z))}" rx="2" fill="${bad ? 'var(--bad)' : 'var(--ink-3)'}"><title>Expérience ${i + 1} : écart de ${z.toFixed(1)} σ (prédit ${fmt(p.pred, 4)}, mesuré ${fmt(p.y, 4)})</title></rect>`;
+    if (bad) s += `<text x="${x}" y="${fy(z) - 3}" text-anchor="middle" style="fill:var(--bad);font-weight:600">✕</text>`;
+  });
+  s += `<text x="${m.l}" y="${H - 5}">expériences choisies après le plan initial →</text></svg>`;
+  $('zchart').innerHTML = s;
+}
+
+(function renderBench() {
+  if (!BENCH) return;
+  const row = (noise) => { const a = BENCH.summary.find((s) => s.noise === noise && s.mode === 'actif'), b = BENCH.summary.find((s) => s.noise === noise && s.mode === 'aléatoire');
+    return a && b ? `<tr><td>${noise * 100} %</td><td class="num">${a.sameForm} %</td><td class="num">${a.recovered} %</td><td class="num">${b.sameForm} %</td><td class="num">${b.recovered} %</td><td class="num">${a.experiments.toFixed(0)}</td><td class="num">${a.falseCertainty} / ${a.runs}</td></tr>` : ''; };
+  $('bench').innerHTML = `<p>Banc d'essai du ${BENCH.date.slice(0, 10)} : ${G.CATALOG.length} lois × ${BENCH.seeds} tirages par configuration, expériences choisies par l'agent ou tirées au hasard.</p><div class="scroll-x"><table style="max-width:760px;margin-top:8px"><thead><tr><th>Bruit</th><th class="num">Agent : bonne forme</th><th class="num">et précise</th><th class="num">Hasard : bonne forme</th><th class="num">et précise</th><th class="num">Expériences</th><th class="num">Convaincu à tort</th></tr></thead><tbody>${BENCH.noises.map(row).join('')}</tbody></table></div>`;
+})();
+
+rangesUI();
+start();
+</script>

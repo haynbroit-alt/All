@@ -3,8 +3,8 @@
 //
 // Boucle : OBSERVER → COMPRENDRE → CONFRONTER → (HYPOTHÈSES) → ANTICIPER → PRIORISER → DÉCIDER
 //          → SIMULER → EXÉCUTER | REVUE HUMAINE → MESURER → APPRENDRE → RÉVISER → DREAMING → ↺
-import { toString, evalPoint, shapeKey } from './expr.js';
-import { rng, makeData } from './fit.js';
+import { toString, evalPoint, shapeKey, clone } from './expr.js';
+import { rng, makeData, fitConstants } from './fit.js';
 import { Search } from './search.js';
 
 export const PHASES = ['OBSERVER', 'COMPRENDRE', 'CONFRONTER', 'HYPOTHÈSES', 'ANTICIPER', 'PRIORISER', 'DÉCIDER',
@@ -207,7 +207,7 @@ export class Agent {
       let maxU = 0;
       for (const c of cands) { c.gain = c.u * (0.4 + Math.min(c.dmin / spacing, 1.5)); if (c.u > maxU) maxU = c.u; }
       this.candidates = cands;
-      this._say('ANTICIPER', maxU >= 1
+      this._say('ANTICIPER', maxU >= 0.25
         ? `Mes hypothèses se contredisent jusqu'à ${Math.sqrt(maxU).toFixed(1)} σ dans le domaine : une expérience peut les départager.`
         : `Mes hypothèses sont indiscernables dans le domaine (écart max ${Math.sqrt(maxU).toFixed(2)} σ).`);
       yield;
@@ -215,7 +215,7 @@ export class Agent {
       // ---------------------------------------------------------------- PRIORISER
       let choice;
       if (this.mode === 'aléatoire') choice = { x: this._rand(), why: 'tirage au hasard (mode témoin)' };
-      else if (maxU >= 1) {
+      else if (maxU >= 0.25) {
         const c = cands.reduce((a, b) => (b.gain > a.gain ? b : a));
         choice = { x: c.x, why: `désaccord attendu ${Math.sqrt(c.u).toFixed(1)} σ` };
       } else {
@@ -233,7 +233,7 @@ export class Agent {
       const adequate = topH.chi2red !== null && topH.chi2red < 2.2;
       const settled = topH.weight >= 0.9 && this.stable >= 3 && confirmed && adequate;
       const left = this.budget - this.world.experiments;
-      if (settled && this.mode === 'actif' && maxU < 1 && !this.extended && this.world.extend > 1) {
+      if (settled && this.mode === 'actif' && maxU < 0.25 && !this.extended && this.world.extend > 1) {
         // Risque : sortir du domaine sûr pour tester la loi en extrapolation.
         const ext = this.domain.map(([a, b]) => [a, a + (b - a) * this.world.extend]);
         let bestExt = null;
@@ -257,7 +257,7 @@ export class Agent {
           yield;
         }
       }
-      if (settled && this.world.experiments >= this.holdUntil && (maxU < 1 || this.stable >= 6)) {
+      if (settled && this.world.experiments >= this.holdUntil && (maxU < 0.25 || this.stable >= 10)) {
         this._say('DÉCIDER', `J'arrête : la même loi tient depuis ${this.stable} cycles, mes 3 dernières prédictions ont été confirmées et χ² réduit = ${topH.chi2red.toFixed(2)}.`);
         yield;
         break;
@@ -346,8 +346,17 @@ export function verify(world, expr, seed = 12345) {
     return Math.sqrt(se / n / v);
   };
   const base = world.vars.map((v) => [v.min, v.max]);
-  const k = world.extend > 1 ? 1.5 : 1;
+  const k = world.extend > 2 ? world.extend : world.extend > 1 ? 1.5 : 1;   // les mondes à grande extension sont jugés sur toute leur plage
   const inDomain = nrmse(base);
   const extrapolation = nrmse(base.map(([a, b]) => [a, a + (b - a) * k]));
-  return { inDomain, extrapolation, recovered: inDomain < 0.005 && extrapolation < 0.01 };
+  // Même forme ? On réajuste les constantes de la loi trouvée sur la vérité sans bruit (domaine élargi) :
+  // si l'erreur tombe sous 0,1 %, la structure est la bonne et seules les constantes étaient imprécises.
+  const wide = base.map(([a, b]) => [a, a + (b - a) * k]);
+  const X = [], y = [];
+  for (let i = 0; i < 300; i++) { const x = wide.map(([a, b]) => a + r() * (b - a)); const t = world.secret.f(x); if (isFinite(t)) { X.push(x); y.push(t); } }
+  const refit = clone(expr);
+  const data = makeData(X, y);
+  const m = y.reduce((a, b) => a + b, 0) / y.length, varT = y.reduce((a, b) => a + (b - m) ** 2, 0) / y.length;
+  const sameForm = Math.sqrt(fitConstants(refit, data, 40) / varT) < 1e-3;
+  return { inDomain, extrapolation, sameForm, recovered: inDomain < 0.005 && extrapolation < 0.01 };
 }
