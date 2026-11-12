@@ -71,6 +71,12 @@ button:disabled { opacity: 0.45; cursor: default; }
 .pill.bad { background: var(--bad-soft); color: var(--bad); }
 .verdict { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--ink-2); }
 .verdict .truth { font-family: var(--f-math); font-size: 20px; color: var(--ink); overflow-wrap: anywhere; }
+.bilan { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; font-size: 14px; color: var(--ink-2); }
+.bilan .head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bilan ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 10px; }
+.bilan li { display: contents; }
+.bilan li b { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.bilan .ok::before { content: "✓ "; color: var(--good); } .bilan .ko::before { content: "✕ "; color: var(--bad); } .bilan .na::before { content: "– "; color: var(--ink-3); }
 .review { background: var(--warn-soft); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
 .review .btns { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -121,7 +127,7 @@ code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-s
 <div class="wrap">
   <header>
     <h1>Galilée</h1>
-    <p class="lede">Une loi est cachée. L'agent ne la voit pas : il règle des variables, lit une mesure bruitée, et choisit lui-même l'expérience suivante, celle où ses hypothèses se contredisent le plus. Regardez-le la retrouver, ou cachez-lui la vôtre.</p>
+    <p class="lede">Une loi est cachée. L'agent ne la voit pas : il règle des variables, lit une mesure bruitée, et choisit lui-même l'expérience suivante, celle où ses hypothèses se contredisent le plus. À la fin, il dit lui-même s'il tient sa loi pour établie, empirique ou incertaine. Cachez-lui la vôtre, ou envoyez-le là où aucune formule n'existe.</p>
   </header>
 
   <form class="controls" id="controls">
@@ -173,6 +179,7 @@ code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-s
           <span id="review-text"></span>
           <div class="btns"><button type="button" class="primary" id="oui">Autoriser l'extension</button><button type="button" id="non">Refuser</button></div>
         </div>
+        <div class="bilan" id="bilan" hidden></div>
         <div class="verdict" id="verdict" hidden></div>
       </section>
 
@@ -211,12 +218,13 @@ code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-s
   <section class="panel about">
     <h2>Ce que vous regardez, et ses limites</h2>
     <p>Tout tourne dans cette page, sans serveur et sans modèle de langage. Le moteur est une recherche d'équations par programmation génétique, avec ajustement des constantes par Levenberg–Marquardt. L'agent estime d'abord le bruit en répétant des expériences, puis classe ses hypothèses par vraisemblance pénalisée et mesure là où les mieux classées divergent le plus.</p>
+    <p>Avant de conclure, il cherche à se prendre en défaut : une seconde recherche repart de zéro sur les mêmes mesures, des expériences neuves testent la loi sans avoir servi à l'ajuster, trois prédictions sont risquées hors du domaine, et les résidus sont comparés à du bruit. Il ne dit « établie » que si tout passe.</p>
     <div id="bench"></div>
     <ul>
-      <li>« Précise » : sur 2000 points neufs, moins de 0,5 % d'erreur dans le domaine et moins de 1 % en extrapolation. C'est le critère du verdict affiché plus haut ; une formule différente mais numériquement équivalente le satisfait.</li>
-      <li>« Bonne forme » : la structure est la bonne, même si le bruit a faussé une constante (4,9 arrondi à 5, par exemple).</li>
+      <li>« Bonne forme » : après réajustement des constantes sur la vérité sans bruit, l'erreur tombe sous 0,1 %. « Précise » : en plus, moins de 0,5 % d'erreur sur 2000 points neufs et moins de 1 % en extrapolation.</li>
+      <li>En terra incognita, il n'y a pas de bonne forme à retrouver : la loi proposée est une approximation, jugée sur des simulations neuves. Ce n'est pas une découverte sur la nature, le système étant simulé.</li>
       <li>L'agent ne cherche pas les fonctions emboîtées comme sin(exp(x)), ni les exposants variables comme x^y.</li>
-      <li>Avec beaucoup de bruit ou une loi longue, il peut rendre une approximation, et parfois s'en dire convaincu. La colonne « convaincu à tort » compte les arrêts sur une forme fausse.</li>
+      <li>La recherche est aléatoire : changez le numéro de tirage pour voir un autre déroulement.</li>
     </ul>
   </section>
 </div>
@@ -234,6 +242,8 @@ const S = { agent: null, world: null, timer: null, paused: false, varIdx: 0, ver
 (function fillWorlds() {
   let h = '<optgroup label="Lois de la physique">';
   for (const w of G.CATALOG) h += `<option value="${w.id}">${esc(w.title)}</option>`;
+  h += '</optgroup><optgroup label="Terra incognita : aucune formule exacte n\'existe">';
+  for (const w of G.SIMULATORS) h += `<option value="${w.id}">${esc(w.title)}</option>`;
   h += '</optgroup><optgroup label="À vous"><option value="@perso">Votre propre formule…</option></optgroup>';
   h += '<optgroup label="Données réelles, sans expérience"><option value="@kepler">Les huit planètes (Kepler)</option><option value="@csv">Vos données…</option></optgroup>';
   $('monde').innerHTML = h;
@@ -321,7 +331,7 @@ function finish() {
   const a = S.agent, best = a.best();
   if (S.world && best) {
     const v = G.verify(S.world, best.expr);
-    S.verdict = { ...v, truth: G.toString(G.simplify(G.parse(S.world.secret.formula, S.world.names)), S.world.names) };
+    S.verdict = { ...v, sim: S.world.simulated, truth: S.world.simulated ? null : G.toString(G.simplify(G.parse(S.world.secret.formula, S.world.names)), S.world.names) };
   } else S.verdict = { passive: true };
 }
 
@@ -333,7 +343,9 @@ function render() {
   if (review) { st.className = 'pill warn'; st.textContent = '⏸ en attente de votre décision'; }
   else if (!done) { st.className = 'pill run'; st.textContent = S.paused ? 'en pause' : `cycle ${a.cycle} · ${a.phase ? a.phase.toLowerCase() : 'démarrage'}`; }
   else if (S.verdict && S.verdict.passive) { st.className = 'pill good'; st.textContent = '✓ recherche terminée'; }
+  else if (S.verdict && S.verdict.sim) { st.className = 'pill run'; st.textContent = `prédit à ${(S.verdict.inDomain * 100).toFixed(1)} % près`; }
   else if (S.verdict && S.verdict.recovered) { st.className = 'pill good'; st.textContent = '✓ loi retrouvée'; }
+  else if (S.verdict && S.verdict.sameForm) { st.className = 'pill warn'; st.textContent = '≈ bonne forme, constantes imprécises'; }
   else { st.className = 'pill bad'; st.textContent = '✕ loi non retrouvée'; }
   $('law-title').textContent = done ? 'Loi proposée par l\'agent' : 'Meilleure explication pour l\'instant';
   $('law').innerHTML = best ? `<span class="lhs">${esc(a.target)}</span> = ${esc(best.text)}` : '<span class="caption">premières mesures…</span>';
@@ -344,13 +356,29 @@ function render() {
     (S.world ? `<span>budget <b>${a.budget}</b></span>` : '');
   $('review').hidden = !review;
   if (review) $('review-text').textContent = a.log[a.log.length - 1].msg + ` Nouveau domaine : ${a.pending.ext.map(([lo, hi], j) => `${a.names[j]} ∈ [${fmt(lo)}, ${fmt(hi)}]`).join(', ')}.`;
+  const bl = $('bilan'), B = a.bilan;
+  bl.hidden = !(done && B && B.verdict);
+  if (!bl.hidden) {
+    const cls = { 'établie': 'good', 'empirique': 'warn', 'incertaine': 'bad' }[B.verdict];
+    const li = (name, state, text) => `<li><b class="${state}">${name}</b><span>${esc(text)}</span></li>`;
+    let items = '';
+    if (B.second) items += li('Second avis', B.second.same ? 'ok' : B.second.weak ? 'na' : 'ko', B.second.same ? 'une recherche indépendante aboutit à la même loi' : B.second.weak ? 'la recherche indépendante a trouvé moins bien : aucune confirmation' : `une loi rivale aussi crédible : ${B.second.text}`);
+    if (B.validation) items += li('Validation', B.validation.ok ? 'ok' : 'ko', `${B.validation.n} expériences neuves, pire écart ${B.validation.maxZ.toFixed(1)} σ`);
+    else if (S.world) items += li('Validation', 'na', 'non menée');
+    if (B.extrapolation) items += li('Hors domaine', B.extrapolation.tested ? (B.extrapolation.ok ? 'ok' : 'ko') : 'na', B.extrapolation.tested ? `${B.extrapolation.n} prédictions risquées, pire écart ${B.extrapolation.maxZ.toFixed(1)} σ` : `non testé (${B.extrapolation.why})`);
+    if (B.runsZ !== undefined) items += li('Résidus', B.runsZ < -3 ? 'ko' : 'ok', B.runsZ < -3 ? 'structurés : la loi est une approximation' : 'comparables à du bruit');
+    bl.innerHTML = `<div class="head"><span>Verdict de l'agent sur sa propre loi :</span><span class="pill ${cls}">${B.verdict}</span></div><span>${esc(B.why)}</span><ul>${items}</ul>`;
+  }
   const vd = $('verdict');
   vd.hidden = !(done && S.verdict && !S.verdict.passive);
   if (!vd.hidden) {
     const v = S.verdict;
-    vd.innerHTML = `<span>La loi qui était cachée :</span><span class="truth"><i>${esc(a.target)}</i> = ${esc(v.truth)}</span>` +
-      `<span>Vérification sur 2000 points neufs : erreur <b>${(v.inDomain * 100).toFixed(3)} %</b> dans le domaine, <b>${(v.extrapolation * 100).toFixed(3)} %</b> en extrapolation.` +
-      (v.recovered ? '' : (a.exhausted ? ' L\'agent a épuisé son budget sans conclure.' : ' L\'agent s\'est arrêté convaincu, à tort.')) + `</span>`;
+    const errs = `erreur <b>${(v.inDomain * 100).toFixed(v.sim ? 2 : 3)} %</b> dans le domaine, <b>${(v.extrapolation * 100).toFixed(v.sim ? 2 : 3)} %</b> en extrapolation.`;
+    if (v.sim) vd.innerHTML = `<span>Ce que l'agent ne pouvait pas savoir : aucune formule exacte n'existe pour ce système. ${esc(S.world.known)}</span><span>Sa loi, confrontée à ${v.points} simulations neuves : ${errs}</span>`;
+    else {
+      const honest = v.sameForm ? '' : (B && B.verdict === 'établie' ? ' L\'agent s\'est dit certain à tort.' : ' L\'agent n\'avait pas certifié cette loi : son doute était fondé.');
+      vd.innerHTML = `<span>La loi qui était cachée :</span><span class="truth"><i>${esc(a.target)}</i> = ${esc(v.truth)}</span><span>Vérification sur 2000 points neufs : ${errs}${honest}</span>`;
+    }
   }
   renderHyps(); renderLoop(); renderChart(); renderZ();
 }
@@ -493,9 +521,17 @@ function renderZ() {
 
 (function renderBench() {
   if (!BENCH) return;
-  const row = (noise) => { const a = BENCH.summary.find((s) => s.noise === noise && s.mode === 'actif'), b = BENCH.summary.find((s) => s.noise === noise && s.mode === 'aléatoire');
-    return a && b ? `<tr><td>${noise * 100} %</td><td class="num">${a.sameForm} %</td><td class="num">${a.recovered} %</td><td class="num">${b.sameForm} %</td><td class="num">${b.recovered} %</td><td class="num">${a.experiments.toFixed(0)}</td><td class="num">${a.falseCertainty} / ${a.runs}</td></tr>` : ''; };
-  $('bench').innerHTML = `<p>Banc d'essai du ${BENCH.date.slice(0, 10)} : ${G.CATALOG.length} lois × ${BENCH.seeds} tirages par configuration, expériences choisies par l'agent ou tirées au hasard.</p><div class="scroll-x"><table style="max-width:760px;margin-top:8px"><thead><tr><th>Bruit</th><th class="num">Agent : bonne forme</th><th class="num">et précise</th><th class="num">Hasard : bonne forme</th><th class="num">et précise</th><th class="num">Expériences</th><th class="num">Convaincu à tort</th></tr></thead><tbody>${BENCH.noises.map(row).join('')}</tbody></table></div>`;
+  const pick = (noise, key, val) => BENCH.summary.find((q) => q.noise === noise && q[key] === val);
+  const row = (noise) => { const a = pick(noise, 'mode', 'actif'), b = pick(noise, 'mode', 'aléatoire');
+    return a && b ? `<tr><td>${noise * 100} %</td><td class="num">${a.sameForm} %</td><td class="num">${a.recovered} %</td><td class="num">${b.sameForm} %</td><td class="num">${b.recovered} %</td><td class="num">${a.experiments.toFixed(0)}</td></tr>` : ''; };
+  const cal = (noise) => ['établie', 'empirique', 'incertaine'].map((v) => { const q = pick(noise, 'verdict', v); return q ? `<tr><td>${noise * 100} %</td><td>${v}</td><td class="num">${q.n}</td><td class="num">${q.right}</td><td class="num">${q.n - q.right}</td></tr>` : ''; }).join('');
+  let h = `<p>Banc d'essai du ${BENCH.date.slice(0, 10)} : ${G.CATALOG.length} lois × ${BENCH.seeds} tirages par configuration, expériences choisies par l'agent ou tirées au hasard.</p>
+    <div class="scroll-x"><table style="max-width:720px;margin-top:8px"><thead><tr><th>Bruit</th><th class="num">Agent : bonne forme</th><th class="num">et précise</th><th class="num">Hasard : bonne forme</th><th class="num">et précise</th><th class="num">Expériences</th></tr></thead><tbody>${BENCH.noises.map(row).join('')}</tbody></table></div>
+    <p style="margin-top:14px">L'agent sait-il quand il se trompe ? Son verdict, comparé à la vérité qu'il ne voit pas :</p>
+    <div class="scroll-x"><table style="max-width:720px;margin-top:8px"><thead><tr><th>Bruit</th><th>Verdict de l'agent</th><th class="num">Nombre</th><th class="num">Forme réellement bonne</th><th class="num">Forme fausse</th></tr></thead><tbody>${BENCH.noises.map(cal).join('')}</tbody></table></div>`;
+  if (BENCH.sims && BENCH.sims.length) h += `<p style="margin-top:14px">Terra incognita, bruit 1 % : lois proposées pour des systèmes sans formule exacte, jugées sur 400 simulations neuves.</p>
+    <div class="scroll-x"><table style="margin-top:8px"><thead><tr><th>Système</th><th>Loi proposée</th><th class="num">Erreur domaine</th><th class="num">Extrapolation</th><th>Verdict</th></tr></thead><tbody>${BENCH.sims.map((r) => `<tr><td>${esc(r.title)}</td><td class="f">${esc(r.target)} = ${esc(r.found)}</td><td class="num">${(r.inDomain * 100).toFixed(2)} %</td><td class="num">${(r.extrapolation * 100).toFixed(2)} %</td><td>${r.verdict}</td></tr>`).join('')}</tbody></table></div>`;
+  $('bench').innerHTML = h;
 })();
 
 rangesUI();

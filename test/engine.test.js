@@ -4,7 +4,7 @@ import { parse, evalPoint, toString } from '../src/expr.js';
 import { rng, fitConstants, makeData, solve, linearFit } from '../src/fit.js';
 import { Search, nearestNice } from '../src/search.js';
 import { Agent, verify, rank } from '../src/agent.js';
-import { getWorld, customWorld, CATALOG, PLANETS, parseCsv, makeWorld } from '../src/worlds.js';
+import { getWorld, customWorld, CATALOG, SIMULATORS, PLANETS, parseCsv, makeWorld } from '../src/worlds.js';
 
 test('solve et linearFit', () => {
   assert.deepEqual(solve([[2, 0], [0, 4]], [2, 8]), [1, 2]);
@@ -59,6 +59,46 @@ test('l’agent retrouve le pendule, en n’utilisant que measure()', () => {
   const v = verify(real, best.expr);
   assert.ok(v.recovered, `trouvé ${best.text}, erreurs ${v.inDomain} / ${v.extrapolation}`);
   assert.equal(best.text, '2π·√(L / g)');
+  assert.equal(agent.bilan.verdict, 'établie');
+  assert.ok(agent.bilan.validation.ok && agent.bilan.extrapolation.ok, 'validation et épreuve d’extrapolation passées');
+  // les mesures de validation n'ont servi à l'ajustement qu'après le test
+  assert.ok(agent.bilan.validation.from >= 21);
+});
+
+test('auto-évaluation : pas de certitude sans épreuve hors domaine', () => {
+  const w = getWorld('cinetique', { seed: 2 });
+  const agent = new Agent(w, { seed: 2, autoApprove: false });
+  agent.run();
+  assert.equal(agent.status, 'revue');
+  agent.approve(false);
+  agent.run();
+  assert.equal(agent.status, 'terminé');
+  assert.equal(agent.bilan.verdict, 'empirique');
+  assert.match(agent.bilan.why, /pas été testée hors du domaine/);
+  assert.ok(agent.X.every((x) => x.every((v, j) => v <= w.vars[j].max)), 'refus respecté');
+});
+
+test('auto-évaluation : budget trop court → verdict « incertaine », jamais « établie »', () => {
+  const w = getWorld('gaz', { seed: 1 });
+  const agent = new Agent(w, { seed: 1, budget: 28 });
+  agent.run();
+  assert.equal(agent.bilan.verdict, 'incertaine');
+});
+
+test('terra incognita : les simulateurs sont déterministes, lisses et sans formule', () => {
+  for (const spec of SIMULATORS) {
+    const w = getWorld(spec.id);
+    assert.equal(w.secret.formula, null);
+    const mid = w.vars.map((v) => (v.min + v.max) / 2);
+    const a = w.secret.f(mid), b = w.secret.f(mid), c = w.secret.f(mid.map((v) => v * 1.001));
+    assert.ok(isFinite(a) && a === b, spec.id);
+    assert.ok(Math.abs(c - a) / Math.abs(a) < 0.01, spec.id + ' : continuité');
+  }
+  // contrôles physiques : petits angles → 2π ; traînée quasi nulle → v²/g
+  assert.ok(Math.abs(getWorld('grand-pendule').secret.f([0.01]) - 2 * Math.PI) < 1e-3);
+  assert.ok(Math.abs(SIMULATORS[0].sim([10, 1e-9]) - 100 / 9.81) < 1e-3);
+  // période exacte du pendule à 90° : 4·K(sin 45°) = 7.416298709…
+  assert.ok(Math.abs(getWorld('grand-pendule').secret.f([Math.PI / 2]) - 7.416298709) < 1e-4);
 });
 
 test('l’agent est reproductible à graine fixée', () => {
@@ -74,27 +114,29 @@ test('l’agent retrouve une formule libre', () => {
   assert.ok(v.recovered, agent.best().text);
 });
 
-test('revue humaine : sans approbation, l’agent attend puis respecte un refus', () => {
+test('revue humaine : sans approbation, aucune mesure ; avec approbation, la saturation est démasquée', () => {
   // Une saturation invisible dans le domaine sûr : x/(1+x/40) ressemble à une droite sur [0,2].
-  const w = makeWorld({ id: 't', title: 't', formula: 'x/(1+x/40)', vars: [{ name: 'x', min: 0, max: 2 }], noise: 0.01, seed: 1, extend: 8 });
-  const agent = new Agent(w, { seed: 1, autoApprove: false, budget: 80 });
+  const mk = () => makeWorld({ id: 't', title: 't', formula: 'x/(1+x/40)', vars: [{ name: 'x', min: 0, max: 2 }], noise: 0.01, seed: 1, extend: 8 });
+  const w = mk();
+  const agent = new Agent(w, { seed: 1, autoApprove: false });
   agent.run();
-  if (agent.status === 'revue') {
-    assert.ok(agent.pending && agent.pending.ext[0][1] === 16);
-    const n = w.experiments;
-    agent.step(); agent.step();
-    assert.equal(w.experiments, n, 'aucune expérience tant que l’humain n’a pas répondu');
-    agent.approve(false);
-    agent.run();
-    assert.ok(agent.X.every(([x]) => x <= 2), 'refus respecté : aucune mesure hors du domaine sûr');
-  }
+  assert.equal(agent.status, 'revue');
+  assert.equal(agent.pending.ext[0][1], 16);
+  const n = w.experiments;
+  agent.step(); agent.step();
+  assert.equal(w.experiments, n, 'aucune expérience tant que l’humain n’a pas répondu');
+  agent.approve(true);
+  const best = agent.run();
   assert.equal(agent.status, 'terminé');
+  assert.ok(agent.X.some(([x]) => x > 2), 'mesures hors du domaine sûr après accord');
+  assert.ok(verify(w, best.expr).sameForm, best.text);
 });
 
 test('données réelles : troisième loi de Kepler', () => {
   const data = { names: ['a'], target: 'T', X: PLANETS.rows.map((r) => [r[1]]), y: PLANETS.rows.map((r) => r[2]) };
   const agent = new Agent(null, { seed: 1, data });
   assert.equal(agent.run().text, 'a^(3/2)');
+  assert.equal(agent.bilan.verdict, 'empirique', 'sans expérience possible, jamais « établie »');
 });
 
 test('catalogue : toutes les lois sont définies sur leur domaine', () => {

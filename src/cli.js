@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 // Galilée en ligne de commande.
 import { readFileSync } from 'node:fs';
-import { CATALOG, getWorld, customWorld, PLANETS, parseCsv } from './worlds.js';
+import { CATALOG, SIMULATORS, getWorld, customWorld, PLANETS, parseCsv } from './worlds.js';
 import { Agent, verify } from './agent.js';
 
 const HELP = `Galilée — un agent qui redécouvre des lois par l'expérience.
 
   galilee list                          liste les lois cachées disponibles
-  galilee discover <id> [options]       lance l'agent sur une loi du catalogue
+  galilee discover <id> [options]       lance l'agent sur une loi du catalogue ou un simulateur
   galilee formula "<formule>" [options] lance l'agent sur votre propre loi cachée, ex. "3*x^2/(1+y)"
   galilee data <fichier.csv>            cherche une loi dans vos données (dernière colonne = grandeur à expliquer)
   galilee kepler                        données réelles des huit planètes
 
-Options : --seed N   --noise 0.01   --budget 60   --mode actif|aléatoire   --quiet
+Options : --seed N   --noise 0.01   --budget 80   --mode actif|aléatoire   --quiet
           --range x=1:5 (répétable, pour « formula »)`;
 
 const args = process.argv.slice(2);
@@ -26,20 +26,31 @@ function report(agent, world) {
   const best = agent.best();
   console.log(`\nLoi proposée :  ${agent.target} = ${best.text}`);
   console.log(`Confiance ${(best.weight * 100).toFixed(0)} % · complexité ${best.cx} · ${agent.y.length} mesures · ${agent.cycle} cycles`);
+  const b = agent.bilan;
+  console.log(`\nVerdict de l'agent : ${b.verdict.toUpperCase()}. ${b.why}`);
   console.log('\nHypothèses concurrentes :');
   for (const h of agent.hyps.slice(0, 6)) console.log(`  ${(h.weight * 100).toFixed(1).padStart(5)} %  ${agent.target} = ${h.text}`);
   if (world) {
     const v = verify(world, best.expr);
+    if (world.simulated) {
+      console.log(`\nAucune formule exacte n'existe pour ce système. ${world.known}`);
+      console.log(`Vérification sur ${v.points} simulations neuves : erreur ${(v.inDomain * 100).toFixed(2)} % dans le domaine, ${(v.extrapolation * 100).toFixed(2)} % en extrapolation.`);
+      return;
+    }
     console.log(`\nVérité cachée :  ${agent.target} = ${world.secret.formula}`);
     console.log(`Vérification sur 2000 points neufs : erreur ${(v.inDomain * 100).toFixed(3)} % dans le domaine, ${(v.extrapolation * 100).toFixed(3)} % en extrapolation`);
-    console.log(v.recovered ? '→ Loi retrouvée.' : '→ Loi NON retrouvée (approximation seulement).');
+    console.log(v.recovered ? '→ Loi retrouvée.' : v.sameForm ? '→ Bonne forme, constantes imprécises.' : '→ Loi NON retrouvée (approximation seulement).');
+    const honest = v.sameForm || b.verdict !== 'établie';
+    console.log(honest ? (v.sameForm ? '' : '→ L\'agent n\'avait pas certifié cette loi : son doute était fondé.') : '→ L\'agent s\'est dit certain à tort.');
     process.exitCode = v.recovered ? 0 : 2;
   }
 }
 
 try {
   if (cmd === 'list') {
-    for (const w of CATALOG) console.log(`${w.id.padEnd(15)} ${w.title.padEnd(28)} ${w.target} = f(${w.vars.map((v) => v.name).join(', ')})`);
+    for (const w of CATALOG) console.log(`${w.id.padEnd(15)} ${w.title.padEnd(30)} ${w.target} = f(${w.vars.map((v) => v.name).join(', ')})`);
+    console.log('\nTerra incognita (simulateurs sans formule exacte) :');
+    for (const w of SIMULATORS) console.log(`${w.id.padEnd(15)} ${w.title.padEnd(30)} ${w.target} = f(${w.vars.map((v) => v.name).join(', ')})`);
   } else if (cmd === 'discover' || cmd === 'formula') {
     const o = { seed, noise: Number(opt('noise', 0.01)) };
     let world;
@@ -50,7 +61,7 @@ try {
       world = customWorld(args[1], { ...o, ranges });
     }
     console.log(`Monde : ${world.title}. L'agent peut régler ${world.vars.map((v) => `${v.name} ∈ [${v.min}, ${v.max}]`).join(', ')} et mesurer ${world.target}.\n`);
-    const agent = new Agent(world, { seed, budget: Number(opt('budget', 60)), mode: opt('mode', 'actif') });
+    const agent = new Agent(world, { seed, budget: Number(opt('budget', 80)), mode: opt('mode', 'actif') });
     agent.run();
     report(agent, world);
   } else if (cmd === 'data' || cmd === 'kepler') {

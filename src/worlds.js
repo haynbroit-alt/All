@@ -6,15 +6,16 @@ import { rng } from './fit.js';
  * Crée un monde à partir d'une formule. L'agent n'a accès qu'à measure(x).
  * vars : [{ name, min, max, unit?, label? }] ; noise : écart-type du bruit, en fraction de l'amplitude de y.
  */
-export function makeWorld({ id, title, formula, vars, noise = 0.01, target = 'y', story = '', seed = 1, extend = 2 }) {
+export function makeWorld({ id, title, formula, sim, vars, noise = 0.01, target = 'y', story = '', seed = 1, extend = 2, known = null }) {
   const names = vars.map((v) => v.name);
-  const truth = parse(formula, names);
+  const truth = sim ? null : parse(formula, names);
+  const f = sim || ((x) => evalPoint(truth, x));
   const r = rng(seed * 7919 + 13);
   // amplitude typique de y sur le domaine, pour dimensionner le bruit
   const pr = rng(4242);
   const ys = [];
-  for (let k = 0; k < 400; k++) {
-    const v = evalPoint(truth, vars.map((q) => q.min + pr() * (q.max - q.min)));
+  for (let k = 0; k < (sim ? 120 : 400); k++) {
+    const v = f(vars.map((q) => q.min + pr() * (q.max - q.min)));
     if (isFinite(v)) ys.push(v);
   }
   const mean = ys.reduce((a, b) => a + b, 0) / ys.length;
@@ -25,10 +26,11 @@ export function makeWorld({ id, title, formula, vars, noise = 0.01, target = 'y'
     id, title, story, target, vars, names, noise, extend,
     domain: vars.map((v) => [v.min, v.max]),
     /** Réalise une expérience : renvoie une mesure bruitée. */
-    measure(x) { count++; return evalPoint(truth, x) + sigma * r.normal(); },
+    measure(x) { count++; return f(x) + sigma * r.normal(); },
     get experiments() { return count; },
     // --- réservé à la vérification finale : l'agent n'y touche jamais ---
-    secret: { formula, truth, sigma, f: (x) => evalPoint(truth, x) },
+    simulated: !!sim, known,
+    secret: { formula: sim ? null : formula, truth, sigma, f },
   };
 }
 
@@ -80,9 +82,100 @@ export const CATALOG = [
     vars: [{ name: 'A', min: 0.5, max: 5 }, { name: 'T', min: 1, max: 6 }] },
 ];
 
+// ---------------------------------------------------------------- terra incognita
+// Des systèmes dont seul le micro-mécanisme est codé (une équation différentielle intégrée pas à pas).
+// La grandeur mesurée n'a pas de formule exacte en fonctions élémentaires : personne n'a écrit la réponse.
+
+/** Runge–Kutta d'ordre 4 pour un système à 4 composantes au plus ; f écrit la dérivée dans out. */
+function rk4(state, f, dt, k1, k2, k3, k4, tmp) {
+  const n = state.length;
+  f(state, k1);
+  for (let i = 0; i < n; i++) tmp[i] = state[i] + 0.5 * dt * k1[i];
+  f(tmp, k2);
+  for (let i = 0; i < n; i++) tmp[i] = state[i] + 0.5 * dt * k2[i];
+  f(tmp, k3);
+  for (let i = 0; i < n; i++) tmp[i] = state[i] + dt * k3[i];
+  f(tmp, k4);
+  for (let i = 0; i < n; i++) state[i] += (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+}
+const buf = (n) => [0, 1, 2, 3, 4].map(() => new Float64Array(n));
+
+/** Portée d'un projectile tiré à 45° avec une traînée quadratique (a = −g − k·|v|·v). */
+function simProjectile([v0, k]) {
+  const s = Float64Array.from([0, 0, v0 * Math.SQRT1_2, v0 * Math.SQRT1_2]);
+  const [k1, k2, k3, k4, tmp] = buf(4);
+  const f = (q, o) => { const sp = Math.hypot(q[2], q[3]); o[0] = q[2]; o[1] = q[3]; o[2] = -k * sp * q[2]; o[3] = -9.81 - k * sp * q[3]; };
+  const dt = 0.002;
+  for (let i = 0; i < 200000; i++) {
+    const px = s[0], py = s[1];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (s[1] < 0) return px + ((s[0] - px) * py) / (py - s[1]);
+  }
+  return NaN;
+}
+/** Période d'un pendule lâché sans vitesse depuis l'angle θ0 (θ'' = −sin θ), sans approximation des petits angles. */
+function simPendulum([th0]) {
+  const s = Float64Array.from([th0, 0]);
+  const [k1, k2, k3, k4, tmp] = buf(2);
+  const f = (q, o) => { o[0] = q[1]; o[1] = -Math.sin(q[0]); };
+  const dt = 0.001;
+  for (let i = 0; i < 400000; i++) {
+    const p = s[0];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (s[0] <= 0) return 4 * (i * dt + (dt * p) / (p - s[0]));
+  }
+  return NaN;
+}
+/** Période d'un cycle proies–prédateurs (x' = x(1−y), y' = a·y(x−1)) partant de (x0, 1). */
+function simLotka([x0, a]) {
+  const s = Float64Array.from([x0, 1]);
+  const [k1, k2, k3, k4, tmp] = buf(2);
+  const f = (q, o) => { o[0] = q[0] * (1 - q[1]); o[1] = a * q[1] * (q[0] - 1); };
+  const dt = 0.002;
+  let crossings = 0;
+  for (let i = 0; i < 400000; i++) {
+    const py = s[1];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (i > 5 && py < 1 && s[1] >= 1) { crossings++; if (crossings === 1) return i * dt + (dt * (1 - py)) / (s[1] - py); }
+  }
+  return NaN;
+}
+/** Période d'un ressort durcissant (x'' = −x − β·x³) lâché depuis l'amplitude A. */
+function simDuffing([A, beta]) {
+  const s = Float64Array.from([A, 0]);
+  const [k1, k2, k3, k4, tmp] = buf(2);
+  const f = (q, o) => { o[0] = q[1]; o[1] = -q[0] - beta * q[0] * q[0] * q[0]; };
+  const dt = 0.001;
+  for (let i = 0; i < 400000; i++) {
+    const p = s[0];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (s[0] <= 0) return 4 * (i * dt + (dt * p) / (p - s[0]));
+  }
+  return NaN;
+}
+
+export const SIMULATORS = [
+  { id: 'trainee', title: 'Portée avec traînée de l’air', target: 'R', sim: simProjectile, extend: 1.5,
+    story: 'Un projectile tiré à 45° à la vitesse v, freiné par une traînée quadratique de coefficient k. Aucune formule exacte n’existe.',
+    known: 'Sans traînée : R = v²/g. Avec traînée quadratique, pas de solution en fonctions élémentaires.',
+    vars: [{ name: 'v', min: 5, max: 40, unit: 'm/s' }, { name: 'k', min: 0.005, max: 0.08, unit: '1/m' }] },
+  { id: 'grand-pendule', title: 'Pendule aux grands angles', target: 'T', sim: simPendulum, extend: 1.1,
+    story: 'La période d’un pendule lâché depuis un grand angle θ : la formule 2π de Galilée ne tient plus.',
+    known: 'Solution exacte : une intégrale elliptique, sans écriture en fonctions élémentaires.',
+    vars: [{ name: 'θ', min: 0.1, max: 2.6, unit: 'rad' }] },
+  { id: 'proies', title: 'Cycle proies–prédateurs', target: 'T', sim: simLotka, extend: 1.5,
+    story: 'Durée d’un cycle de Lotka–Volterra selon la population initiale de proies x et le rythme a des prédateurs.',
+    known: 'Près de l’équilibre : T ≈ 2π/√a. Loin de l’équilibre, pas de formule fermée.',
+    vars: [{ name: 'x', min: 1.2, max: 4 }, { name: 'a', min: 0.5, max: 3 }] },
+  { id: 'ressort-dur', title: 'Ressort durcissant', target: 'T', sim: simDuffing, extend: 1.5,
+    story: 'Période d’un oscillateur de Duffing d’amplitude A et de raideur cubique β.',
+    known: 'Solution exacte : une intégrale elliptique. Petites amplitudes : T ≈ 2π(1 − 3βA²/8).',
+    vars: [{ name: 'A', min: 0.2, max: 3 }, { name: 'β', min: 0.1, max: 2 }] },
+];
+
 export function getWorld(id, opts = {}) {
-  const spec = CATALOG.find((w) => w.id === id);
-  if (!spec) throw new Error(`Monde inconnu : ${id}. Disponibles : ${CATALOG.map((w) => w.id).join(', ')}`);
+  const spec = CATALOG.find((w) => w.id === id) || SIMULATORS.find((w) => w.id === id);
+  if (!spec) throw new Error(`Monde inconnu : ${id}. Disponibles : ${[...CATALOG, ...SIMULATORS].map((w) => w.id).join(', ')}`);
   return makeWorld({ ...spec, ...opts });
 }
 
