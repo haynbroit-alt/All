@@ -56,10 +56,20 @@ Chaque cycle de l'agent suit les mêmes étapes, toutes visibles dans son journa
 Le détail, y compris la liste des échecs, est dans [bench/RESULTS.md](bench/RESULTS.md) ; il est régénéré par
 `npm run bench` et n'est pas édité à la main.
 
-__BENCH__
+300 découvertes : 15 lois × 5 tirages × 2 niveaux de bruit × 2 stratégies, budget de 60 expériences.
 
-Ce que ces chiffres disent : à 1 % de bruit, choisir ses expériences aide nettement. À 5 % de bruit l'agent trouve
-encore souvent la bonne forme, mais rarement des constantes précises, et l'avantage sur le tirage au hasard disparaît.
+| Bruit | Stratégie | Bonne forme | Forme et constantes précises | Expériences (moy.) | Convaincu d'une forme fausse |
+|---|---|---:|---:|---:|---:|
+| 1 % | agent | 99 % | 96 % | 29 | 1 / 75 |
+| 1 % | hasard | 87 % | 87 % | 29 | 9 / 75 |
+| 5 % | agent | 88 % | 71 % | 31 | 9 / 75 |
+| 5 % | hasard | 85 % | 57 % | 33 | 11 / 75 |
+
+Une découverte prend 1,4 s en moyenne sur un cœur.
+
+Ce que ces chiffres disent : à 1 % de bruit, choisir ses expériences fait passer de 87 % à 99 % de bonnes formes.
+À 5 % de bruit l'écart sur la forme devient faible (88 % contre 85 %) ; le gain porte surtout sur la précision des
+constantes. Dans 9 cas sur 75 l'agent s'arrête alors convaincu d'une forme fausse : sa confiance n'est pas une garantie.
 
 ## Limites connues
 

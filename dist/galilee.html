@@ -1641,7 +1641,7 @@ function verify(world, expr, seed = 12345) {
 
 return { CATALOG, PLANETS, PHASES, Agent, verify, getWorld, customWorld, parseCsv, freeNames, parse, simplify, toString, evalPoint };
 })();
-const BENCH = {"date":"2026-11-12T18:21:26.981Z","seeds":5,"noises":[0.01,0.05],"summary":[{"noise":0.01,"mode":"actif","recovered":96,"runs":70,"experiments":25.714285714285715,"seconds":0.9844714285714286,"falseCertainty":3},{"noise":0.01,"mode":"aléatoire","recovered":87,"runs":70,"experiments":27.642857142857142,"seconds":2.156,"falseCertainty":7},{"noise":0.05,"mode":"actif","recovered":63,"runs":70,"experiments":26.185714285714287,"seconds":0.8731285714285714,"falseCertainty":26},{"noise":0.05,"mode":"aléatoire","recovered":63,"runs":70,"experiments":27.714285714285715,"seconds":0.917,"falseCertainty":26}]};
+const BENCH = {"date":"2026-11-12T18:31:43.389Z","seeds":5,"noises":[0.01,0.05],"summary":[{"noise":0.01,"mode":"actif","recovered":96,"sameForm":99,"runs":75,"experiments":28.8,"seconds":1.37456,"falseCertainty":1},{"noise":0.01,"mode":"aléatoire","recovered":87,"sameForm":87,"runs":75,"experiments":28.96,"seconds":1.3394000000000001,"falseCertainty":9},{"noise":0.05,"mode":"actif","recovered":71,"sameForm":88,"runs":75,"experiments":30.653333333333332,"seconds":1.4311733333333334,"falseCertainty":9},{"noise":0.05,"mode":"aléatoire","recovered":57,"sameForm":85,"runs":75,"experiments":33.17333333333333,"seconds":1.53684,"falseCertainty":11}]};
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
