@@ -2,7 +2,7 @@
 // Banc d'essai : chaque loi du catalogue × plusieurs graines × deux stratégies d'expérience.
 // Usage : node bench/run.js [--seeds 5] [--noise 0.01] [--quick]
 import { writeFileSync } from 'node:fs';
-import { CATALOG, getWorld } from '../src/worlds.js';
+import { CATALOG, SIMULATORS, getWorld } from '../src/worlds.js';
 import { Agent, verify } from '../src/agent.js';
 
 const arg = (name, def) => { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : def; };
@@ -19,7 +19,7 @@ for (const noise of noises) for (const spec of CATALOG) for (const mode of modes
   const best = agent.run();
   const v = verify(world, best.expr);
   out.runs.push({ world: spec.id, truth: spec.formula, noise, mode, seed, found: best.text, experiments: world.experiments,
-    cycles: agent.cycle, ms: Date.now() - t0, inDomain: v.inDomain, extrapolation: v.extrapolation, recovered: v.recovered, sameForm: v.sameForm,
+    cycles: agent.cycle, ms: Date.now() - t0, inDomain: v.inDomain, extrapolation: v.extrapolation, recovered: v.recovered, sameForm: v.sameForm, verdict: agent.bilan.verdict,
     stopped: agent.exhausted ? 'budget' : 'convaincu' });
 }
 
@@ -38,18 +38,38 @@ for (const noise of noises) {
   for (const mode of modes) {
     const all = out.runs.filter((r) => r.noise === noise && r.mode === mode);
     const s = { noise, mode, recovered: pct(all), sameForm: Math.round((100 * all.filter((r) => r.sameForm).length) / all.length), runs: all.length, experiments: mean(all, (r) => r.experiments), seconds: mean(all, (r) => r.ms) / 1000,
-      falseCertainty: all.filter((r) => !r.sameForm && r.stopped === 'convaincu').length };
+      falseCertainty: all.filter((r) => !r.sameForm && r.verdict === 'établie').length };
     out.summary.push(s);
   }
   const [sa, sb] = out.summary.slice(-2);
   md += `| **Total** | | **${sa.recovered} %** | **${sa.sameForm} %** | ${sa.experiments.toFixed(0)} | **${sb.recovered} %** | **${sb.sameForm} %** | ${sb.experiments.toFixed(0)} |\n\n`;
-  md += `Durée moyenne par découverte : ${sa.seconds.toFixed(1)} s. Arrêts « convaincu » sur une forme fausse : ${sa.falseCertainty} (actif), ${sb.falseCertainty} (aléatoire).\n\n`;
+  md += `Durée moyenne par découverte : ${sa.seconds.toFixed(1)} s. Verdicts « établie » sur une forme fausse : ${sa.falseCertainty} (actif), ${sb.falseCertainty} (aléatoire).\n\n`;
+  md += `**L'agent sait-il quand il se trompe ?** Son verdict, comparé à la vérité qu'il ne voit pas (stratégie « agent ») :\n\n| Verdict de l'agent | Nombre | Forme réellement bonne | Forme fausse |\n|---|---:|---:|---:|\n`;
+  for (const vd of ['établie', 'empirique', 'incertaine']) {
+    const g = out.runs.filter((r) => r.noise === noise && r.mode === 'actif' && r.verdict === vd);
+    md += `| ${vd} | ${g.length} | ${g.filter((r) => r.sameForm).length} | ${g.filter((r) => !r.sameForm).length} |\n`;
+    out.summary.push({ noise, verdict: vd, n: g.length, right: g.filter((r) => r.sameForm).length });
+  }
+  md += '\n';
   const fails = out.runs.filter((r) => r.noise === noise && !r.sameForm);
   if (fails.length) {
-    md += `<details><summary>Formes fausses (${fails.length})</summary>\n\n| Loi | Mode | Graine | Trouvé | Erreur domaine | Erreur extrapolation | Arrêt |\n|---|---|---:|---|---:|---:|---|\n`;
-    for (const r of fails) md += `| ${r.world} | ${r.mode} | ${r.seed} | \`${r.found}\` | ${(r.inDomain * 100).toFixed(2)} % | ${(r.extrapolation * 100).toFixed(2)} % | ${r.stopped} |\n`;
+    md += `<details><summary>Formes fausses (${fails.length})</summary>\n\n| Loi | Mode | Graine | Trouvé | Erreur domaine | Erreur extrapolation | Verdict de l'agent |\n|---|---|---:|---|---:|---:|---|\n`;
+    for (const r of fails) md += `| ${r.world} | ${r.mode} | ${r.seed} | \`${r.found}\` | ${(r.inDomain * 100).toFixed(2)} % | ${(r.extrapolation * 100).toFixed(2)} % | ${r.verdict} |\n`;
     md += `\n</details>\n\n`;
   }
 }
+// ---- terra incognita : simulateurs sans formule exacte
+md += `## Terra incognita : systèmes sans formule exacte\n\nSeul le micro-mécanisme est codé (une équation différentielle intégrée pas à pas). Il n'y a pas de « bonne forme » à retrouver : on juge la loi proposée sur 400 simulations neuves. Bruit de mesure 1 %.\n\n| Système | Graine | Loi proposée par l'agent | Erreur domaine | Erreur extrapolation | Verdict de l'agent | Exp. |\n|---|---:|---|---:|---:|---|---:|\n`;
+out.sims = [];
+for (const spec of SIMULATORS) for (let seed = 1; seed <= (quick ? 1 : 3); seed++) {
+  const world = getWorld(spec.id, { seed, noise: 0.01 });
+  const agent = new Agent(world, { seed });
+  const best = agent.run();
+  const v = verify(world, best.expr);
+  const r = { world: spec.id, title: spec.title, target: spec.target, seed, found: best.text, inDomain: v.inDomain, extrapolation: v.extrapolation, verdict: agent.bilan.verdict, experiments: world.experiments };
+  out.sims.push(r);
+  md += `| ${spec.title} | ${seed} | \`${spec.target} = ${r.found}\` | ${(r.inDomain * 100).toFixed(2)} % | ${(r.extrapolation * 100).toFixed(2)} % | ${r.verdict} | ${r.experiments} |\n`;
+}
+md += '\n';
 if (!quick) { writeFileSync(new URL('./results.json', import.meta.url), JSON.stringify(out, null, 1)); writeFileSync(new URL('./RESULTS.md', import.meta.url), md); }
 console.log(md);

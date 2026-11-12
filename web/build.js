@@ -6,11 +6,11 @@ const read = (p) => readFileSync(new URL(p, root), 'utf8');
 const engine = ['expr', 'fit', 'search', 'worlds', 'agent']
   .map((m) => read(`src/${m}.js`).replace(/^import[\s\S]*?from\s+'[^']+';\n/gm, '').replace(/^export /gm, ''))
   .join('\n');
-const api = 'CATALOG, PLANETS, PHASES, Agent, verify, getWorld, customWorld, parseCsv, freeNames, parse, simplify, toString, evalPoint';
+const api = 'CATALOG, SIMULATORS, PLANETS, PHASES, Agent, verify, getWorld, customWorld, parseCsv, freeNames, parse, simplify, toString, evalPoint';
 let bench = 'null';
 if (existsSync(new URL('bench/results.json', root))) {
   const b = JSON.parse(read('bench/results.json'));
-  bench = JSON.stringify({ date: b.date, seeds: b.seeds, noises: b.noises, summary: b.summary });
+  bench = JSON.stringify({ date: b.date, seeds: b.seeds, noises: b.noises, summary: b.summary, sims: b.sims || [] });
 }
 const html = read('web/template.html')
   .replace('/*__ENGINE__*/', () => `const G = (() => {\n${engine}\nreturn { ${api} };\n})();`)

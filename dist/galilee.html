@@ -71,6 +71,12 @@ button:disabled { opacity: 0.45; cursor: default; }
 .pill.bad { background: var(--bad-soft); color: var(--bad); }
 .verdict { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--ink-2); }
 .verdict .truth { font-family: var(--f-math); font-size: 20px; color: var(--ink); overflow-wrap: anywhere; }
+.bilan { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; font-size: 14px; color: var(--ink-2); }
+.bilan .head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bilan ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 10px; }
+.bilan li { display: contents; }
+.bilan li b { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.bilan .ok::before { content: "✓ "; color: var(--good); } .bilan .ko::before { content: "✕ "; color: var(--bad); } .bilan .na::before { content: "– "; color: var(--ink-3); }
 .review { background: var(--warn-soft); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
 .review .btns { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -121,7 +127,7 @@ code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-s
 <div class="wrap">
   <header>
     <h1>Galilée</h1>
-    <p class="lede">Une loi est cachée. L'agent ne la voit pas : il règle des variables, lit une mesure bruitée, et choisit lui-même l'expérience suivante, celle où ses hypothèses se contredisent le plus. Regardez-le la retrouver, ou cachez-lui la vôtre.</p>
+    <p class="lede">Une loi est cachée. L'agent ne la voit pas : il règle des variables, lit une mesure bruitée, et choisit lui-même l'expérience suivante, celle où ses hypothèses se contredisent le plus. À la fin, il dit lui-même s'il tient sa loi pour établie, empirique ou incertaine. Cachez-lui la vôtre, ou envoyez-le là où aucune formule n'existe.</p>
   </header>
 
   <form class="controls" id="controls">
@@ -173,6 +179,7 @@ code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-s
           <span id="review-text"></span>
           <div class="btns"><button type="button" class="primary" id="oui">Autoriser l'extension</button><button type="button" id="non">Refuser</button></div>
         </div>
+        <div class="bilan" id="bilan" hidden></div>
         <div class="verdict" id="verdict" hidden></div>
       </section>
 
@@ -211,12 +218,13 @@ code.k { font-family: var(--f-mono); font-size: 13px; background: var(--accent-s
   <section class="panel about">
     <h2>Ce que vous regardez, et ses limites</h2>
     <p>Tout tourne dans cette page, sans serveur et sans modèle de langage. Le moteur est une recherche d'équations par programmation génétique, avec ajustement des constantes par Levenberg–Marquardt. L'agent estime d'abord le bruit en répétant des expériences, puis classe ses hypothèses par vraisemblance pénalisée et mesure là où les mieux classées divergent le plus.</p>
+    <p>Avant de conclure, il cherche à se prendre en défaut : une seconde recherche repart de zéro sur les mêmes mesures, des expériences neuves testent la loi sans avoir servi à l'ajuster, trois prédictions sont risquées hors du domaine, et les résidus sont comparés à du bruit. Il ne dit « établie » que si tout passe.</p>
     <div id="bench"></div>
     <ul>
-      <li>« Précise » : sur 2000 points neufs, moins de 0,5 % d'erreur dans le domaine et moins de 1 % en extrapolation. C'est le critère du verdict affiché plus haut ; une formule différente mais numériquement équivalente le satisfait.</li>
-      <li>« Bonne forme » : la structure est la bonne, même si le bruit a faussé une constante (4,9 arrondi à 5, par exemple).</li>
+      <li>« Bonne forme » : après réajustement des constantes sur la vérité sans bruit, l'erreur tombe sous 0,1 %. « Précise » : en plus, moins de 0,5 % d'erreur sur 2000 points neufs et moins de 1 % en extrapolation.</li>
+      <li>En terra incognita, il n'y a pas de bonne forme à retrouver : la loi proposée est une approximation, jugée sur des simulations neuves. Ce n'est pas une découverte sur la nature, le système étant simulé.</li>
       <li>L'agent ne cherche pas les fonctions emboîtées comme sin(exp(x)), ni les exposants variables comme x^y.</li>
-      <li>Avec beaucoup de bruit ou une loi longue, il peut rendre une approximation, et parfois s'en dire convaincu. La colonne « convaincu à tort » compte les arrêts sur une forme fausse.</li>
+      <li>La recherche est aléatoire : changez le numéro de tirage pour voir un autre déroulement.</li>
     </ul>
   </section>
 </div>
@@ -1160,15 +1168,16 @@ class Search {
  * Crée un monde à partir d'une formule. L'agent n'a accès qu'à measure(x).
  * vars : [{ name, min, max, unit?, label? }] ; noise : écart-type du bruit, en fraction de l'amplitude de y.
  */
-function makeWorld({ id, title, formula, vars, noise = 0.01, target = 'y', story = '', seed = 1, extend = 2 }) {
+function makeWorld({ id, title, formula, sim, vars, noise = 0.01, target = 'y', story = '', seed = 1, extend = 2, known = null }) {
   const names = vars.map((v) => v.name);
-  const truth = parse(formula, names);
+  const truth = sim ? null : parse(formula, names);
+  const f = sim || ((x) => evalPoint(truth, x));
   const r = rng(seed * 7919 + 13);
   // amplitude typique de y sur le domaine, pour dimensionner le bruit
   const pr = rng(4242);
   const ys = [];
-  for (let k = 0; k < 400; k++) {
-    const v = evalPoint(truth, vars.map((q) => q.min + pr() * (q.max - q.min)));
+  for (let k = 0; k < (sim ? 120 : 400); k++) {
+    const v = f(vars.map((q) => q.min + pr() * (q.max - q.min)));
     if (isFinite(v)) ys.push(v);
   }
   const mean = ys.reduce((a, b) => a + b, 0) / ys.length;
@@ -1179,10 +1188,11 @@ function makeWorld({ id, title, formula, vars, noise = 0.01, target = 'y', story
     id, title, story, target, vars, names, noise, extend,
     domain: vars.map((v) => [v.min, v.max]),
     /** Réalise une expérience : renvoie une mesure bruitée. */
-    measure(x) { count++; return evalPoint(truth, x) + sigma * r.normal(); },
+    measure(x) { count++; return f(x) + sigma * r.normal(); },
     get experiments() { return count; },
     // --- réservé à la vérification finale : l'agent n'y touche jamais ---
-    secret: { formula, truth, sigma, f: (x) => evalPoint(truth, x) },
+    simulated: !!sim, known,
+    secret: { formula: sim ? null : formula, truth, sigma, f },
   };
 }
 
@@ -1234,9 +1244,100 @@ const CATALOG = [
     vars: [{ name: 'A', min: 0.5, max: 5 }, { name: 'T', min: 1, max: 6 }] },
 ];
 
+// ---------------------------------------------------------------- terra incognita
+// Des systèmes dont seul le micro-mécanisme est codé (une équation différentielle intégrée pas à pas).
+// La grandeur mesurée n'a pas de formule exacte en fonctions élémentaires : personne n'a écrit la réponse.
+
+/** Runge–Kutta d'ordre 4 pour un système à 4 composantes au plus ; f écrit la dérivée dans out. */
+function rk4(state, f, dt, k1, k2, k3, k4, tmp) {
+  const n = state.length;
+  f(state, k1);
+  for (let i = 0; i < n; i++) tmp[i] = state[i] + 0.5 * dt * k1[i];
+  f(tmp, k2);
+  for (let i = 0; i < n; i++) tmp[i] = state[i] + 0.5 * dt * k2[i];
+  f(tmp, k3);
+  for (let i = 0; i < n; i++) tmp[i] = state[i] + dt * k3[i];
+  f(tmp, k4);
+  for (let i = 0; i < n; i++) state[i] += (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+}
+const buf = (n) => [0, 1, 2, 3, 4].map(() => new Float64Array(n));
+
+/** Portée d'un projectile tiré à 45° avec une traînée quadratique (a = −g − k·|v|·v). */
+function simProjectile([v0, k]) {
+  const s = Float64Array.from([0, 0, v0 * Math.SQRT1_2, v0 * Math.SQRT1_2]);
+  const [k1, k2, k3, k4, tmp] = buf(4);
+  const f = (q, o) => { const sp = Math.hypot(q[2], q[3]); o[0] = q[2]; o[1] = q[3]; o[2] = -k * sp * q[2]; o[3] = -9.81 - k * sp * q[3]; };
+  const dt = 0.002;
+  for (let i = 0; i < 200000; i++) {
+    const px = s[0], py = s[1];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (s[1] < 0) return px + ((s[0] - px) * py) / (py - s[1]);
+  }
+  return NaN;
+}
+/** Période d'un pendule lâché sans vitesse depuis l'angle θ0 (θ'' = −sin θ), sans approximation des petits angles. */
+function simPendulum([th0]) {
+  const s = Float64Array.from([th0, 0]);
+  const [k1, k2, k3, k4, tmp] = buf(2);
+  const f = (q, o) => { o[0] = q[1]; o[1] = -Math.sin(q[0]); };
+  const dt = 0.001;
+  for (let i = 0; i < 400000; i++) {
+    const p = s[0];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (s[0] <= 0) return 4 * (i * dt + (dt * p) / (p - s[0]));
+  }
+  return NaN;
+}
+/** Période d'un cycle proies–prédateurs (x' = x(1−y), y' = a·y(x−1)) partant de (x0, 1). */
+function simLotka([x0, a]) {
+  const s = Float64Array.from([x0, 1]);
+  const [k1, k2, k3, k4, tmp] = buf(2);
+  const f = (q, o) => { o[0] = q[0] * (1 - q[1]); o[1] = a * q[1] * (q[0] - 1); };
+  const dt = 0.002;
+  let crossings = 0;
+  for (let i = 0; i < 400000; i++) {
+    const py = s[1];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (i > 5 && py < 1 && s[1] >= 1) { crossings++; if (crossings === 1) return i * dt + (dt * (1 - py)) / (s[1] - py); }
+  }
+  return NaN;
+}
+/** Période d'un ressort durcissant (x'' = −x − β·x³) lâché depuis l'amplitude A. */
+function simDuffing([A, beta]) {
+  const s = Float64Array.from([A, 0]);
+  const [k1, k2, k3, k4, tmp] = buf(2);
+  const f = (q, o) => { o[0] = q[1]; o[1] = -q[0] - beta * q[0] * q[0] * q[0]; };
+  const dt = 0.001;
+  for (let i = 0; i < 400000; i++) {
+    const p = s[0];
+    rk4(s, f, dt, k1, k2, k3, k4, tmp);
+    if (s[0] <= 0) return 4 * (i * dt + (dt * p) / (p - s[0]));
+  }
+  return NaN;
+}
+
+const SIMULATORS = [
+  { id: 'trainee', title: 'Portée avec traînée de l’air', target: 'R', sim: simProjectile, extend: 1.5,
+    story: 'Un projectile tiré à 45° à la vitesse v, freiné par une traînée quadratique de coefficient k. Aucune formule exacte n’existe.',
+    known: 'Sans traînée : R = v²/g. Avec traînée quadratique, pas de solution en fonctions élémentaires.',
+    vars: [{ name: 'v', min: 5, max: 40, unit: 'm/s' }, { name: 'k', min: 0.005, max: 0.08, unit: '1/m' }] },
+  { id: 'grand-pendule', title: 'Pendule aux grands angles', target: 'T', sim: simPendulum, extend: 1.1,
+    story: 'La période d’un pendule lâché depuis un grand angle θ : la formule 2π de Galilée ne tient plus.',
+    known: 'Solution exacte : une intégrale elliptique, sans écriture en fonctions élémentaires.',
+    vars: [{ name: 'θ', min: 0.1, max: 2.6, unit: 'rad' }] },
+  { id: 'proies', title: 'Cycle proies–prédateurs', target: 'T', sim: simLotka, extend: 1.5,
+    story: 'Durée d’un cycle de Lotka–Volterra selon la population initiale de proies x et le rythme a des prédateurs.',
+    known: 'Près de l’équilibre : T ≈ 2π/√a. Loin de l’équilibre, pas de formule fermée.',
+    vars: [{ name: 'x', min: 1.2, max: 4 }, { name: 'a', min: 0.5, max: 3 }] },
+  { id: 'ressort-dur', title: 'Ressort durcissant', target: 'T', sim: simDuffing, extend: 1.5,
+    story: 'Période d’un oscillateur de Duffing d’amplitude A et de raideur cubique β.',
+    known: 'Solution exacte : une intégrale elliptique. Petites amplitudes : T ≈ 2π(1 − 3βA²/8).',
+    vars: [{ name: 'A', min: 0.2, max: 3 }, { name: 'β', min: 0.1, max: 2 }] },
+];
+
 function getWorld(id, opts = {}) {
-  const spec = CATALOG.find((w) => w.id === id);
-  if (!spec) throw new Error(`Monde inconnu : ${id}. Disponibles : ${CATALOG.map((w) => w.id).join(', ')}`);
+  const spec = CATALOG.find((w) => w.id === id) || SIMULATORS.find((w) => w.id === id);
+  if (!spec) throw new Error(`Monde inconnu : ${id}. Disponibles : ${[...CATALOG, ...SIMULATORS].map((w) => w.id).join(', ')}`);
   return makeWorld({ ...spec, ...opts });
 }
 
@@ -1316,7 +1417,7 @@ class Agent {
    * @param o      budget : nombre max d'expériences ; mode : 'actif' | 'aléatoire' ;
    *               effort : mutations explorées par cycle ; autoApprove : accepte seul les extensions de domaine.
    */
-  constructor(world, { seed = 1, budget = 60, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40 } = {}) {
+  constructor(world, { seed = 1, budget = 80, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40 } = {}) {
     this.world = world;
     this.mode = mode;
     this.budget = budget;
@@ -1346,6 +1447,9 @@ class Agent {
     this.next = null;       // prochaine expérience choisie
     this.extended = false;
     this.holdUntil = 0;
+    this.audits = 0;
+    this.bilan = null;     // auto-évaluation finale : { verdict, validation, second, runs, notes }
+    this.seed = seed;
     this.stable = 0;
     this._gen = this._loop();
   }
@@ -1414,6 +1518,200 @@ class Agent {
     return z ? u / z / (this.sigma * this.sigma) : 0;
   }
 
+  /** Test des suites sur les résidus, triés selon chaque variable : z très négatif = écarts systématiques. */
+  _runsTest(expr) {
+    let worst = 0;
+    const res = this.X.map((x, i) => this.y[i] - evalPoint(expr, x));
+    for (let j = 0; j < this.d; j++) {
+      const order = res.map((_, i) => i).sort((p, q) => this.X[p][j] - this.X[q][j]);
+      const sg = order.map((i) => res[i]).filter((v) => v !== 0 && isFinite(v)).map((v) => v > 0);
+      const n = sg.length, np = sg.filter(Boolean).length, nm = n - np;
+      if (np < 3 || nm < 3) continue;
+      let runs = 1;
+      for (let i = 1; i < n; i++) if (sg[i] !== sg[i - 1]) runs++;
+      const mu = (2 * np * nm) / n + 1, sd = Math.sqrt(((mu - 1) * (mu - 2)) / (n - 1));
+      const z = (runs - mu) / sd;
+      if (z < worst) worst = z;
+    }
+    return worst;
+  }
+
+  /**
+   * Contre-expertise avant de conclure. Trois épreuves que la loi n'a pas pu « apprendre » :
+   *  1. second avis : une recherche indépendante, repartie de zéro sur les mêmes mesures ;
+   *  2. validation : des expériences neuves, jamais utilisées pour l'ajustement ;
+   *  3. résidus : les écarts restants doivent ressembler à du bruit.
+   * Renvoie true si la loi résiste.
+   */
+  *_audit() {
+    this.audits++;
+    const passive = !this.world;
+    const top = this.hyps[0];
+    const b = { n: this.audits, law: top.text, notes: [] };
+    this.bilan = b;
+    const dom = this.domain || this.names.map((_, j) => { const c = this.X.map((r) => r[j]); return [Math.min(...c), Math.max(...c)]; });
+    const sig = this.sigmaKnown ? this.sigma : Math.sqrt(top.mse) || 1e-9;
+
+    // ---- 1. second avis
+    const s2 = new Search({ d: this.d, seed: this.seed * 977 + 131 * this.audits });
+    if (this.sigmaKnown) s2.setNoise(this.sigma);
+    s2.setData(this._data());
+    for (let c = 0; c < 6; c++) { s2.step(Math.round(this.effort / 2)); this.phase = 'DREAMING'; yield; }
+    s2.polish();
+    const other = rank(s2.front(), this.y.length, this.sigmaKnown ? this.sigma : 0, this._varY(), this.names)[0];
+    let dIn = 0, xIn = null, dOut = 0;
+    for (let k = 0; k < 600; k++) {
+      const x = this._rand(dom);
+      const f1 = evalPoint(top.expr, x), f2 = evalPoint(other.expr, x);
+      if (!isFinite(f1)) continue;
+      const dd = isFinite(f2) ? Math.abs(f1 - f2) / sig : 99;
+      if (dd > dIn) { dIn = dd; xIn = x; }
+    }
+    const ext = this.world ? Math.min(this.world.extend, 1.5) : 1.5;
+    if (ext > 1) {
+      const wide = dom.map(([lo, hi]) => [lo, lo + (hi - lo) * ext]);
+      for (let k = 0; k < 600; k++) {
+        const x = this._rand(wide);
+        if (x.every((v, j) => v <= dom[j][1])) continue;
+        const f1 = evalPoint(top.expr, x), f2 = evalPoint(other.expr, x);
+        if (!isFinite(f1) || !isFinite(f2)) { dOut = Math.max(dOut, 1); continue; }
+        const rel = Math.abs(f1 - f2) / (0.5 * (Math.abs(f1) + Math.abs(f2)) + 3 * sig);
+        if (rel > dOut) dOut = rel;
+      }
+    }
+    const gap = other.score - top.score;          // > 0 : le second avis explique moins bien les mesures que ma loi
+    const same = dIn < 0.5 && dOut < 0.005;   // même fonction, quelle que soit son écriture
+    b.second = { text: other.text, same, dIn, dOut, gap, weak: gap > 10 && !same };
+    for (const m of s2.front()) this.search._offer(clone(m.e), true);   // les idées du second avis rejoignent le débat
+    const head = `Second avis (recherche indépendante) : ${this.target} = ${other.text}. `;
+    if (passive) {
+      this._say('DREAMING', head + (b.second.same ? 'Même loi.' : `Écart maximal avec ma loi : ${dIn.toFixed(1)} écarts-types.`));
+      b.pass = dIn <= 2 || b.second.weak; b.runsZ = this._runsTest(top.expr);
+      yield;
+      return b.pass;
+    }
+    const left = () => this.budget - this.world.experiments;
+    if (gap < -2) {
+      this._believe();
+      b.pass = false; b.notes.push('le second avis expliquait mieux les mesures');
+      this._say('DREAMING', head + 'Il explique mieux mes mesures que ma propre loi : je l\'adopte et je reprends.');
+      yield;
+      return false;
+    }
+    if (b.second.weak) this._say('DREAMING', head + 'Il explique nettement moins bien les mesures que ma loi : je l\'écarte, mais je n\'ai donc aucune confirmation indépendante.');
+    else this._say('DREAMING', head + (b.second.same ? 'Même loi.' : `Écart maximal avec ma loi : ${dIn.toFixed(1)} σ dans le domaine` + (ext > 1 ? `, ${(dOut * 100).toFixed(1)} % en extrapolation.` : '.')));
+    yield;
+    if (!b.second.weak && dIn > 2 && left() > 0) {
+      const pred = evalPoint(top.expr, xIn), y = this._measure(xIn);
+      if (isFinite(y)) this.predictions.push({ cycle: this.cycle, x: xIn, pred, y, z: (y - pred) / this.sigma });
+      this.search.setData(this._data()); this._believe();
+      b.pass = false; b.notes.push('désaccord avec le second avis');
+      this._say('DREAMING', `Nos deux lois sont aussi crédibles l'une que l'autre et se contredisent en ${this._fmtX(xIn)} : j'y fais l'expérience plutôt que de conclure. Mesuré ${Number(y.toPrecision(4))}, j'attendais ${Number(pred.toPrecision(4))}.`);
+      yield;
+      return false;
+    }
+
+    // ---- 2. validation sur des expériences neuves
+    const nVal = 6 + 2 * this.d;
+    if (left() < nVal) {
+      b.pass = false; b.notes.push('budget insuffisant pour la validation');
+      this._say('DREAMING', `Il me reste ${left()} expérience(s) : pas assez pour une validation indépendante (${nVal}). Je ne peux pas certifier ma loi.`);
+      this.exhausted = true; this.audits = 99;
+      yield;
+      return false;
+    }
+    const zs = [], start = this.y.length;
+    for (let i = 0; i < nVal; i++) {
+      const x = this._rand();
+      const pred = evalPoint(top.expr, x), y = this._measure(x);
+      if (isFinite(y) && isFinite(pred)) zs.push((y - pred) / this.sigma);
+    }
+    const chi = zs.reduce((a, z) => a + z * z, 0) / Math.max(zs.length, 1), maxZ = Math.max(...zs.map(Math.abs));
+    const okVal = zs.length >= nVal - 1 && maxZ < 3.5 && chi < 1 + 3 * Math.sqrt(2 / zs.length);
+    b.validation = { n: zs.length, chi, maxZ, ok: okVal, rmse: Math.sqrt(zs.reduce((a, z) => a + z * z, 0) / Math.max(zs.length, 1)) * this.sigma, from: start };
+    this._say('DREAMING', `Validation : ${zs.length} expériences neuves, jamais utilisées pour ajuster ma loi. Écart quadratique moyen ${Math.sqrt(chi).toFixed(2)} σ, pire écart ${maxZ.toFixed(1)} σ → ${okVal ? 'la loi tient.' : 'la loi échoue. Je me trompais.'}`);
+    yield;
+    this.search.setData(this._data()); this._believe();
+    if (!okVal) { b.pass = false; b.notes.push('validation échouée'); return false; }
+
+    // ---- 2 bis. épreuve d'extrapolation : une prédiction risquée, hors du domaine où la loi a été construite
+    if (this.world.extend > 1 && !this.extended) {
+      if (left() < 3) b.extrapolation = { tested: false, why: 'budget épuisé' };
+      else {
+        const extD = this.domain.map(([lo, hi]) => [lo, lo + (hi - lo) * this.world.extend]);
+        this.pending = { ext: extD };
+        this.status = 'revue'; this.decision = this.autoApprove ? true : null;
+        this._say('REVUE HUMAINE', 'Ma loi tient dans le domaine sûr. Avant de la dire établie, je veux risquer une prédiction là où je n\'ai jamais mesuré : je demande l\'autorisation de faire 3 expériences hors du domaine.');
+        yield;
+        while (this.decision === null) yield;
+        this.status = 'en cours';
+        const ok = this.decision;
+        this.pending = null; this.decision = null; this.extended = true;
+        if (!ok) {
+          b.extrapolation = { tested: false, why: 'extension refusée' };
+          this._say('DÉCIDER', 'Extension refusée : je reste dans le domaine sûr, et je ne dirai donc rien de ce qui se passe au-delà.');
+          yield;
+        } else {
+          const inner = this.domain;
+          const zs2 = [];
+          for (let i = 0; i < 3; i++) {
+            let x = this._rand(extD);
+            for (let t = 0; t < 60 && x.every((v, j) => v <= inner[j][1]); t++) x = this._rand(extD);
+            const pred = evalPoint(top.expr, x), y = this._measure(x);
+            if (isFinite(y) && isFinite(pred)) { const z = (y - pred) / this.sigma; zs2.push(z); this.predictions.push({ cycle: this.cycle, x, pred, y, z }); }
+            else if (isFinite(y)) zs2.push(99);
+          }
+          this.domain = extD;
+          const maxZ2 = zs2.length ? Math.max(...zs2.map(Math.abs)) : 0;
+          const okExt = zs2.length >= 2 && maxZ2 < 3.5;
+          b.extrapolation = { tested: true, n: zs2.length, maxZ: maxZ2, ok: okExt };
+          this.search.setData(this._data()); this._believe();
+          this._say('DREAMING', `Épreuve d'extrapolation : ${zs2.length} expériences hors du domaine, pire écart ${maxZ2 > 50 ? 'énorme' : maxZ2.toFixed(1) + ' σ'} → ${okExt ? 'ma prédiction risquée était juste.' : 'ma loi ne valait que localement. Je reprends avec le domaine élargi.'}`);
+          yield;
+          if (!okExt) { b.pass = false; b.notes.push('échec hors du domaine'); return false; }
+        }
+      }
+    }
+
+    // ---- 3. structure des résidus
+    b.runsZ = this._runsTest(top.expr);
+    if (b.runsZ < -3) this._say('DREAMING', `Mes résidus ne ressemblent pas à du bruit (test des suites : ${b.runsZ.toFixed(1)}). Ma loi est une approximation, pas la loi exacte.`);
+    b.pass = true;
+    this._auditShape = shapeKey(this.hyps[0].expr);
+    yield;
+    return true;
+  }
+
+  /** Verdict gradué. L'agent ne dit « établie » que si rien ne l'autorise à douter. */
+  _verdict() {
+    const b = this.bilan || (this.bilan = { notes: ['aucune contre-expertise n\'a pu être menée'] });
+    const top = this.hyps[0];
+    if (!this.world) {
+      b.verdict = b.pass ? 'empirique' : 'incertaine';
+      b.why = b.pass ? 'Compatible avec les données et confirmée par un second avis, mais aucune expérience n\'a pu la mettre à l\'épreuve.'
+        : 'Deux recherches indépendantes donnent des lois différentes sur ces données.';
+      return;
+    }
+    if (!b.pass || b.law !== top.text && shapeKey(top.expr) !== this._auditShape) {
+      b.verdict = 'incertaine';
+      b.why = b.notes.length ? `Je ne certifie pas cette loi : ${b.notes.join(', ')}.` : 'La loi a changé après la contre-expertise.';
+      return;
+    }
+    const approx = b.runsZ < -3, sec = b.second;
+    const confirmed = !sec.weak && sec.dIn < 0.5 && sec.dOut < 0.005;
+    const ex = b.extrapolation, untested = this.world.extend > 1 && ex && !ex.tested;
+    if (!approx && confirmed && !untested) { b.verdict = 'établie'; b.why = 'Validée sur des expériences neuves' + (ex && ex.tested ? ', y compris hors du domaine où elle a été construite' : '') + ', et une recherche indépendante aboutit à la même loi.'; }
+    else {
+      b.verdict = 'empirique';
+      b.why = 'Validée sur des expériences neuves dans le domaine exploré, mais ' + [
+        approx && 'ses résidus sont structurés (c\'est une approximation)',
+        sec.weak && 'aucune recherche indépendante ne l\'a confirmée',
+        untested && `elle n'a pas été testée hors du domaine (${ex.why})`,
+        !sec.weak && !confirmed && `une loi rivale aussi crédible s'en écarte de ${sec.dOut >= 0.005 ? (sec.dOut * 100).toFixed(1) + ' % hors du domaine' : sec.dIn.toFixed(1) + ' σ'}`,
+      ].filter(Boolean).join(' et ') + '. Je ne garantis rien en extrapolation.';
+    }
+  }
+
   *_loop() {
     const passive = !this.world;
     this.status = 'en cours';
@@ -1474,7 +1772,7 @@ class Agent {
       if (passive) {
         this._say('DREAMING', `Auto-audit : forme ${this.stable ? `stable depuis ${this.stable} cycle(s)` : 'encore changeante'}.`);
         yield;
-        if (this.stable >= 4 && this.cycle >= 6) break;
+        if (this.stable >= 4 && this.cycle >= 6) { yield* this._audit(); break; }
         continue;
       }
 
@@ -1535,10 +1833,16 @@ class Agent {
           yield;
         }
       }
-      if (settled && this.world.experiments >= this.holdUntil && (maxU < 0.25 || this.stable >= 10)) {
-        this._say('DÉCIDER', `J'arrête : la même loi tient depuis ${this.stable} cycles, mes 3 dernières prédictions ont été confirmées et χ² réduit = ${topH.chi2red.toFixed(2)}.`);
-        yield;
-        break;
+      if (settled && this.world.experiments >= this.holdUntil && (maxU < 0.25 || this.stable >= 10) && this.audits < 4) {
+        const passed = yield* this._audit();
+        if (passed) {
+          this._say('DÉCIDER', `J'arrête : la loi tient depuis ${this.stable} cycles, χ² réduit = ${this.hyps[0].chi2red.toFixed(2)}, et elle a résisté à la contre-expertise.`);
+          yield;
+          break;
+        }
+        this.holdUntil = this.world.experiments + 3;
+        prevShape = null;
+        continue;
       }
       if (left <= 0) {
         this._say('DÉCIDER', `Budget d'expériences épuisé (${this.budget}). Je rends ma meilleure hypothèse sans certitude.`);
@@ -1590,7 +1894,7 @@ class Agent {
         this._believe();
         this._say('DREAMING', `Auto-audit : χ² réduit = ${chi.toFixed(1)}. Soit ma loi est fausse, soit j'ai sous-estimé le bruit : je répète une expérience 3 fois. σ : ${Number(before.toPrecision(2))} → ${Number(this.sigma.toPrecision(2))}.`);
       } else if (chi > 2.2 && this.cycle >= 3) {
-        extraEffort = Math.min(extraEffort * 1.5, 4);
+        extraEffort = Math.min(extraEffort * 1.5, 2.5);
         this._say('DREAMING', `Auto-audit : χ² réduit = ${chi.toFixed(1)} — ma meilleure loi n'explique pas les données. J'augmente l'effort de recherche (×${extraEffort.toFixed(1)}).`);
       } else {
         extraEffort = Math.max(1, extraEffort / 1.5);
@@ -1599,6 +1903,7 @@ class Agent {
       yield;
     }
     this._believe();
+    this._verdict();
     this.phase = null;
     this.status = 'terminé';
   }
@@ -1610,9 +1915,10 @@ class Agent {
  */
 function verify(world, expr, seed = 12345) {
   const r = rng(seed);
+  const nPts = world.secret.formula ? 2000 : 400;   // un simulateur coûte plus cher qu'une formule
   const nrmse = (dom) => {
     let se = 0, n = 0; const ys = [];
-    for (let k = 0; k < 2000; k++) {
+    for (let k = 0; k < nPts; k++) {
       const x = dom.map(([a, b]) => a + r() * (b - a));
       const t = world.secret.f(x);
       if (!isFinite(t)) continue;
@@ -1624,7 +1930,7 @@ function verify(world, expr, seed = 12345) {
     return Math.sqrt(se / n / v);
   };
   const base = world.vars.map((v) => [v.min, v.max]);
-  const k = world.extend > 2 ? world.extend : world.extend > 1 ? 1.5 : 1;   // les mondes à grande extension sont jugés sur toute leur plage
+  const k = world.extend > 2 ? world.extend : Math.min(world.extend, 1.5);   // les mondes à grande extension sont jugés sur toute leur plage
   const inDomain = nrmse(base);
   const extrapolation = nrmse(base.map(([a, b]) => [a, a + (b - a) * k]));
   // Même forme ? On réajuste les constantes de la loi trouvée sur la vérité sans bruit (domaine élargi) :
@@ -1635,13 +1941,13 @@ function verify(world, expr, seed = 12345) {
   const refit = clone(expr);
   const data = makeData(X, y);
   const m = y.reduce((a, b) => a + b, 0) / y.length, varT = y.reduce((a, b) => a + (b - m) ** 2, 0) / y.length;
-  const sameForm = Math.sqrt(fitConstants(refit, data, 40) / varT) < 1e-3;
-  return { inDomain, extrapolation, sameForm, recovered: inDomain < 0.005 && extrapolation < 0.01 };
+  const sameForm = world.secret.formula ? Math.sqrt(fitConstants(refit, data, 40) / varT) < 1e-3 : null;
+  return { inDomain, extrapolation, sameForm, points: nPts, recovered: inDomain < 0.005 && extrapolation < 0.01 };
 }
 
-return { CATALOG, PLANETS, PHASES, Agent, verify, getWorld, customWorld, parseCsv, freeNames, parse, simplify, toString, evalPoint };
+return { CATALOG, SIMULATORS, PLANETS, PHASES, Agent, verify, getWorld, customWorld, parseCsv, freeNames, parse, simplify, toString, evalPoint };
 })();
-const BENCH = {"date":"2026-11-12T18:31:43.389Z","seeds":5,"noises":[0.01,0.05],"summary":[{"noise":0.01,"mode":"actif","recovered":96,"sameForm":99,"runs":75,"experiments":28.8,"seconds":1.37456,"falseCertainty":1},{"noise":0.01,"mode":"aléatoire","recovered":87,"sameForm":87,"runs":75,"experiments":28.96,"seconds":1.3394000000000001,"falseCertainty":9},{"noise":0.05,"mode":"actif","recovered":71,"sameForm":88,"runs":75,"experiments":30.653333333333332,"seconds":1.4311733333333334,"falseCertainty":9},{"noise":0.05,"mode":"aléatoire","recovered":57,"sameForm":85,"runs":75,"experiments":33.17333333333333,"seconds":1.53684,"falseCertainty":11}]};
+const BENCH = {"date":"2026-11-12T18:31:43.389Z","seeds":5,"noises":[0.01,0.05],"summary":[{"noise":0.01,"mode":"actif","recovered":96,"sameForm":99,"runs":75,"experiments":28.8,"seconds":1.37456,"falseCertainty":1},{"noise":0.01,"mode":"aléatoire","recovered":87,"sameForm":87,"runs":75,"experiments":28.96,"seconds":1.3394000000000001,"falseCertainty":9},{"noise":0.05,"mode":"actif","recovered":71,"sameForm":88,"runs":75,"experiments":30.653333333333332,"seconds":1.4311733333333334,"falseCertainty":9},{"noise":0.05,"mode":"aléatoire","recovered":57,"sameForm":85,"runs":75,"experiments":33.17333333333333,"seconds":1.53684,"falseCertainty":11}],"sims":[]};
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1652,6 +1958,8 @@ const S = { agent: null, world: null, timer: null, paused: false, varIdx: 0, ver
 (function fillWorlds() {
   let h = '<optgroup label="Lois de la physique">';
   for (const w of G.CATALOG) h += `<option value="${w.id}">${esc(w.title)}</option>`;
+  h += '</optgroup><optgroup label="Terra incognita : aucune formule exacte n\'existe">';
+  for (const w of G.SIMULATORS) h += `<option value="${w.id}">${esc(w.title)}</option>`;
   h += '</optgroup><optgroup label="À vous"><option value="@perso">Votre propre formule…</option></optgroup>';
   h += '<optgroup label="Données réelles, sans expérience"><option value="@kepler">Les huit planètes (Kepler)</option><option value="@csv">Vos données…</option></optgroup>';
   $('monde').innerHTML = h;
@@ -1739,7 +2047,7 @@ function finish() {
   const a = S.agent, best = a.best();
   if (S.world && best) {
     const v = G.verify(S.world, best.expr);
-    S.verdict = { ...v, truth: G.toString(G.simplify(G.parse(S.world.secret.formula, S.world.names)), S.world.names) };
+    S.verdict = { ...v, sim: S.world.simulated, truth: S.world.simulated ? null : G.toString(G.simplify(G.parse(S.world.secret.formula, S.world.names)), S.world.names) };
   } else S.verdict = { passive: true };
 }
 
@@ -1751,7 +2059,9 @@ function render() {
   if (review) { st.className = 'pill warn'; st.textContent = '⏸ en attente de votre décision'; }
   else if (!done) { st.className = 'pill run'; st.textContent = S.paused ? 'en pause' : `cycle ${a.cycle} · ${a.phase ? a.phase.toLowerCase() : 'démarrage'}`; }
   else if (S.verdict && S.verdict.passive) { st.className = 'pill good'; st.textContent = '✓ recherche terminée'; }
+  else if (S.verdict && S.verdict.sim) { st.className = 'pill run'; st.textContent = `prédit à ${(S.verdict.inDomain * 100).toFixed(1)} % près`; }
   else if (S.verdict && S.verdict.recovered) { st.className = 'pill good'; st.textContent = '✓ loi retrouvée'; }
+  else if (S.verdict && S.verdict.sameForm) { st.className = 'pill warn'; st.textContent = '≈ bonne forme, constantes imprécises'; }
   else { st.className = 'pill bad'; st.textContent = '✕ loi non retrouvée'; }
   $('law-title').textContent = done ? 'Loi proposée par l\'agent' : 'Meilleure explication pour l\'instant';
   $('law').innerHTML = best ? `<span class="lhs">${esc(a.target)}</span> = ${esc(best.text)}` : '<span class="caption">premières mesures…</span>';
@@ -1762,13 +2072,29 @@ function render() {
     (S.world ? `<span>budget <b>${a.budget}</b></span>` : '');
   $('review').hidden = !review;
   if (review) $('review-text').textContent = a.log[a.log.length - 1].msg + ` Nouveau domaine : ${a.pending.ext.map(([lo, hi], j) => `${a.names[j]} ∈ [${fmt(lo)}, ${fmt(hi)}]`).join(', ')}.`;
+  const bl = $('bilan'), B = a.bilan;
+  bl.hidden = !(done && B && B.verdict);
+  if (!bl.hidden) {
+    const cls = { 'établie': 'good', 'empirique': 'warn', 'incertaine': 'bad' }[B.verdict];
+    const li = (name, state, text) => `<li><b class="${state}">${name}</b><span>${esc(text)}</span></li>`;
+    let items = '';
+    if (B.second) items += li('Second avis', B.second.same ? 'ok' : B.second.weak ? 'na' : 'ko', B.second.same ? 'une recherche indépendante aboutit à la même loi' : B.second.weak ? 'la recherche indépendante a trouvé moins bien : aucune confirmation' : `une loi rivale aussi crédible : ${B.second.text}`);
+    if (B.validation) items += li('Validation', B.validation.ok ? 'ok' : 'ko', `${B.validation.n} expériences neuves, pire écart ${B.validation.maxZ.toFixed(1)} σ`);
+    else if (S.world) items += li('Validation', 'na', 'non menée');
+    if (B.extrapolation) items += li('Hors domaine', B.extrapolation.tested ? (B.extrapolation.ok ? 'ok' : 'ko') : 'na', B.extrapolation.tested ? `${B.extrapolation.n} prédictions risquées, pire écart ${B.extrapolation.maxZ.toFixed(1)} σ` : `non testé (${B.extrapolation.why})`);
+    if (B.runsZ !== undefined) items += li('Résidus', B.runsZ < -3 ? 'ko' : 'ok', B.runsZ < -3 ? 'structurés : la loi est une approximation' : 'comparables à du bruit');
+    bl.innerHTML = `<div class="head"><span>Verdict de l'agent sur sa propre loi :</span><span class="pill ${cls}">${B.verdict}</span></div><span>${esc(B.why)}</span><ul>${items}</ul>`;
+  }
   const vd = $('verdict');
   vd.hidden = !(done && S.verdict && !S.verdict.passive);
   if (!vd.hidden) {
     const v = S.verdict;
-    vd.innerHTML = `<span>La loi qui était cachée :</span><span class="truth"><i>${esc(a.target)}</i> = ${esc(v.truth)}</span>` +
-      `<span>Vérification sur 2000 points neufs : erreur <b>${(v.inDomain * 100).toFixed(3)} %</b> dans le domaine, <b>${(v.extrapolation * 100).toFixed(3)} %</b> en extrapolation.` +
-      (v.recovered ? '' : (a.exhausted ? ' L\'agent a épuisé son budget sans conclure.' : ' L\'agent s\'est arrêté convaincu, à tort.')) + `</span>`;
+    const errs = `erreur <b>${(v.inDomain * 100).toFixed(v.sim ? 2 : 3)} %</b> dans le domaine, <b>${(v.extrapolation * 100).toFixed(v.sim ? 2 : 3)} %</b> en extrapolation.`;
+    if (v.sim) vd.innerHTML = `<span>Ce que l'agent ne pouvait pas savoir : aucune formule exacte n'existe pour ce système. ${esc(S.world.known)}</span><span>Sa loi, confrontée à ${v.points} simulations neuves : ${errs}</span>`;
+    else {
+      const honest = v.sameForm ? '' : (B && B.verdict === 'établie' ? ' L\'agent s\'est dit certain à tort.' : ' L\'agent n\'avait pas certifié cette loi : son doute était fondé.');
+      vd.innerHTML = `<span>La loi qui était cachée :</span><span class="truth"><i>${esc(a.target)}</i> = ${esc(v.truth)}</span><span>Vérification sur 2000 points neufs : ${errs}${honest}</span>`;
+    }
   }
   renderHyps(); renderLoop(); renderChart(); renderZ();
 }
@@ -1911,9 +2237,17 @@ function renderZ() {
 
 (function renderBench() {
   if (!BENCH) return;
-  const row = (noise) => { const a = BENCH.summary.find((s) => s.noise === noise && s.mode === 'actif'), b = BENCH.summary.find((s) => s.noise === noise && s.mode === 'aléatoire');
-    return a && b ? `<tr><td>${noise * 100} %</td><td class="num">${a.sameForm} %</td><td class="num">${a.recovered} %</td><td class="num">${b.sameForm} %</td><td class="num">${b.recovered} %</td><td class="num">${a.experiments.toFixed(0)}</td><td class="num">${a.falseCertainty} / ${a.runs}</td></tr>` : ''; };
-  $('bench').innerHTML = `<p>Banc d'essai du ${BENCH.date.slice(0, 10)} : ${G.CATALOG.length} lois × ${BENCH.seeds} tirages par configuration, expériences choisies par l'agent ou tirées au hasard.</p><div class="scroll-x"><table style="max-width:760px;margin-top:8px"><thead><tr><th>Bruit</th><th class="num">Agent : bonne forme</th><th class="num">et précise</th><th class="num">Hasard : bonne forme</th><th class="num">et précise</th><th class="num">Expériences</th><th class="num">Convaincu à tort</th></tr></thead><tbody>${BENCH.noises.map(row).join('')}</tbody></table></div>`;
+  const pick = (noise, key, val) => BENCH.summary.find((q) => q.noise === noise && q[key] === val);
+  const row = (noise) => { const a = pick(noise, 'mode', 'actif'), b = pick(noise, 'mode', 'aléatoire');
+    return a && b ? `<tr><td>${noise * 100} %</td><td class="num">${a.sameForm} %</td><td class="num">${a.recovered} %</td><td class="num">${b.sameForm} %</td><td class="num">${b.recovered} %</td><td class="num">${a.experiments.toFixed(0)}</td></tr>` : ''; };
+  const cal = (noise) => ['établie', 'empirique', 'incertaine'].map((v) => { const q = pick(noise, 'verdict', v); return q ? `<tr><td>${noise * 100} %</td><td>${v}</td><td class="num">${q.n}</td><td class="num">${q.right}</td><td class="num">${q.n - q.right}</td></tr>` : ''; }).join('');
+  let h = `<p>Banc d'essai du ${BENCH.date.slice(0, 10)} : ${G.CATALOG.length} lois × ${BENCH.seeds} tirages par configuration, expériences choisies par l'agent ou tirées au hasard.</p>
+    <div class="scroll-x"><table style="max-width:720px;margin-top:8px"><thead><tr><th>Bruit</th><th class="num">Agent : bonne forme</th><th class="num">et précise</th><th class="num">Hasard : bonne forme</th><th class="num">et précise</th><th class="num">Expériences</th></tr></thead><tbody>${BENCH.noises.map(row).join('')}</tbody></table></div>
+    <p style="margin-top:14px">L'agent sait-il quand il se trompe ? Son verdict, comparé à la vérité qu'il ne voit pas :</p>
+    <div class="scroll-x"><table style="max-width:720px;margin-top:8px"><thead><tr><th>Bruit</th><th>Verdict de l'agent</th><th class="num">Nombre</th><th class="num">Forme réellement bonne</th><th class="num">Forme fausse</th></tr></thead><tbody>${BENCH.noises.map(cal).join('')}</tbody></table></div>`;
+  if (BENCH.sims && BENCH.sims.length) h += `<p style="margin-top:14px">Terra incognita, bruit 1 % : lois proposées pour des systèmes sans formule exacte, jugées sur 400 simulations neuves.</p>
+    <div class="scroll-x"><table style="margin-top:8px"><thead><tr><th>Système</th><th>Loi proposée</th><th class="num">Erreur domaine</th><th class="num">Extrapolation</th><th>Verdict</th></tr></thead><tbody>${BENCH.sims.map((r) => `<tr><td>${esc(r.title)}</td><td class="f">${esc(r.target)} = ${esc(r.found)}</td><td class="num">${(r.inDomain * 100).toFixed(2)} %</td><td class="num">${(r.extrapolation * 100).toFixed(2)} %</td><td>${r.verdict}</td></tr>`).join('')}</tbody></table></div>`;
+  $('bench').innerHTML = h;
 })();
 
 rangesUI();

@@ -38,7 +38,7 @@ export class Agent {
    * @param o      budget : nombre max d'expériences ; mode : 'actif' | 'aléatoire' ;
    *               effort : mutations explorées par cycle ; autoApprove : accepte seul les extensions de domaine.
    */
-  constructor(world, { seed = 1, budget = 60, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40 } = {}) {
+  constructor(world, { seed = 1, budget = 80, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40 } = {}) {
     this.world = world;
     this.mode = mode;
     this.budget = budget;
@@ -68,6 +68,9 @@ export class Agent {
     this.next = null;       // prochaine expérience choisie
     this.extended = false;
     this.holdUntil = 0;
+    this.audits = 0;
+    this.bilan = null;     // auto-évaluation finale : { verdict, validation, second, runs, notes }
+    this.seed = seed;
     this.stable = 0;
     this._gen = this._loop();
   }
@@ -136,6 +139,200 @@ export class Agent {
     return z ? u / z / (this.sigma * this.sigma) : 0;
   }
 
+  /** Test des suites sur les résidus, triés selon chaque variable : z très négatif = écarts systématiques. */
+  _runsTest(expr) {
+    let worst = 0;
+    const res = this.X.map((x, i) => this.y[i] - evalPoint(expr, x));
+    for (let j = 0; j < this.d; j++) {
+      const order = res.map((_, i) => i).sort((p, q) => this.X[p][j] - this.X[q][j]);
+      const sg = order.map((i) => res[i]).filter((v) => v !== 0 && isFinite(v)).map((v) => v > 0);
+      const n = sg.length, np = sg.filter(Boolean).length, nm = n - np;
+      if (np < 3 || nm < 3) continue;
+      let runs = 1;
+      for (let i = 1; i < n; i++) if (sg[i] !== sg[i - 1]) runs++;
+      const mu = (2 * np * nm) / n + 1, sd = Math.sqrt(((mu - 1) * (mu - 2)) / (n - 1));
+      const z = (runs - mu) / sd;
+      if (z < worst) worst = z;
+    }
+    return worst;
+  }
+
+  /**
+   * Contre-expertise avant de conclure. Trois épreuves que la loi n'a pas pu « apprendre » :
+   *  1. second avis : une recherche indépendante, repartie de zéro sur les mêmes mesures ;
+   *  2. validation : des expériences neuves, jamais utilisées pour l'ajustement ;
+   *  3. résidus : les écarts restants doivent ressembler à du bruit.
+   * Renvoie true si la loi résiste.
+   */
+  *_audit() {
+    this.audits++;
+    const passive = !this.world;
+    const top = this.hyps[0];
+    const b = { n: this.audits, law: top.text, notes: [] };
+    this.bilan = b;
+    const dom = this.domain || this.names.map((_, j) => { const c = this.X.map((r) => r[j]); return [Math.min(...c), Math.max(...c)]; });
+    const sig = this.sigmaKnown ? this.sigma : Math.sqrt(top.mse) || 1e-9;
+
+    // ---- 1. second avis
+    const s2 = new Search({ d: this.d, seed: this.seed * 977 + 131 * this.audits });
+    if (this.sigmaKnown) s2.setNoise(this.sigma);
+    s2.setData(this._data());
+    for (let c = 0; c < 6; c++) { s2.step(Math.round(this.effort / 2)); this.phase = 'DREAMING'; yield; }
+    s2.polish();
+    const other = rank(s2.front(), this.y.length, this.sigmaKnown ? this.sigma : 0, this._varY(), this.names)[0];
+    let dIn = 0, xIn = null, dOut = 0;
+    for (let k = 0; k < 600; k++) {
+      const x = this._rand(dom);
+      const f1 = evalPoint(top.expr, x), f2 = evalPoint(other.expr, x);
+      if (!isFinite(f1)) continue;
+      const dd = isFinite(f2) ? Math.abs(f1 - f2) / sig : 99;
+      if (dd > dIn) { dIn = dd; xIn = x; }
+    }
+    const ext = this.world ? Math.min(this.world.extend, 1.5) : 1.5;
+    if (ext > 1) {
+      const wide = dom.map(([lo, hi]) => [lo, lo + (hi - lo) * ext]);
+      for (let k = 0; k < 600; k++) {
+        const x = this._rand(wide);
+        if (x.every((v, j) => v <= dom[j][1])) continue;
+        const f1 = evalPoint(top.expr, x), f2 = evalPoint(other.expr, x);
+        if (!isFinite(f1) || !isFinite(f2)) { dOut = Math.max(dOut, 1); continue; }
+        const rel = Math.abs(f1 - f2) / (0.5 * (Math.abs(f1) + Math.abs(f2)) + 3 * sig);
+        if (rel > dOut) dOut = rel;
+      }
+    }
+    const gap = other.score - top.score;          // > 0 : le second avis explique moins bien les mesures que ma loi
+    const same = dIn < 0.5 && dOut < 0.005;   // même fonction, quelle que soit son écriture
+    b.second = { text: other.text, same, dIn, dOut, gap, weak: gap > 10 && !same };
+    for (const m of s2.front()) this.search._offer(clone(m.e), true);   // les idées du second avis rejoignent le débat
+    const head = `Second avis (recherche indépendante) : ${this.target} = ${other.text}. `;
+    if (passive) {
+      this._say('DREAMING', head + (b.second.same ? 'Même loi.' : `Écart maximal avec ma loi : ${dIn.toFixed(1)} écarts-types.`));
+      b.pass = dIn <= 2 || b.second.weak; b.runsZ = this._runsTest(top.expr);
+      yield;
+      return b.pass;
+    }
+    const left = () => this.budget - this.world.experiments;
+    if (gap < -2) {
+      this._believe();
+      b.pass = false; b.notes.push('le second avis expliquait mieux les mesures');
+      this._say('DREAMING', head + 'Il explique mieux mes mesures que ma propre loi : je l\'adopte et je reprends.');
+      yield;
+      return false;
+    }
+    if (b.second.weak) this._say('DREAMING', head + 'Il explique nettement moins bien les mesures que ma loi : je l\'écarte, mais je n\'ai donc aucune confirmation indépendante.');
+    else this._say('DREAMING', head + (b.second.same ? 'Même loi.' : `Écart maximal avec ma loi : ${dIn.toFixed(1)} σ dans le domaine` + (ext > 1 ? `, ${(dOut * 100).toFixed(1)} % en extrapolation.` : '.')));
+    yield;
+    if (!b.second.weak && dIn > 2 && left() > 0) {
+      const pred = evalPoint(top.expr, xIn), y = this._measure(xIn);
+      if (isFinite(y)) this.predictions.push({ cycle: this.cycle, x: xIn, pred, y, z: (y - pred) / this.sigma });
+      this.search.setData(this._data()); this._believe();
+      b.pass = false; b.notes.push('désaccord avec le second avis');
+      this._say('DREAMING', `Nos deux lois sont aussi crédibles l'une que l'autre et se contredisent en ${this._fmtX(xIn)} : j'y fais l'expérience plutôt que de conclure. Mesuré ${Number(y.toPrecision(4))}, j'attendais ${Number(pred.toPrecision(4))}.`);
+      yield;
+      return false;
+    }
+
+    // ---- 2. validation sur des expériences neuves
+    const nVal = 6 + 2 * this.d;
+    if (left() < nVal) {
+      b.pass = false; b.notes.push('budget insuffisant pour la validation');
+      this._say('DREAMING', `Il me reste ${left()} expérience(s) : pas assez pour une validation indépendante (${nVal}). Je ne peux pas certifier ma loi.`);
+      this.exhausted = true; this.audits = 99;
+      yield;
+      return false;
+    }
+    const zs = [], start = this.y.length;
+    for (let i = 0; i < nVal; i++) {
+      const x = this._rand();
+      const pred = evalPoint(top.expr, x), y = this._measure(x);
+      if (isFinite(y) && isFinite(pred)) zs.push((y - pred) / this.sigma);
+    }
+    const chi = zs.reduce((a, z) => a + z * z, 0) / Math.max(zs.length, 1), maxZ = Math.max(...zs.map(Math.abs));
+    const okVal = zs.length >= nVal - 1 && maxZ < 3.5 && chi < 1 + 3 * Math.sqrt(2 / zs.length);
+    b.validation = { n: zs.length, chi, maxZ, ok: okVal, rmse: Math.sqrt(zs.reduce((a, z) => a + z * z, 0) / Math.max(zs.length, 1)) * this.sigma, from: start };
+    this._say('DREAMING', `Validation : ${zs.length} expériences neuves, jamais utilisées pour ajuster ma loi. Écart quadratique moyen ${Math.sqrt(chi).toFixed(2)} σ, pire écart ${maxZ.toFixed(1)} σ → ${okVal ? 'la loi tient.' : 'la loi échoue. Je me trompais.'}`);
+    yield;
+    this.search.setData(this._data()); this._believe();
+    if (!okVal) { b.pass = false; b.notes.push('validation échouée'); return false; }
+
+    // ---- 2 bis. épreuve d'extrapolation : une prédiction risquée, hors du domaine où la loi a été construite
+    if (this.world.extend > 1 && !this.extended) {
+      if (left() < 3) b.extrapolation = { tested: false, why: 'budget épuisé' };
+      else {
+        const extD = this.domain.map(([lo, hi]) => [lo, lo + (hi - lo) * this.world.extend]);
+        this.pending = { ext: extD };
+        this.status = 'revue'; this.decision = this.autoApprove ? true : null;
+        this._say('REVUE HUMAINE', 'Ma loi tient dans le domaine sûr. Avant de la dire établie, je veux risquer une prédiction là où je n\'ai jamais mesuré : je demande l\'autorisation de faire 3 expériences hors du domaine.');
+        yield;
+        while (this.decision === null) yield;
+        this.status = 'en cours';
+        const ok = this.decision;
+        this.pending = null; this.decision = null; this.extended = true;
+        if (!ok) {
+          b.extrapolation = { tested: false, why: 'extension refusée' };
+          this._say('DÉCIDER', 'Extension refusée : je reste dans le domaine sûr, et je ne dirai donc rien de ce qui se passe au-delà.');
+          yield;
+        } else {
+          const inner = this.domain;
+          const zs2 = [];
+          for (let i = 0; i < 3; i++) {
+            let x = this._rand(extD);
+            for (let t = 0; t < 60 && x.every((v, j) => v <= inner[j][1]); t++) x = this._rand(extD);
+            const pred = evalPoint(top.expr, x), y = this._measure(x);
+            if (isFinite(y) && isFinite(pred)) { const z = (y - pred) / this.sigma; zs2.push(z); this.predictions.push({ cycle: this.cycle, x, pred, y, z }); }
+            else if (isFinite(y)) zs2.push(99);
+          }
+          this.domain = extD;
+          const maxZ2 = zs2.length ? Math.max(...zs2.map(Math.abs)) : 0;
+          const okExt = zs2.length >= 2 && maxZ2 < 3.5;
+          b.extrapolation = { tested: true, n: zs2.length, maxZ: maxZ2, ok: okExt };
+          this.search.setData(this._data()); this._believe();
+          this._say('DREAMING', `Épreuve d'extrapolation : ${zs2.length} expériences hors du domaine, pire écart ${maxZ2 > 50 ? 'énorme' : maxZ2.toFixed(1) + ' σ'} → ${okExt ? 'ma prédiction risquée était juste.' : 'ma loi ne valait que localement. Je reprends avec le domaine élargi.'}`);
+          yield;
+          if (!okExt) { b.pass = false; b.notes.push('échec hors du domaine'); return false; }
+        }
+      }
+    }
+
+    // ---- 3. structure des résidus
+    b.runsZ = this._runsTest(top.expr);
+    if (b.runsZ < -3) this._say('DREAMING', `Mes résidus ne ressemblent pas à du bruit (test des suites : ${b.runsZ.toFixed(1)}). Ma loi est une approximation, pas la loi exacte.`);
+    b.pass = true;
+    this._auditShape = shapeKey(this.hyps[0].expr);
+    yield;
+    return true;
+  }
+
+  /** Verdict gradué. L'agent ne dit « établie » que si rien ne l'autorise à douter. */
+  _verdict() {
+    const b = this.bilan || (this.bilan = { notes: ['aucune contre-expertise n\'a pu être menée'] });
+    const top = this.hyps[0];
+    if (!this.world) {
+      b.verdict = b.pass ? 'empirique' : 'incertaine';
+      b.why = b.pass ? 'Compatible avec les données et confirmée par un second avis, mais aucune expérience n\'a pu la mettre à l\'épreuve.'
+        : 'Deux recherches indépendantes donnent des lois différentes sur ces données.';
+      return;
+    }
+    if (!b.pass || b.law !== top.text && shapeKey(top.expr) !== this._auditShape) {
+      b.verdict = 'incertaine';
+      b.why = b.notes.length ? `Je ne certifie pas cette loi : ${b.notes.join(', ')}.` : 'La loi a changé après la contre-expertise.';
+      return;
+    }
+    const approx = b.runsZ < -3, sec = b.second;
+    const confirmed = !sec.weak && sec.dIn < 0.5 && sec.dOut < 0.005;
+    const ex = b.extrapolation, untested = this.world.extend > 1 && ex && !ex.tested;
+    if (!approx && confirmed && !untested) { b.verdict = 'établie'; b.why = 'Validée sur des expériences neuves' + (ex && ex.tested ? ', y compris hors du domaine où elle a été construite' : '') + ', et une recherche indépendante aboutit à la même loi.'; }
+    else {
+      b.verdict = 'empirique';
+      b.why = 'Validée sur des expériences neuves dans le domaine exploré, mais ' + [
+        approx && 'ses résidus sont structurés (c\'est une approximation)',
+        sec.weak && 'aucune recherche indépendante ne l\'a confirmée',
+        untested && `elle n'a pas été testée hors du domaine (${ex.why})`,
+        !sec.weak && !confirmed && `une loi rivale aussi crédible s'en écarte de ${sec.dOut >= 0.005 ? (sec.dOut * 100).toFixed(1) + ' % hors du domaine' : sec.dIn.toFixed(1) + ' σ'}`,
+      ].filter(Boolean).join(' et ') + '. Je ne garantis rien en extrapolation.';
+    }
+  }
+
   *_loop() {
     const passive = !this.world;
     this.status = 'en cours';
@@ -196,7 +393,7 @@ export class Agent {
       if (passive) {
         this._say('DREAMING', `Auto-audit : forme ${this.stable ? `stable depuis ${this.stable} cycle(s)` : 'encore changeante'}.`);
         yield;
-        if (this.stable >= 4 && this.cycle >= 6) break;
+        if (this.stable >= 4 && this.cycle >= 6) { yield* this._audit(); break; }
         continue;
       }
 
@@ -257,10 +454,16 @@ export class Agent {
           yield;
         }
       }
-      if (settled && this.world.experiments >= this.holdUntil && (maxU < 0.25 || this.stable >= 10)) {
-        this._say('DÉCIDER', `J'arrête : la même loi tient depuis ${this.stable} cycles, mes 3 dernières prédictions ont été confirmées et χ² réduit = ${topH.chi2red.toFixed(2)}.`);
-        yield;
-        break;
+      if (settled && this.world.experiments >= this.holdUntil && (maxU < 0.25 || this.stable >= 10) && this.audits < 4) {
+        const passed = yield* this._audit();
+        if (passed) {
+          this._say('DÉCIDER', `J'arrête : la loi tient depuis ${this.stable} cycles, χ² réduit = ${this.hyps[0].chi2red.toFixed(2)}, et elle a résisté à la contre-expertise.`);
+          yield;
+          break;
+        }
+        this.holdUntil = this.world.experiments + 3;
+        prevShape = null;
+        continue;
       }
       if (left <= 0) {
         this._say('DÉCIDER', `Budget d'expériences épuisé (${this.budget}). Je rends ma meilleure hypothèse sans certitude.`);
@@ -312,7 +515,7 @@ export class Agent {
         this._believe();
         this._say('DREAMING', `Auto-audit : χ² réduit = ${chi.toFixed(1)}. Soit ma loi est fausse, soit j'ai sous-estimé le bruit : je répète une expérience 3 fois. σ : ${Number(before.toPrecision(2))} → ${Number(this.sigma.toPrecision(2))}.`);
       } else if (chi > 2.2 && this.cycle >= 3) {
-        extraEffort = Math.min(extraEffort * 1.5, 4);
+        extraEffort = Math.min(extraEffort * 1.5, 2.5);
         this._say('DREAMING', `Auto-audit : χ² réduit = ${chi.toFixed(1)} — ma meilleure loi n'explique pas les données. J'augmente l'effort de recherche (×${extraEffort.toFixed(1)}).`);
       } else {
         extraEffort = Math.max(1, extraEffort / 1.5);
@@ -321,6 +524,7 @@ export class Agent {
       yield;
     }
     this._believe();
+    this._verdict();
     this.phase = null;
     this.status = 'terminé';
   }
@@ -332,9 +536,10 @@ export class Agent {
  */
 export function verify(world, expr, seed = 12345) {
   const r = rng(seed);
+  const nPts = world.secret.formula ? 2000 : 400;   // un simulateur coûte plus cher qu'une formule
   const nrmse = (dom) => {
     let se = 0, n = 0; const ys = [];
-    for (let k = 0; k < 2000; k++) {
+    for (let k = 0; k < nPts; k++) {
       const x = dom.map(([a, b]) => a + r() * (b - a));
       const t = world.secret.f(x);
       if (!isFinite(t)) continue;
@@ -346,7 +551,7 @@ export function verify(world, expr, seed = 12345) {
     return Math.sqrt(se / n / v);
   };
   const base = world.vars.map((v) => [v.min, v.max]);
-  const k = world.extend > 2 ? world.extend : world.extend > 1 ? 1.5 : 1;   // les mondes à grande extension sont jugés sur toute leur plage
+  const k = world.extend > 2 ? world.extend : Math.min(world.extend, 1.5);   // les mondes à grande extension sont jugés sur toute leur plage
   const inDomain = nrmse(base);
   const extrapolation = nrmse(base.map(([a, b]) => [a, a + (b - a) * k]));
   // Même forme ? On réajuste les constantes de la loi trouvée sur la vérité sans bruit (domaine élargi) :
@@ -357,6 +562,6 @@ export function verify(world, expr, seed = 12345) {
   const refit = clone(expr);
   const data = makeData(X, y);
   const m = y.reduce((a, b) => a + b, 0) / y.length, varT = y.reduce((a, b) => a + (b - m) ** 2, 0) / y.length;
-  const sameForm = Math.sqrt(fitConstants(refit, data, 40) / varT) < 1e-3;
-  return { inDomain, extrapolation, sameForm, recovered: inDomain < 0.005 && extrapolation < 0.01 };
+  const sameForm = world.secret.formula ? Math.sqrt(fitConstants(refit, data, 40) / varT) < 1e-3 : null;
+  return { inDomain, extrapolation, sameForm, points: nPts, recovered: inDomain < 0.005 && extrapolation < 0.01 };
 }
