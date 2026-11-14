@@ -196,4 +196,28 @@ Calcul unique : `node bench/b1-tour4.js test`.
 
 ## Résultat du quatrième tour
 
-(complété après le calcul)
+Calcul unique du 14 novembre 2026 (`node bench/b1-tour4.js test`, 100 secondes, sortie `bench/b1-tour4.json`).
+
+| Suite | Prédit (modulo 27) | Mesuré | Part dans la classe piège |
+|---|---:|---:|---:|
+| `a → a + 5·d(a)` | 0,3877 | **0,3879** | 1,0000 |
+| `a → a + 7·d(a)` | 0,3885 | **0,3885** | 0,9989 |
+| `a → a + 11·d(a)` | 0,3874 | **0,3885** | 1,0000 |
+| `a → a + 13·d(a)` | 0,3886 | **0,3887** | 1,0000 |
+
+**S1 et S2 confirmées.** Les quatre parts tombent dans l'intervalle annoncé, à un millième au plus de la valeur
+prédite, sur neuf millions de termes chacune. Pour trois des quatre suites, pas un seul terme ne sort du piège
+entre les rangs 10⁶ et 10⁷.
+
+Ce que cela établit, par le calcul : dans toute cette famille, les moitiés des termes sont multiples de 3 environ
+38,85 fois sur cent, au lieu de 33,33, et un modèle sans paramètre le prédit. La valeur exacte de cette constante
+— la répartition d'équilibre d'une chaîne 3-adique — n'est pas calculée ici en forme close.
+
+Ajouts au bilan :
+
+| Énoncé | Statut |
+|---|---|
+| La sur-représentation des multiples de 3 vient de la mémoire 3-adique d'un pas | modèle sans paramètre, **confirmé** sur quatre suites jamais calculées auparavant |
+| `a → a + k·d(a)` conserve le reste modulo `k` : pas de confluence générale pour `k ≥ 2` | **démontré** (immédiat) |
+| Valeur exacte de la constante 0,3885… | **ouvert** |
+| Explication du coefficient 1,05 de la loi de vitesse | **ouvert** (la sur-représentation des multiples de 3 en explique une partie, non chiffrée proprement) |

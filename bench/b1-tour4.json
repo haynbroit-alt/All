@@ -1,0 +1,30 @@
+[
+ {
+  "k": 5,
+  "part_multiples_de_3": 0.3878875124569431,
+  "part_classe_piege": 1,
+  "termes": 9000001,
+  "dernier_terme": 935013906
+ },
+ {
+  "k": 7,
+  "part_multiples_de_3": 0.3884602001760239,
+  "part_classe_piege": 0.998854111238432,
+  "termes": 8989688,
+  "dernier_terme": 1426784738
+ },
+ {
+  "k": 11,
+  "part_multiples_de_3": 0.3884838457240171,
+  "part_classe_piege": 1,
+  "termes": 9000001,
+  "dernier_terme": 2415254194
+ },
+ {
+  "k": 13,
+  "part_multiples_de_3": 0.3886678457035727,
+  "part_classe_piege": 1,
+  "termes": 9000001,
+  "dernier_terme": 2916599310
+ }
+]
