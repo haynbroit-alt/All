@@ -28,7 +28,8 @@ Les trois critères sont atteints : **le chantier G1 est clos sans modification 
   relativiste (3) et le capteur qui sature (3). Quatre sont dites « empirique » : le moteur ne les certifie pas, mais
   il ne les signale pas non plus comme douteuses.
 - En stratégie « hasard », 2 formes fausses sont dites « établie » à 5 % de bruit et 1 à 1 % : le garde-fou tient
-  quand le moteur choisit ses expériences, moins quand il les subit. C'est le cas d'usage sur données fournies.
+  quand le moteur choisit ses expériences, moins quand elles sont tirées au hasard. Ce n'est pas le mode
+  « données fournies », où il ne fait aucune expérience : celui-ci est mesuré à part (`bench/DONNEES_BASE.md`).
 - Mêmes 15 lois que le banc de mise au point : seules les graines sont neuves.
 - Le moteur actuel fait environ 48 expériences par découverte, contre 31 pour le banc publié avant l'auto-évaluation.
 - Les graines 6 à 10 sont consommées.
