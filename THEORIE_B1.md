@@ -221,3 +221,30 @@ Ajouts au bilan :
 | `a → a + k·d(a)` conserve le reste modulo `k` : pas de confluence générale pour `k ≥ 2` | **démontré** (immédiat) |
 | Valeur exacte de la constante 0,3885… | **ouvert** |
 | Explication du coefficient 1,05 de la loi de vitesse | **ouvert** (la sur-représentation des multiples de 3 en explique une partie, non chiffrée proprement) |
+
+## Confrontation à ce qui est publié (14 novembre 2026)
+
+L'encyclopédie des suites d'entiers (oeis.org) a été lue une fois l'accès réseau ouvert : fiches A064491, A165494,
+A165495, A165496, A165930, A062249. Rien d'autre n'a été consulté.
+
+**Déjà connu — je ne l'ai pas découvert :**
+
+- La suite est recensée (A064491). Les deux questions que je croyais poser sont un **problème de Claudia Spiro,
+  1977** : une suite partie d'un autre terme rejoint-elle toujours celle-ci ? La parité change-t-elle une infinité de
+  fois ? La fiche les donne comme questions, sans réponse.
+- Le mécanisme du piège est connu depuis 2009 : trois fiches de Hugo van der Sanden étudient ce qui se passe quand la
+  suite atteint le double d'un carré impair, passe par des multiples de 4, puis retombe ou entame une série de termes
+  impairs. Mes lemmes 1 et 2 sont donc, au mieux, une redécouverte.
+- La croissance en `n·ln n` est conjecturée sur la fiche (Adams-Watters, 2008), sans constantes.
+
+**Non trouvé sur ces fiches — ce qui pourrait être nouveau, sans garantie :**
+
+- les mesures : 99,85 % des termes dans la classe piège, un seul retour aux impairs entre les rangs 10⁷ et 3·10⁷ ;
+- la loi de vitesse empirique (pas moyen `1,05·ln a + 2,08`), vérifiée hors de sa plage d'ajustement ;
+- la sur-représentation des multiples de 3 (0,3885), son modèle sans paramètre et sa vérification sur les suites
+  sœurs `a → a + k·d(a)` ;
+- la confluence vérifiée depuis 10⁸ (16 départs).
+
+« Non trouvé sur six fiches » ne veut pas dire inédit : je n'ai lu ni articles ni actes de colloques. Les deux
+questions de 1977 restent ouvertes ; mes calculs vont dans le sens « oui » pour la confluence, et mon raisonnement
+dans le sens « oui, mais de plus en plus rarement » pour la parité. Ni l'un ni l'autre n'est une preuve.
