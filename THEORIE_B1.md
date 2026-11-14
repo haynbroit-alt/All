@@ -47,4 +47,62 @@ calculer. Calcul unique, par `bench/b1-theorie.js` ; résultat publié tel quel 
 
 ## Résultat
 
+Calcul unique du 14 novembre 2026 (`node bench/b1-theorie.js`, 5 secondes, sortie `bench/b1-theorie.json`).
+Terme de rang 10⁶ : 18 483 162. Terme de rang 10⁷ : 211 222 318.
+
+| | Prédiction | Mesuré | Verdict |
+|---|---|---|---|
+| **Q1** | au moins 0,90 des termes valent 2 modulo 4 (naïf : 0,25) | **0,9985** | **confirmée**, bien au-delà |
+| **Q2** | moyenne de `d(a) − ln a` dans [1,70 ; 2,00] (théorie 1,848 ; naïf 1,154) | **3,000** | **réfutée** |
+| **Q3** | aucune exception aux lemmes 1 et 2 | 0 et 0, sur 10⁷ termes | confirmée (c'étaient des lemmes) |
+| **Q4** | terme de rang 10⁷ prédit à 1 % près | erreur de 5,2 % (naïf : 8,3 %) | **réfutée** |
+| **Q5** | au plus 5 retours à un terme impair | 0 retour ; 582 sorties brèves vers les multiples de 4 | confirmée |
+
+**Ce qui tient.** Le piège existe : entre les rangs 10⁶ et 10⁷, 99,85 % des termes sont de la forme `2 × impair`,
+aucun n'est impair, et le reste (0,15 %) correspond aux 582 brefs passages par les multiples de 4.
+
+**Ce qui tombe.** La suite avance encore plus vite que je ne le disais. L'excès sur l'estimation naïve n'est pas
+`ln 2 ≈ 0,69` mais environ 1,85 par pas. Ma théorie n'explique donc qu'une partie du biais.
+
+## Exploration après coup (sans valeur de preuve)
+
+Regardé après le résultat, pour comprendre l'écart ; `m` désigne la moitié du terme, dans la classe piège :
+
+| Rangs | `ln a` moyen | excès `d(a) − ln a` | part des `m` multiples de 3 (hasard : 0,3333) | de 9 (0,1111) | de 5 (0,2) | de 7 (0,1429) |
+|---|---:|---:|---:|---:|---:|---:|
+| 10⁴ à 10⁵ | 13,49 | 2,767 | 0,3911 | 0,1218 | 0,2022 | 0,1460 |
+| 10⁵ à 10⁶ | 15,94 | 2,892 | 0,3898 | 0,1204 | 0,2024 | 0,1456 |
+| 10⁶ à 3·10⁶ | 17,42 | 2,946 | 0,3895 | 0,1188 | 0,2024 | 0,1457 |
+| 3·10⁶ à 10⁷ | 18,66 | 3,016 | 0,3889 | 0,1186 | 0,2019 | 0,1457 |
+
+- Contrôle de ma référence : sur 400 000 entiers `2 × impair` pris régulièrement entre 10⁸ et 1,7·10⁹, la moyenne
+  de `d(a) − ln a` vaut 1,840 (attendu 1,848). La formule était juste ; c'est la suite qui ne voit pas des
+  entiers ordinaires de cette classe.
+- **Second biais** : la suite passe par trop de multiples de 3 — 38,9 % au lieu de 33,3 %. Les multiples de 5 et de
+  7 sont presque à leur fréquence ordinaire.
+- Raison probable, à démontrer : si 9 divise `m` exactement à la puissance 2, alors `d(m)` est multiple de 3 et le
+  terme suivant reste multiple de 3 ; quitter les multiples de 3 est donc plus difficile qu'y entrer. Pour 5 et 7,
+  la même mécanique demanderait une puissance 4 ou 6, trop rare pour compter.
+- L'excès grandit avec `ln a` : le pas moyen ressemble à `κ·ln a + c` avec `κ` un peu supérieur à 1, et non à
+  `ln a + c`. C'est ce qu'on attend si les multiples de 3 sont sur-représentés d'une part constante.
+
+## Deuxième tour — prédictions écrites avant le calcul
+
+Loi révisée, **empirique** : pas moyen `κ·ln a + c`, où `κ` et `c` sont ajustés par moindres carrés sur les seuls
+termes de rang 10⁴ à 10⁷ de la classe piège. Épreuve sur un territoire que personne n'a regardé ici : les rangs 10⁷
+à 3·10⁷, et d'autres points de départ.
+
+| | Mesure | Prédiction | Réfutée si |
+|---|---|---|---|
+| **R1** | terme de rang 3·10⁷, prédit depuis celui de rang 10⁷ par la loi révisée | erreur d'au plus 0,5 % | plus de 0,5 %, ou pas meilleure que `ln a + 2γ + ln 2` |
+| **R2** | part des `m` multiples de 3, rangs 10⁷ à 3·10⁷ | entre 0,383 et 0,391 | hors de cet intervalle |
+| **R3** | part des termes valant 2 modulo 4, mêmes rangs | au moins 0,998, aucun terme impair | sinon |
+| **R4** | suites parties de 3, 5, 6, 10, 11, 13, 100 et 1001 : part des termes valant 2 modulo 4, rangs 10⁵ à 10⁶ | au moins 0,99 pour chacune | une seule en dessous |
+| **R5** | ces huit suites rejoignent-elles la suite partie de 1 (un terme commun, donc tous les suivants) ? | au moins 7 sur 8 avant le rang 10⁶ | 6 ou moins |
+
+R5 est une conjecture de **confluence** : toutes les suites finiraient par se confondre en une seule. Calcul unique,
+par `bench/b1-tour2.js`.
+
+## Résultat du deuxième tour
+
 (complété après le calcul)
