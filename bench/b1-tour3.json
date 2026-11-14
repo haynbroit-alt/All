@@ -1,0 +1,107 @@
+{
+ "departs": 16,
+ "limite_pas": 500000,
+ "suites_distinctes_a_la_fin": 1,
+ "plus_grand_groupe": 16,
+ "fusions": [
+  {
+   "valeur": 100000005,
+   "pas": 1,
+   "restantes": 15
+  },
+  {
+   "valeur": 100000007,
+   "pas": 1,
+   "restantes": 14
+  },
+  {
+   "valeur": 100000014,
+   "pas": 1,
+   "restantes": 13
+  },
+  {
+   "valeur": 100000009,
+   "pas": 2,
+   "restantes": 12
+  },
+  {
+   "valeur": 100000013,
+   "pas": 3,
+   "restantes": 11
+  },
+  {
+   "valeur": 100000031,
+   "pas": 3,
+   "restantes": 10
+  },
+  {
+   "valeur": 100000046,
+   "pas": 4,
+   "restantes": 9
+  },
+  {
+   "valeur": 100000053,
+   "pas": 7,
+   "restantes": 8
+  },
+  {
+   "valeur": 100000104,
+   "pas": 3,
+   "restantes": 7
+  },
+  {
+   "valeur": 100000122,
+   "pas": 8,
+   "restantes": 6
+  },
+  {
+   "valeur": 100000173,
+   "pas": 16,
+   "restantes": 5
+  },
+  {
+   "valeur": 100000234,
+   "pas": 14,
+   "restantes": 4
+  },
+  {
+   "valeur": 100000552,
+   "pas": 15,
+   "restantes": 3
+  },
+  {
+   "valeur": 100000834,
+   "pas": 42,
+   "restantes": 2
+  },
+  {
+   "valeur": 100180126,
+   "pas": 16049,
+   "restantes": 1
+  }
+ ],
+ "groupes": [
+  {
+   "departs": [
+    12,
+    4,
+    8,
+    2,
+    14,
+    6,
+    16,
+    10,
+    5,
+    1,
+    15,
+    11,
+    13,
+    9,
+    7,
+    3
+   ],
+   "valeur": 100180126,
+   "classe": "2 mod 4"
+  }
+ ]
+}

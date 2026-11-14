@@ -134,4 +134,23 @@ Réfutée s'il reste trois suites distinctes ou plus. Calcul unique, par `bench/
 
 ## Résultat du troisième tour
 
-(complété après le calcul)
+Calcul unique du 14 novembre 2026 (`node bench/b1-tour3.js`, sortie `bench/b1-tour3.json`).
+
+**R6 confirmée : les 16 suites se confondent en une seule.** Quatorze fusions ont lieu en 42 pas au plus ; la
+dernière demande 16 049 pas et se fait à la valeur 100 180 126, dans la classe piège. Avant elle, il restait deux
+suites qui avançaient côte à côte sans se toucher.
+
+## Bilan
+
+| Énoncé | Statut |
+|---|---|
+| La parité ne change qu'en passant par un carré ; la classe « 2 modulo 4 » ne se quitte qu'aux doubles de carrés impairs | **démontré** (lemmes 1 et 2), vérifié sur 10⁷ termes |
+| Presque tous les termes sont de la forme `2 × impair` | conjecture, **vérifiée** : 99,85 % puis 99,87 % sur trente millions de termes |
+| Excès de vitesse égal à `ln 2` | **réfuté** |
+| Les moitiés des termes sont trop souvent multiples de 3 (38,9 % au lieu de 33,3 %) | constat après coup, **confirmé** sur termes neufs |
+| Pas moyen `1,05·ln a + 2,08` | loi empirique, **confirmée** à 0,033 % près sur vingt millions de termes neufs ; constantes non expliquées |
+| Aucun retour aux impairs | **réfuté** : un retour de 8 914 pas |
+| Toutes les suites finissent par se confondre | conjecture de confluence, **vérifiée** sur 8 départs près de 0 et 16 départs près de 10⁸ |
+
+Rien de tout cela n'a été confronté à ce qui est publié sur cette suite. Tant que ce n'est pas fait, ce sont des
+résultats vérifiés par le calcul, pas des découvertes.
