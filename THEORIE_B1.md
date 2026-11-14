@@ -105,4 +105,33 @@ par `bench/b1-tour2.js`.
 
 ## Résultat du deuxième tour
 
+Calcul unique du 14 novembre 2026 (`node bench/b1-tour2.js`, 26 secondes, sortie `bench/b1-tour2.json`).
+Ajustement sur 9 958 837 termes : `κ = 1,0499`, `c = 2,083`. Terme de rang 3·10⁷ : 669 922 886.
+
+| | Prédiction | Mesuré | Verdict |
+|---|---|---|---|
+| **R1** | terme de rang 3·10⁷ à 0,5 % près | erreur de **0,033 %** (ancienne loi : 3,8 %) | **confirmée** |
+| **R2** | part des `m` multiples de 3 entre 0,383 et 0,391 | 0,3887 | **confirmée** |
+| **R3** | au moins 0,998 des termes valent 2 modulo 4, aucun terme impair | 0,9987 ; mais **8 914 termes impairs** | **réfutée** sur le second point |
+| **R4** | au moins 0,99 pour chacune des huit suites, rangs 10⁵ à 10⁶ | 0,9817 pour toutes | **réfutée** |
+| **R5** | au moins 7 suites sur 8 rejoignent la suite partie de 1 | **8 sur 8**, en 2 à 35 pas | **confirmée** |
+
+- **La loi révisée tient hors de la plage où elle a été ajustée** : pas moyen `1,05·ln a + 2,08`, vérifié sur vingt
+  millions de termes neufs. Elle reste empirique : je n'ai pas de démonstration de `κ`.
+- **Il y a bien des retours aux impairs.** Entre les rangs 10⁷ et 3·10⁷, la suite repasse une fois par les impairs,
+  pendant 8 914 pas. Le raisonnement du premier tour les annonçait rarissimes, pas absents ; en écrivant « aucun »
+  j'ai durci ma propre conjecture à tort.
+- **R4 est manquée parce que R5 est vraie** : les huit suites se confondent avec la suite principale dès leurs
+  premiers pas, elles ont donc toutes la même part (0,9817), et la suite principale connaît une excursion hors du
+  piège entre les rangs 10⁵ et 10⁶. Mon seuil de 0,99 était trop serré pour cette plage.
+- R5 est peu probante telle quelle : près de zéro, la suite principale est dense et tout départ la rencontre vite.
+
+## Troisième tour — la confluence, depuis de grands nombres (écrit avant le calcul)
+
+**R6.** Seize suites partent de 10⁸ + 1, 10⁸ + 2, …, 10⁸ + 16, loin de l'origine, où les termes sont espacés d'une
+vingtaine d'unités. Prédiction : **au moins 14 des 16 se sont confondues en une seule suite avant 500 000 pas**.
+Réfutée s'il reste trois suites distinctes ou plus. Calcul unique, par `bench/b1-tour3.js`.
+
+## Résultat du troisième tour
+
 (complété après le calcul)
