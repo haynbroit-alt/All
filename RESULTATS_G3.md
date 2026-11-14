@@ -50,7 +50,8 @@ Ce qui est solide :
 | premiers dont 2 est racine primitive | 15 / 45 · 14 / 0,02 · 62 / 305 | incertaine ×3 |
 
 - Syracuse passe à 10 fois la plage (moins de 0,7 %) et échoue de peu à 100 fois : la loi rendue, `2·x^1.047 − x`,
-  imite un `n·ln n` sans l'être. C'est le seul cas où le moteur se dit sûr d'une loi qui dérive.
+  imite un `n·ln n` sans l'être. Avec le nombre de premiers, c'est l'un des deux objets où le moteur se dit sûr
+  d'une loi qui dérive — de 2 à 3 % à 100 fois la plage.
 - Les cinq autres sont des échecs francs, **et le moteur le dit** : quinze verdicts « incertaine » sur quinze.
 
 ## Le verdict du moteur, cette fois, vaut quelque chose
