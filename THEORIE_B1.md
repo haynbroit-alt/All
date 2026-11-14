@@ -154,3 +154,46 @@ suites qui avançaient côte à côte sans se toucher.
 
 Rien de tout cela n'a été confronté à ce qui est publié sur cette suite. Tant que ce n'est pas fait, ce sont des
 résultats vérifiés par le calcul, pas des découvertes.
+
+## Quatrième tour — pourquoi 38,9 % de multiples de 3 : un modèle sans paramètre
+
+Écrit le 14 novembre 2026. La partie « modèle » a été mise au point sur la suite déjà calculée (donc après coup) ;
+la partie « prédictions » porte sur des suites que je n'ai jamais calculées.
+
+**Le modèle.** Dans la classe piège, la moitié `m` du terme suit `m → m + d(m)`. On ne retient de `m` que son résidu
+modulo `3^j` ; tout le reste est supposé quelconque. Pour chaque résidu, on prend des entiers impairs ordinaires de
+ce résidu, on leur applique un pas, et on note le résidu d'arrivée : cela donne une chaîne de Markov, dont on calcule
+la répartition d'équilibre. Aucun nombre n'est ajusté sur la suite (`bench/b1-tour4.js`, fonction `predire`).
+
+| Mémoire du modèle | Part des multiples de 3 prédite |
+|---|---:|
+| aucune (entiers ordinaires) | 0,3333 |
+| résidu modulo 3 | 0,3939 |
+| résidu modulo 9 | 0,3880 |
+| résidu modulo 27 | 0,3883 |
+| résidu modulo 81 | 0,3887 |
+| **mesuré sur la suite** | **0,3891** (rangs 10⁶ à 10⁷) ; **0,3887** (rangs 10⁷ à 3·10⁷) |
+
+Dès qu'il se souvient du résidu modulo 9, le modèle retombe sur la valeur mesurée, à un millième près (son bruit
+d'échantillonnage est du même ordre). Le second biais de la suite n'a donc rien de mystérieux : c'est la mémoire
+3-adique d'un pas `m + d(m)`, et rien d'autre de mesurable.
+
+**Suites sœurs.** Pour `k` impair, la suite `a → a + k·d(a)` garde les lemmes 1 et 2 (le pas `k·d(a)` a la parité
+de `d(a)`, et `a = 2m` donne `2(m + k·d(m))`). Remarque immédiate : `a + k·d(a)` a le même reste que `a` modulo `k`,
+donc pour `k ≥ 2` des départs de restes différents ne se rejoignent jamais — la confluence observée pour `k = 1`
+est propre à ce cas.
+
+**Prédictions, écrites avant de calculer ces suites.** Le même modèle, appliqué au pas `m + k·d(m)`, donne modulo 9
+puis modulo 27 : `k = 5` → 0,3880 et 0,3877 ; `k = 7` → 0,3882 et 0,3885 ; `k = 11` → 0,3878 et 0,3874 ;
+`k = 13` → 0,3882 et 0,3886. Il annonce donc **la même part, environ 0,388, pour toutes ces suites**.
+
+| | Mesure, départ 1, rangs 10⁶ à 10⁷ | Prédiction | Réfutée si |
+|---|---|---|---|
+| **S1** | part des `m` multiples de 3, pour `k` = 5, 7, 11, 13 | entre 0,384 et 0,392 pour chacune | une seule hors de l'intervalle |
+| **S2** | part des termes dans la classe « 2 modulo 4 », mêmes suites | au moins 0,98 pour chacune | une seule en dessous |
+
+Calcul unique : `node bench/b1-tour4.js test`.
+
+## Résultat du quatrième tour
+
+(complété après le calcul)
