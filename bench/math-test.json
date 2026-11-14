@@ -1,0 +1,838 @@
+{
+ "lot": "test",
+ "bruit": 0.002,
+ "graines": [
+  1,
+  3
+ ],
+ "executions": [
+  {
+   "monde": "A1",
+   "titre": "somme des nombres de diviseurs",
+   "graine": 1,
+   "loi": "0.08584·x·(log(x) + 11.65)",
+   "verdict": "incertaine",
+   "experiences": 75,
+   "secs": 10.74,
+   "vrai_10": 11.973459610027856,
+   "vrai_100": 139.4689213627598,
+   "erreur_10": 0.00017021063602810075,
+   "erreur_100": 0.00036603893082493054,
+   "reussite": true,
+   "droite": [
+    0.15457489787236964,
+    0.2723364921409404
+   ],
+   "puissance": [
+    0.0656043731319278,
+    0.1579049960655282
+   ],
+   "exposant_puissance": 1.1023347222690625
+  },
+  {
+   "monde": "A1",
+   "titre": "somme des nombres de diviseurs",
+   "graine": 2,
+   "loi": "x + x·log(x^0.08561)",
+   "verdict": "établie",
+   "experiences": 69,
+   "secs": 9.252,
+   "vrai_10": 11.973459610027856,
+   "vrai_100": 139.4689213627598,
+   "erreur_10": 0.0001921093260800249,
+   "erreur_100": 0.0003279112427800855,
+   "reussite": true,
+   "droite": [
+    0.15457489787236964,
+    0.2723364921409404
+   ],
+   "puissance": [
+    0.0656043731319278,
+    0.1579049960655282
+   ],
+   "exposant_puissance": 1.1023347222690625
+  },
+  {
+   "monde": "A1",
+   "titre": "somme des nombres de diviseurs",
+   "graine": 3,
+   "loi": "x + log(x^0.08594)·x",
+   "verdict": "empirique",
+   "experiences": 53,
+   "secs": 2.511,
+   "vrai_10": 11.973459610027856,
+   "vrai_100": 139.4689213627598,
+   "erreur_10": 0.000456526529471263,
+   "erreur_100": 0.0007858014241241553,
+   "reussite": true,
+   "droite": [
+    0.15457489787236964,
+    0.2723364921409404
+   ],
+   "puissance": [
+    0.0656043731319278,
+    0.1579049960655282
+   ],
+   "exposant_puissance": 1.1023347222690625
+  },
+  {
+   "monde": "A2",
+   "titre": "somme de l’indicatrice d’Euler",
+   "graine": 1,
+   "loi": "x^2",
+   "verdict": "établie",
+   "experiences": 31,
+   "secs": 0.319,
+   "vrai_10": 99.99949895296425,
+   "vrai_100": 9999.950286144616,
+   "erreur_10": 0.000005010495462486084,
+   "erreur_100": 0.000004971410253171345,
+   "reussite": true,
+   "droite": [
+    0.9006991115624613,
+    0.9899168967510373
+   ],
+   "puissance": [
+    0.00023784092021631676,
+    0.0004395494444291675
+   ],
+   "exposant_puissance": 1.9999123863950345
+  },
+  {
+   "monde": "A2",
+   "titre": "somme de l’indicatrice d’Euler",
+   "graine": 2,
+   "loi": "x^2",
+   "verdict": "établie",
+   "experiences": 31,
+   "secs": 0.436,
+   "vrai_10": 99.99949895296425,
+   "vrai_100": 9999.950286144616,
+   "erreur_10": 0.000005010495462486084,
+   "erreur_100": 0.000004971410253171345,
+   "reussite": true,
+   "droite": [
+    0.9006991115624613,
+    0.9899168967510373
+   ],
+   "puissance": [
+    0.00023784092021631676,
+    0.0004395494444291675
+   ],
+   "exposant_puissance": 1.9999123863950345
+  },
+  {
+   "monde": "A2",
+   "titre": "somme de l’indicatrice d’Euler",
+   "graine": 3,
+   "loi": "x^2",
+   "verdict": "établie",
+   "experiences": 35,
+   "secs": 0.859,
+   "vrai_10": 99.99949895296425,
+   "vrai_100": 9999.950286144616,
+   "erreur_10": 0.000005010495462486084,
+   "erreur_100": 0.000004971410253171345,
+   "reussite": true,
+   "droite": [
+    0.9006991115624613,
+    0.9899168967510373
+   ],
+   "puissance": [
+    0.00023784092021631676,
+    0.0004395494444291675
+   ],
+   "exposant_puissance": 1.9999123863950345
+  },
+  {
+   "monde": "A3",
+   "titre": "nombre de premiers",
+   "graine": 1,
+   "loi": "(x + x^0.8103) / 2",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 11.821,
+   "vrai_10": 8.18369474562135,
+   "vrai_100": 69.28471643035863,
+   "erreur_10": 0.005677442164134021,
+   "erreur_100": 0.022849406256697558,
+   "reussite": false,
+   "droite": [
+    0.19723700443745695,
+    0.4091777023277799
+   ],
+   "puissance": [
+    0.07141677750941212,
+    0.15841877275346253
+   ],
+   "exposant_puissance": 0.8849632288186318
+  },
+  {
+   "monde": "A3",
+   "titre": "nombre de premiers",
+   "graine": 2,
+   "loi": "(x^0.8081 + x) / 2",
+   "verdict": "établie",
+   "experiences": 37,
+   "secs": 0.765,
+   "vrai_10": 8.18369474562135,
+   "vrai_100": 69.28471643035863,
+   "erreur_10": 0.0037520900231368674,
+   "erreur_100": 0.019918207444894597,
+   "reussite": true,
+   "droite": [
+    0.19723700443745695,
+    0.4091777023277799
+   ],
+   "puissance": [
+    0.07141677750941212,
+    0.15841877275346253
+   ],
+   "exposant_puissance": 0.8849632288186318
+  },
+  {
+   "monde": "A3",
+   "titre": "nombre de premiers",
+   "graine": 3,
+   "loi": "0.4997·(x + x^0.8088)",
+   "verdict": "établie",
+   "experiences": 61,
+   "secs": 5.208,
+   "vrai_10": 8.18369474562135,
+   "vrai_100": 69.28471643035863,
+   "erreur_10": 0.003753888389888055,
+   "erreur_100": 0.020218825881818017,
+   "reussite": false,
+   "droite": [
+    0.19723700443745695,
+    0.4091777023277799
+   ],
+   "puissance": [
+    0.07141677750941212,
+    0.15841877275346253
+   ],
+   "exposant_puissance": 0.8849632288186318
+  },
+  {
+   "monde": "A4",
+   "titre": "logarithme de n!",
+   "graine": 1,
+   "loi": "2.718·x·exp(−1 / x^0.09559)",
+   "verdict": "établie",
+   "experiences": 68,
+   "secs": 6.651,
+   "vrai_10": 12.190172043985072,
+   "vrai_100": 143.80393549085633,
+   "erreur_10": 0.0006288865557079068,
+   "erreur_100": 0.0073076084523540485,
+   "reussite": true,
+   "droite": [
+    0.16848694250023077,
+    0.29312602354142087
+   ],
+   "puissance": [
+    0.08359388494797552,
+    0.20083227949655183
+   ],
+   "exposant_puissance": 1.1163767446904478
+  },
+  {
+   "monde": "A4",
+   "titre": "logarithme de n!",
+   "graine": 2,
+   "loi": "x^1.052 + x − x^0.9569",
+   "verdict": "établie",
+   "experiences": 54,
+   "secs": 3.541,
+   "vrai_10": 12.190172043985072,
+   "vrai_100": 143.80393549085633,
+   "erreur_10": 0.0018071861253345712,
+   "erreur_100": 0.008012400173240222,
+   "reussite": true,
+   "droite": [
+    0.16848694250023077,
+    0.29312602354142087
+   ],
+   "puissance": [
+    0.08359388494797552,
+    0.20083227949655183
+   ],
+   "exposant_puissance": 1.1163767446904478
+  },
+  {
+   "monde": "A4",
+   "titre": "logarithme de n!",
+   "graine": 3,
+   "loi": "(0.09543·log(x) + 1)·x",
+   "verdict": "incertaine",
+   "experiences": 60,
+   "secs": 5.873,
+   "vrai_10": 12.190172043985072,
+   "vrai_100": 143.80393549085633,
+   "erreur_10": 0.0005856835249614355,
+   "erreur_100": 0.000989521232583469,
+   "reussite": true,
+   "droite": [
+    0.16848694250023077,
+    0.29312602354142087
+   ],
+   "puissance": [
+    0.08359388494797552,
+    0.20083227949655183
+   ],
+   "exposant_puissance": 1.1163767446904478
+  },
+  {
+   "monde": "A5",
+   "titre": "n-ième nombre premier",
+   "graine": 1,
+   "loi": "(0.1057·log(x) + 1)·x",
+   "verdict": "incertaine",
+   "experiences": 77,
+   "secs": 7.352,
+   "vrai_10": 12.410211116309714,
+   "vrai_100": 147.8660447440537,
+   "erreur_10": 0.0019509665759859527,
+   "erreur_100": 0.005561897089633522,
+   "reussite": true,
+   "droite": [
+    0.18178686917342624,
+    0.31111471532607093
+   ],
+   "puissance": [
+    0.10896007067460163,
+    0.2637866308586988
+   ],
+   "exposant_puissance": 1.1328471341895536
+  },
+  {
+   "monde": "A5",
+   "titre": "n-ième nombre premier",
+   "graine": 2,
+   "loi": "2.719·x·exp(−1 / x^0.1057)",
+   "verdict": "incertaine",
+   "experiences": 70,
+   "secs": 8.493,
+   "vrai_10": 12.410211116309714,
+   "vrai_100": 147.8660447440537,
+   "erreur_10": 0.0001854337490253684,
+   "erreur_100": 0.005664961565479021,
+   "reussite": true,
+   "droite": [
+    0.18178686917342624,
+    0.31111471532607093
+   ],
+   "puissance": [
+    0.10896007067460163,
+    0.2637866308586988
+   ],
+   "exposant_puissance": 1.1328471341895536
+  },
+  {
+   "monde": "A5",
+   "titre": "n-ième nombre premier",
+   "graine": 3,
+   "loi": "2·x^1.032 − x^0.9594",
+   "verdict": "établie",
+   "experiences": 57,
+   "secs": 4.484,
+   "vrai_10": 12.410211116309714,
+   "vrai_100": 147.8660447440537,
+   "erreur_10": 0.002919224206462806,
+   "erreur_100": 0.009950532488378542,
+   "reussite": true,
+   "droite": [
+    0.18178686917342624,
+    0.31111471532607093
+   ],
+   "puissance": [
+    0.10896007067460163,
+    0.2637866308586988
+   ],
+   "exposant_puissance": 1.1328471341895536
+  },
+  {
+   "monde": "A6",
+   "titre": "somme des nombres de facteurs premiers distincts",
+   "graine": 1,
+   "loi": "x + x^0.9646 − x^0.9303",
+   "verdict": "établie",
+   "experiences": 74,
+   "secs": 8.659,
+   "vrai_10": 10.712117117117117,
+   "vrai_100": 113.10179054054053,
+   "erreur_10": 0.0011657172413043059,
+   "erreur_100": 0.006140801461220819,
+   "reussite": true,
+   "droite": [
+    0.06099389705555358,
+    0.10965706413010572
+   ],
+   "puissance": [
+    0.039669926200324154,
+    0.09099383670047818
+   ],
+   "exposant_puissance": 1.0445209836950404
+  },
+  {
+   "monde": "A6",
+   "titre": "somme des nombres de facteurs premiers distincts",
+   "graine": 2,
+   "loi": "3·x / 2 − x^0.9324 / 2",
+   "verdict": "incertaine",
+   "experiences": 67,
+   "secs": 8.939,
+   "vrai_10": 10.712117117117117,
+   "vrai_100": 113.10179054054053,
+   "erreur_10": 0.0007941065709151724,
+   "erreur_100": 0.002405674364758428,
+   "reussite": true,
+   "droite": [
+    0.06099389705555358,
+    0.10965706413010572
+   ],
+   "puissance": [
+    0.039669926200324154,
+    0.09099383670047818
+   ],
+   "exposant_puissance": 1.0445209836950404
+  },
+  {
+   "monde": "A6",
+   "titre": "somme des nombres de facteurs premiers distincts",
+   "graine": 3,
+   "loi": "2·x − x^0.9645",
+   "verdict": "incertaine",
+   "experiences": 66,
+   "secs": 7.953,
+   "vrai_10": 10.712117117117117,
+   "vrai_100": 113.10179054054053,
+   "erreur_10": 0.00688569532016558,
+   "erreur_100": 0.01766688090570089,
+   "reussite": true,
+   "droite": [
+    0.06099389705555358,
+    0.10965706413010572
+   ],
+   "puissance": [
+    0.039669926200324154,
+    0.09099383670047818
+   ],
+   "exposant_puissance": 1.0445209836950404
+  },
+  {
+   "monde": "B1",
+   "titre": "suite a → a + nombre de diviseurs",
+   "graine": 1,
+   "loi": "(0.1452·exp(−3.81e7·x^14.1) + x^0.3704 + 0.4195)·sin(0.78·x)",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 46.182,
+   "vrai_10": 12.32433638531969,
+   "vrai_100": 142.21098715088098,
+   "erreur_10": 0.7758864750297428,
+   "erreur_100": 0.9786878560598505,
+   "reussite": false,
+   "droite": [
+    0.17613596717247676,
+    0.2835825828299042
+   ],
+   "puissance": [
+    0.10474960168705523,
+    0.2960906231702378
+   ],
+   "exposant_puissance": 1.1315411224429255
+  },
+  {
+   "monde": "B1",
+   "titre": "suite a → a + nombre de diviseurs",
+   "graine": 2,
+   "loi": "(x + 0.0341·x·log(x)·cos((22.6 − 14·x)·x − 2/3))^1.121",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 31.659,
+   "vrai_10": 12.32433638531969,
+   "vrai_100": 142.21098715088098,
+   "erreur_10": 0.16302182564769122,
+   "erreur_100": 0.404989177725002,
+   "reussite": false,
+   "droite": [
+    0.17613596717247676,
+    0.2835825828299042
+   ],
+   "puissance": [
+    0.10474960168705523,
+    0.2960906231702378
+   ],
+   "exposant_puissance": 1.1315411224429255
+  },
+  {
+   "monde": "B1",
+   "titre": "suite a → a + nombre de diviseurs",
+   "graine": 3,
+   "loi": "x^1.078 − 0.01255·(sin((x + 9.73) / (x^13 + 0)^0.02795) + 1.154)",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 48.613,
+   "vrai_10": 12.32433638531969,
+   "vrai_100": 142.21098715088098,
+   "erreur_10": 0.029842197485658778,
+   "erreur_100": 0.009136275263498004,
+   "reussite": false,
+   "droite": [
+    0.17613596717247676,
+    0.2835825828299042
+   ],
+   "puissance": [
+    0.10474960168705523,
+    0.2960906231702378
+   ],
+   "exposant_puissance": 1.1315411224429255
+  },
+  {
+   "monde": "B2",
+   "titre": "suite a → a + nombre de 1 en binaire",
+   "graine": 1,
+   "loi": "1 / (0.9915 / (x − 0.005053) − 0.01037·sin(9·x − 2.622 / x − 9))^1.093",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 30.624,
+   "vrai_10": 12.337287826245666,
+   "vrai_100": 145.4273068599588,
+   "erreur_10": 0.07398141122971479,
+   "erreur_100": 0.4984862793666474,
+   "reussite": false,
+   "droite": [
+    0.1710086764076386,
+    0.29455063273113524
+   ],
+   "puissance": [
+    0.1572473197238295,
+    0.361647013210943
+   ],
+   "exposant_puissance": 1.1420646189001415
+  },
+  {
+   "monde": "B2",
+   "titre": "suite a → a + nombre de 1 en binaire",
+   "graine": 2,
+   "loi": "x^1.138·(1.056 − 0.05203·x·(1.013 − cos(x·(x + 14)))^0.1001)",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 45.968,
+   "vrai_10": 12.337287826245666,
+   "vrai_100": 145.4273068599588,
+   "erreur_10": 0.38190919465852446,
+   "erreur_100": 6.755286476911428,
+   "reussite": false,
+   "droite": [
+    0.1710086764076386,
+    0.29455063273113524
+   ],
+   "puissance": [
+    0.1572473197238295,
+    0.361647013210943
+   ],
+   "exposant_puissance": 1.1420646189001415
+  },
+  {
+   "monde": "B2",
+   "titre": "suite a → a + nombre de 1 en binaire",
+   "graine": 3,
+   "loi": "0.8608·(x^4.245 + 3/4)·cos(x − 0.6908)^(11/2) − 0.1566",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 35.72,
+   "vrai_10": 12.337287826245666,
+   "vrai_100": 145.4273068599588,
+   "erreur_10": null,
+   "erreur_100": 4992.337972291885,
+   "reussite": false,
+   "droite": [
+    0.1710086764076386,
+    0.29455063273113524
+   ],
+   "puissance": [
+    0.1572473197238295,
+    0.361647013210943
+   ],
+   "exposant_puissance": 1.1420646189001415
+  },
+  {
+   "monde": "B3",
+   "titre": "suite a → a + somme des chiffres",
+   "graine": 1,
+   "loi": "1.011·x^1.037 − (−0.005096·cos(13.76·x) − 0.01123)·cos(13.33·x) − 0.01899",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 36.912,
+   "vrai_10": 12.214145649742369,
+   "vrai_100": 145.33299793613725,
+   "erreur_10": 0.0994048996976083,
+   "erreur_100": 0.1738418542973837,
+   "reussite": false,
+   "droite": [
+    0.16692760174659452,
+    0.2980165260824205
+   ],
+   "puissance": [
+    0.0896632820257985,
+    0.19598138407715868
+   ],
+   "exposant_puissance": 1.1159332406340803
+  },
+  {
+   "monde": "B3",
+   "titre": "suite a → a + somme des chiffres",
+   "graine": 2,
+   "loi": "(x / (0.02142·sin(12.42·x − 1) + 0.0479·x^(9/2) + 0.9717))^1.118",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 21.601,
+   "vrai_10": 12.214145649742369,
+   "vrai_100": 145.33299793613725,
+   "erreur_10": 0.9997009543154655,
+   "erreur_100": 0.9999999969211876,
+   "reussite": false,
+   "droite": [
+    0.16692760174659452,
+    0.2980165260824205
+   ],
+   "puissance": [
+    0.0896632820257985,
+    0.19598138407715868
+   ],
+   "exposant_puissance": 1.1159332406340803
+  },
+  {
+   "monde": "B3",
+   "titre": "suite a → a + somme des chiffres",
+   "graine": 3,
+   "loi": "1.219e-4 / (1 / x^0.02185 + x^8 − 1.015) + ((x + 0.01645)^1.146) − 0.0108",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 75.424,
+   "vrai_10": 12.214145649742369,
+   "vrai_100": 145.33299793613725,
+   "erreur_10": 0.14785113398141392,
+   "erreur_100": 0.34965589385549145,
+   "reussite": false,
+   "droite": [
+    0.16692760174659452,
+    0.2980165260824205
+   ],
+   "puissance": [
+    0.0896632820257985,
+    0.19598138407715868
+   ],
+   "exposant_puissance": 1.1159332406340803
+  },
+  {
+   "monde": "B4",
+   "titre": "somme des temps de vol de Syracuse",
+   "graine": 1,
+   "loi": "3·x^1.032 − x − x",
+   "verdict": "établie",
+   "experiences": 48,
+   "secs": 2.2,
+   "vrai_10": 12.222092201483377,
+   "vrai_100": 144.3879424466051,
+   "erreur_10": 0.005234006173961157,
+   "erreur_100": 0.021299141876780014,
+   "reussite": false,
+   "droite": [
+    0.1715100587875814,
+    0.29675642833391475
+   ],
+   "puissance": [
+    0.07990367844291768,
+    0.19303151771211863
+   ],
+   "exposant_puissance": 1.1156522686141848
+  },
+  {
+   "monde": "B4",
+   "titre": "somme des temps de vol de Syracuse",
+   "graine": 2,
+   "loi": "2·x^1.047 − x",
+   "verdict": "établie",
+   "experiences": 58,
+   "secs": 3.189,
+   "vrai_10": 12.222092201483377,
+   "vrai_100": 144.3879424466051,
+   "erreur_10": 0.006601793046945604,
+   "erreur_100": 0.02991284221661513,
+   "reussite": false,
+   "droite": [
+    0.1715100587875814,
+    0.29675642833391475
+   ],
+   "puissance": [
+    0.07990367844291768,
+    0.19303151771211863
+   ],
+   "exposant_puissance": 1.1156522686141848
+  },
+  {
+   "monde": "B4",
+   "titre": "somme des temps de vol de Syracuse",
+   "graine": 3,
+   "loi": "2·x^1.047 − x − 4.178e-4",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 9.539,
+   "vrai_10": 12.222092201483377,
+   "vrai_100": 144.3879424466051,
+   "erreur_10": 0.006939201718964037,
+   "erreur_100": 0.03061154775547587,
+   "reussite": false,
+   "droite": [
+    0.1715100587875814,
+    0.29675642833391475
+   ],
+   "puissance": [
+    0.07990367844291768,
+    0.19303151771211863
+   ],
+   "exposant_puissance": 1.1156522686141848
+  },
+  {
+   "monde": "B5",
+   "titre": "premiers jumeaux",
+   "graine": 1,
+   "loi": "0.9748·x^5.77·(0.02618·sin(1 / x^3.837) + 1 / x^5) + 0.001507",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 70.082,
+   "vrai_10": 6.674019607843137,
+   "vrai_100": 48.18627450980392,
+   "erreur_10": 0.1887030922702082,
+   "erreur_100": 3.6022488838110633,
+   "reussite": false,
+   "droite": [
+    0.4094808926141149,
+    0.9357098517942268
+   ],
+   "puissance": [
+    0.14185398020530862,
+    0.3044253779954175
+   ],
+   "exposant_puissance": 0.7673184080641674
+  },
+  {
+   "monde": "B5",
+   "titre": "premiers jumeaux",
+   "graine": 2,
+   "loi": "1.055 / ((1 / x^(5/2) + 20)^0.312 − 1.821·sin(1 / x^(2/3))·x)",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 64.923,
+   "vrai_10": 6.674019607843137,
+   "vrai_100": 48.18627450980392,
+   "erreur_10": 1.1172671788230841,
+   "erreur_100": 1.003706688613261,
+   "reussite": false,
+   "droite": [
+    0.4094808926141149,
+    0.9357098517942268
+   ],
+   "puissance": [
+    0.14185398020530862,
+    0.3044253779954175
+   ],
+   "exposant_puissance": 0.7673184080641674
+  },
+  {
+   "monde": "B5",
+   "titre": "premiers jumeaux",
+   "graine": 3,
+   "loi": "0.06855·(sin(x) + (−x·(cos(8.234·x) − 37.01) − 0.1379)^0.3017)^2",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 37.029,
+   "vrai_10": 6.674019607843137,
+   "vrai_100": 48.18627450980392,
+   "erreur_10": 0.7038289971885932,
+   "erreur_100": 0.8175677983381147,
+   "reussite": false,
+   "droite": [
+    0.4094808926141149,
+    0.9357098517942268
+   ],
+   "puissance": [
+    0.14185398020530862,
+    0.3044253779954175
+   ],
+   "exposant_puissance": 0.7673184080641674
+  },
+  {
+   "monde": "B6",
+   "titre": "premiers dont 2 est racine primitive",
+   "graine": 1,
+   "loi": "0.5888·(x + x^1.41)^0.7732 + 0.006298·x·cos(3.283 / x^0.6993)",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 18.03,
+   "vrai_10": 8.143491534832084,
+   "vrai_100": 68.96780460727172,
+   "erreur_10": 0.15345549183187115,
+   "erreur_100": 0.45129204401822615,
+   "reussite": false,
+   "droite": [
+    0.19934861458487282,
+    0.4112009264390445
+   ],
+   "puissance": [
+    0.09660402977414595,
+    0.19963818944703293
+   ],
+   "exposant_puissance": 0.8752439614482781
+  },
+  {
+   "monde": "B6",
+   "titre": "premiers dont 2 est racine primitive",
+   "graine": 2,
+   "loi": "(0.02438·x / (log(x) + 0.4438 / (x^2π + sin(x))) + 0.8984)·x^0.8421",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 38.113,
+   "vrai_10": 8.143491534832084,
+   "vrai_100": 68.96780460727172,
+   "erreur_10": 0.14281361946881674,
+   "erreur_100": 0.00023248979234569928,
+   "reussite": false,
+   "droite": [
+    0.19934861458487282,
+    0.4112009264390445
+   ],
+   "puissance": [
+    0.09660402977414595,
+    0.19963818944703293
+   ],
+   "exposant_puissance": 0.8752439614482781
+  },
+  {
+   "monde": "B6",
+   "titre": "premiers dont 2 est racine primitive",
+   "graine": 3,
+   "loi": "(x·(x^2.115 / 3 + 0.7835·sin(x)))^0.4253",
+   "verdict": "incertaine",
+   "experiences": 72,
+   "secs": 15.173,
+   "vrai_10": 8.143491534832084,
+   "vrai_100": 68.96780460727172,
+   "erreur_10": 0.6182361876452485,
+   "erreur_100": 3.0513879023183783,
+   "reussite": false,
+   "droite": [
+    0.19934861458487282,
+    0.4112009264390445
+   ],
+   "puissance": [
+    0.09660402977414595,
+    0.19963818944703293
+   ],
+   "exposant_puissance": 0.8752439614482781
+  }
+ ]
+}

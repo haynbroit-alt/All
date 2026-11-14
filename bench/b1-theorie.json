@@ -1,0 +1,22 @@
+{
+ "rangs": [
+  1000000,
+  10000000
+ ],
+ "terme_1e6": 18483162,
+ "terme_1e7": 211222318,
+ "part_2_mod_4": 0.9985188890534568,
+ "part_0_mod_4": 0.0014811109465432282,
+ "part_impairs": 0,
+ "moyenne_pas_moins_ln": 3.000176474129298,
+ "attendu_naif": 1.1544313298030657,
+ "attendu_theorie": 1.847578510363011,
+ "parite_hors_carre": 0,
+ "sortie_hors_double_carre": 0,
+ "sorties_de_la_classe": 582,
+ "retours_aux_impairs": 0,
+ "prediction_naive": 193669974.27038053,
+ "erreur_naive": 0.08309890685708446,
+ "prediction_theorie": 200157961.0171553,
+ "erreur_theorie": 0.052382518512294286
+}

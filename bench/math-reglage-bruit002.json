@@ -1,0 +1,148 @@
+{
+ "lot": "reglage",
+ "bruit": 0.002,
+ "graines": [
+  1,
+  2
+ ],
+ "executions": [
+  {
+   "monde": "R1",
+   "titre": "somme des inverses",
+   "graine": 1,
+   "loi": "0.08271·log(x) + 1",
+   "verdict": "établie",
+   "experiences": 31,
+   "secs": 0.478,
+   "vrai_10": 1.190451014261453,
+   "vrai_100": 1.3809023635056752,
+   "erreur_10": 0.0000056100564943265175,
+   "erreur_100": 0.000009915239497302011,
+   "reussite": true,
+   "droite": [
+    1.7051594958083849,
+    17.131255382500743
+   ],
+   "puissance": [
+    0.06081772306564395,
+    0.14635150509081918
+   ],
+   "exposant_puissance": 0.09812848220767773
+  },
+  {
+   "monde": "R1",
+   "titre": "somme des inverses",
+   "graine": 2,
+   "loi": "0.08268·log(x) + 1",
+   "verdict": "établie",
+   "experiences": 31,
+   "secs": 0.505,
+   "vrai_10": 1.190451014261453,
+   "vrai_100": 1.3809023635056752,
+   "erreur_10": 0.00005990345630045326,
+   "erreur_100": 0.00010352596039261827,
+   "reussite": true,
+   "droite": [
+    1.7051594958083849,
+    17.131255382500743
+   ],
+   "puissance": [
+    0.06081772306564395,
+    0.14635150509081918
+   ],
+   "exposant_puissance": 0.09812848220767773
+  },
+  {
+   "monde": "R2",
+   "titre": "entiers sans facteur carré",
+   "graine": 1,
+   "loi": "x",
+   "verdict": "établie",
+   "experiences": 31,
+   "secs": 0.202,
+   "vrai_10": 9.999769714116525,
+   "vrai_100": 99.99820705990723,
+   "erreur_10": 0.000023029118675622954,
+   "erreur_100": 0.000017929722396880054,
+   "reussite": true,
+   "droite": [
+    0.00003672519880501983,
+    0.000044606594846313875
+   ],
+   "puissance": [
+    0.00028181409523105787,
+    0.0005370606632284494
+   ],
+   "exposant_puissance": 0.9998913170120874
+  },
+  {
+   "monde": "R2",
+   "titre": "entiers sans facteur carré",
+   "graine": 2,
+   "loi": "x",
+   "verdict": "établie",
+   "experiences": 35,
+   "secs": 0.559,
+   "vrai_10": 9.999769714116525,
+   "vrai_100": 99.99820705990723,
+   "erreur_10": 0.000023029118675622954,
+   "erreur_100": 0.000017929722396880054,
+   "reussite": true,
+   "droite": [
+    0.00003672519880501983,
+    0.000044606594846313875
+   ],
+   "puissance": [
+    0.00028181409523105787,
+    0.0005370606632284494
+   ],
+   "exposant_puissance": 0.9998913170120874
+  },
+  {
+   "monde": "R3",
+   "titre": "somme des sommes de diviseurs",
+   "graine": 1,
+   "loi": "x^2",
+   "verdict": "établie",
+   "experiences": 31,
+   "secs": 0.291,
+   "vrai_10": 99.99927474152443,
+   "vrai_100": 9999.915309768663,
+   "erreur_10": 0.000007252637356057477,
+   "erreur_100": 0.000008469094858653833,
+   "reussite": true,
+   "droite": [
+    0.9006997876394988,
+    0.9899169515967889
+   ],
+   "puissance": [
+    0.00019375980177412287,
+    0.000347627572328881
+   ],
+   "exposant_puissance": 1.9999326296858329
+  },
+  {
+   "monde": "R3",
+   "titre": "somme des sommes de diviseurs",
+   "graine": 2,
+   "loi": "x^2",
+   "verdict": "établie",
+   "experiences": 32,
+   "secs": 0.554,
+   "vrai_10": 99.99927474152443,
+   "vrai_100": 9999.915309768663,
+   "erreur_10": 0.000007252637356057477,
+   "erreur_100": 0.000008469094858653833,
+   "reussite": true,
+   "droite": [
+    0.9006997876394988,
+    0.9899169515967889
+   ],
+   "puissance": [
+    0.00019375980177412287,
+    0.000347627572328881
+   ],
+   "exposant_puissance": 1.9999326296858329
+  }
+ ]
+}
