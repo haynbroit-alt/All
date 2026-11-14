@@ -69,4 +69,17 @@ Exécution **unique** des lots A et B. Aucun critère n'est rattrapé par un sec
 
 ## Journal de réglage
 
-(complété avant le test)
+14 novembre 2026, avant le test. Banc : `bench/math.js`. Lot de réglage seul, graines 1 et 2.
+Sorties : `bench/math-reglage-bruit0.json`, `bench/math-reglage-bruit002.json`.
+
+| Bruit de mesure | Réussites (6 exécutions) | Lois rendues | Temps par exécution |
+|---|---:|---|---:|
+| aucun | 4 | chargées de termes parasites : le moteur modélise les irrégularités arithmétiques | 25 à 43 s |
+| 0,2 % de l'amplitude | 6 | `0.0827·log(x) + 1`, `x`, `x^2`, toutes dites « établie » | moins de 2 s |
+
+**Choix fixé** : bruit de mesure de 0,2 %. Sans bruit, le moteur poursuit des écarts de l'ordre de 10⁻⁵ qui ne sont
+pas la loi cherchée. Conséquence assumée : un terme secondaire plus petit que 0,2 % sur la plage est invisible.
+Le banc n'est plus modifié avant le test.
+
+Commande du test, une seule fois :
+`node bench/math.js --lot test --bruit 0.002 --seeds 1-3 --out bench/math-test.json`
