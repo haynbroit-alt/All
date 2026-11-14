@@ -1,6 +1,6 @@
 # Résultats du banc d'essai
 
-Généré par `node bench/run.js` le 2026-11-12 (Node v22.23.4), 5 graines par configuration.
+Généré par `node bench/run.js` le 2026-11-14 (Node v22.23.4), 5 graines par configuration.
 
 Deux critères, tous deux jugés sans que l'agent y ait accès. **Précise** : sur 2000 points neufs, erreur normalisée < 0,5 % dans le domaine et < 1 % en extrapolation. **Bonne forme** : après réajustement des constantes sur la vérité sans bruit, l'erreur tombe sous 0,1 % (la structure est la bonne, même si le bruit a faussé une constante).
 
@@ -8,40 +8,41 @@ Deux critères, tous deux jugés sans que l'agent y ait accès. **Précise** : s
 
 | Loi cachée | Vérité | Agent : précise | bonne forme | exp. | Hasard : précise | bonne forme | exp. |
 |---|---|---:|---:|---:|---:|---:|---:|
-| Pendule simple | `2*pi*sqrt(L/g)` | 5/5 | 5/5 | 26 | 5/5 | 5/5 | 26 |
-| Gravitation universelle | `m1*m2/r^2` | 5/5 | 5/5 | 32 | 5/5 | 5/5 | 37 |
-| Gaz parfait | `8.314*n*T/V` | 5/5 | 5/5 | 36 | 5/5 | 5/5 | 40 |
-| Lentille mince | `a*b/(a+b)` | 4/5 | 4/5 | 31 | 5/5 | 5/5 | 30 |
-| Facteur de Lorentz | `1/sqrt(1-v^2)` | 5/5 | 5/5 | 30 | 1/5 | 1/5 | 42 |
-| Charge d’un condensateur | `5*(1-exp(-t/2))` | 5/5 | 5/5 | 22 | 5/5 | 5/5 | 20 |
-| Michaelis–Menten | `3*S/(S+0.8)` | 5/5 | 5/5 | 23 | 4/5 | 4/5 | 27 |
-| Loi d’Arrhenius | `50*exp(-8/T)` | 4/5 | 5/5 | 21 | 5/5 | 5/5 | 21 |
-| Oscillateur harmonique | `2*cos(3*t)` | 5/5 | 5/5 | 20 | 5/5 | 5/5 | 20 |
-| Oscillateur amorti | `exp(-t/2)*cos(3*t)` | 5/5 | 5/5 | 25 | 5/5 | 5/5 | 30 |
-| Capteur qui sature | `x/(1+x/40)` | 4/5 | 5/5 | 40 | 0/5 | 0/5 | 33 |
-| Chute libre | `v*t-4.905*t^2` | 5/5 | 5/5 | 45 | 5/5 | 5/5 | 29 |
-| Énergie cinétique | `m*v^2/2` | 5/5 | 5/5 | 26 | 5/5 | 5/5 | 25 |
-| Potentiel de Yukawa | `exp(-r)/r` | 5/5 | 5/5 | 23 | 5/5 | 5/5 | 28 |
-| Rayonnement du corps noir | `5.67*A*T^4` | 5/5 | 5/5 | 33 | 5/5 | 5/5 | 28 |
-| **Total** | | **96 %** | **99 %** | 29 | **87 %** | **87 %** | 29 |
+| Pendule simple | `2*pi*sqrt(L/g)` | 5/5 | 5/5 | 39 | 5/5 | 5/5 | 39 |
+| Gravitation universelle | `m1*m2/r^2` | 5/5 | 5/5 | 47 | 5/5 | 5/5 | 56 |
+| Gaz parfait | `8.314*n*T/V` | 5/5 | 5/5 | 52 | 5/5 | 5/5 | 56 |
+| Lentille mince | `a*b/(a+b)` | 5/5 | 5/5 | 49 | 5/5 | 5/5 | 43 |
+| Facteur de Lorentz | `1/sqrt(1-v^2)` | 5/5 | 5/5 | 39 | 2/5 | 2/5 | 57 |
+| Charge d’un condensateur | `5*(1-exp(-t/2))` | 5/5 | 5/5 | 32 | 5/5 | 5/5 | 31 |
+| Michaelis–Menten | `3*S/(S+0.8)` | 5/5 | 5/5 | 36 | 5/5 | 5/5 | 39 |
+| Loi d’Arrhenius | `50*exp(-8/T)` | 5/5 | 5/5 | 32 | 5/5 | 5/5 | 32 |
+| Oscillateur harmonique | `2*cos(3*t)` | 5/5 | 5/5 | 31 | 5/5 | 5/5 | 31 |
+| Oscillateur amorti | `exp(-t/2)*cos(3*t)` | 5/5 | 5/5 | 37 | 5/5 | 5/5 | 41 |
+| Capteur qui sature | `x/(1+x/40)` | 4/5 | 5/5 | 47 | 4/5 | 4/5 | 55 |
+| Chute libre | `v*t-4.905*t^2` | 5/5 | 5/5 | 53 | 5/5 | 5/5 | 43 |
+| Énergie cinétique | `m*v^2/2` | 5/5 | 5/5 | 38 | 5/5 | 5/5 | 38 |
+| Potentiel de Yukawa | `exp(-r)/r` | 5/5 | 5/5 | 35 | 5/5 | 5/5 | 39 |
+| Rayonnement du corps noir | `5.67*A*T^4` | 5/5 | 5/5 | 49 | 5/5 | 5/5 | 50 |
+| **Total** | | **99 %** | **100 %** | 41 | **95 %** | **95 %** | 43 |
 
-Durée moyenne par découverte : 1.4 s. Arrêts « convaincu » sur une forme fausse : 1 (actif), 9 (aléatoire).
+Durée moyenne par découverte : 2.4 s. Verdicts « établie » sur une forme fausse : 0 (actif), 0 (aléatoire).
 
-<details><summary>Formes fausses (11)</summary>
+**L'agent sait-il quand il se trompe ?** Son verdict, comparé à la vérité qu'il ne voit pas (stratégie « agent ») :
 
-| Loi | Mode | Graine | Trouvé | Erreur domaine | Erreur extrapolation | Arrêt |
+| Verdict de l'agent | Nombre | Forme réellement bonne | Forme fausse |
+|---|---:|---:|---:|
+| établie | 58 | 58 | 0 |
+| empirique | 9 | 9 | 0 |
+| incertaine | 8 | 8 | 0 |
+
+<details><summary>Formes fausses (4)</summary>
+
+| Loi | Mode | Graine | Trouvé | Erreur domaine | Erreur extrapolation | Verdict de l'agent |
 |---|---|---:|---|---:|---:|---|
-| lentille | actif | 5 | `(0.2207·(0.8126 − (b + a)^(1/3)) + b^0.1125·a^0.1123)^7` | 0.57 % | 1.50 % | convaincu |
-| relativite | aléatoire | 1 | `exp(0.525 / (1 / v^2 − 2·v / 3))` | 3.93 % | 4.16 % | convaincu |
-| relativite | aléatoire | 2 | `0.3369·exp(5·v^9.66 / 2) + 2·exp(v^2.283) / 3` | 0.70 % | 0.71 % | budget |
-| relativite | aléatoire | 4 | `0.7823·((v^35.25 + v)^(4/3) + v^8)^(7/4) + 1` | 0.65 % | 0.65 % | convaincu |
-| relativite | aléatoire | 5 | `1 / cos(1.613·v)^0.3965` | 9.73 % | 10.23 % | convaincu |
-| enzyme | aléatoire | 3 | `(exp(−1 / (S^(2/3) + S)) + 0.6526)^2.217` | 3.04 % | 2.65 % | convaincu |
-| saturation | aléatoire | 1 | `x·exp(−0.02527·x)` | 0.25 % | 9.57 % | convaincu |
-| saturation | aléatoire | 2 | `4·sin(0.2471·x)` | 0.47 % | 204.33 % | convaincu |
-| saturation | aléatoire | 3 | `x − 0.02799·x^(7/4)` | 0.44 % | 14.43 % | convaincu |
-| saturation | aléatoire | 4 | `9·sin(0.218·x) / 2` | 0.50 % | 173.69 % | convaincu |
-| saturation | aléatoire | 5 | `4·sin(0.2467·x)` | 0.49 % | 203.93 % | convaincu |
+| relativite | aléatoire | 2 | `exp(v^20.66 + 0.6401·v^2.175) + v^8` | 0.56 % | 0.57 % | incertaine |
+| relativite | aléatoire | 4 | `0.6181 / (1 / v^2.129 − v + 0.123) + 1` | 1.15 % | 1.18 % | empirique |
+| relativite | aléatoire | 5 | `1 / cos(1.617·v)^0.3935` | 11.54 % | 12.13 % | empirique |
+| saturation | aléatoire | 3 | `x − 0.02672·x^1.868` | 0.38 % | 1.50 % | incertaine |
 
 </details>
 
@@ -49,49 +50,63 @@ Durée moyenne par découverte : 1.4 s. Arrêts « convaincu » sur une forme fa
 
 | Loi cachée | Vérité | Agent : précise | bonne forme | exp. | Hasard : précise | bonne forme | exp. |
 |---|---|---:|---:|---:|---:|---:|---:|
-| Pendule simple | `2*pi*sqrt(L/g)` | 5/5 | 5/5 | 25 | 5/5 | 5/5 | 28 |
-| Gravitation universelle | `m1*m2/r^2` | 5/5 | 5/5 | 32 | 5/5 | 5/5 | 37 |
-| Gaz parfait | `8.314*n*T/V` | 3/5 | 5/5 | 38 | 1/5 | 5/5 | 54 |
-| Lentille mince | `a*b/(a+b)` | 4/5 | 4/5 | 37 | 5/5 | 5/5 | 34 |
-| Facteur de Lorentz | `1/sqrt(1-v^2)` | 1/5 | 1/5 | 32 | 1/5 | 1/5 | 38 |
-| Charge d’un condensateur | `5*(1-exp(-t/2))` | 5/5 | 5/5 | 22 | 5/5 | 5/5 | 22 |
-| Michaelis–Menten | `3*S/(S+0.8)` | 0/5 | 5/5 | 27 | 1/5 | 5/5 | 33 |
-| Loi d’Arrhenius | `50*exp(-8/T)` | 2/5 | 5/5 | 29 | 1/5 | 5/5 | 30 |
-| Oscillateur harmonique | `2*cos(3*t)` | 5/5 | 5/5 | 20 | 5/5 | 5/5 | 20 |
-| Oscillateur amorti | `exp(-t/2)*cos(3*t)` | 5/5 | 5/5 | 25 | 4/5 | 4/5 | 34 |
-| Capteur qui sature | `x/(1+x/40)` | 1/5 | 1/5 | 34 | 0/5 | 0/5 | 29 |
-| Chute libre | `v*t-4.905*t^2` | 3/5 | 5/5 | 48 | 0/5 | 5/5 | 41 |
-| Énergie cinétique | `m*v^2/2` | 5/5 | 5/5 | 27 | 5/5 | 5/5 | 25 |
-| Potentiel de Yukawa | `exp(-r)/r` | 5/5 | 5/5 | 24 | 4/5 | 4/5 | 30 |
-| Rayonnement du corps noir | `5.67*A*T^4` | 4/5 | 5/5 | 39 | 1/5 | 5/5 | 41 |
-| **Total** | | **71 %** | **88 %** | 31 | **57 %** | **85 %** | 33 |
+| Pendule simple | `2*pi*sqrt(L/g)` | 5/5 | 5/5 | 39 | 5/5 | 5/5 | 41 |
+| Gravitation universelle | `m1*m2/r^2` | 5/5 | 5/5 | 47 | 5/5 | 5/5 | 57 |
+| Gaz parfait | `8.314*n*T/V` | 4/5 | 5/5 | 52 | 2/5 | 5/5 | 69 |
+| Lentille mince | `a*b/(a+b)` | 5/5 | 5/5 | 51 | 5/5 | 5/5 | 48 |
+| Facteur de Lorentz | `1/sqrt(1-v^2)` | 2/5 | 2/5 | 46 | 2/5 | 2/5 | 54 |
+| Charge d’un condensateur | `5*(1-exp(-t/2))` | 5/5 | 5/5 | 33 | 5/5 | 5/5 | 33 |
+| Michaelis–Menten | `3*S/(S+0.8)` | 1/5 | 5/5 | 46 | 1/5 | 5/5 | 49 |
+| Loi d’Arrhenius | `50*exp(-8/T)` | 3/5 | 5/5 | 38 | 1/5 | 5/5 | 41 |
+| Oscillateur harmonique | `2*cos(3*t)` | 5/5 | 5/5 | 31 | 5/5 | 5/5 | 31 |
+| Oscillateur amorti | `exp(-t/2)*cos(3*t)` | 5/5 | 5/5 | 36 | 5/5 | 5/5 | 49 |
+| Capteur qui sature | `x/(1+x/40)` | 3/5 | 4/5 | 51 | 4/5 | 5/5 | 65 |
+| Chute libre | `v*t-4.905*t^2` | 4/5 | 5/5 | 59 | 4/5 | 5/5 | 60 |
+| Énergie cinétique | `m*v^2/2` | 5/5 | 5/5 | 39 | 5/5 | 5/5 | 38 |
+| Potentiel de Yukawa | `exp(-r)/r` | 5/5 | 5/5 | 35 | 5/5 | 5/5 | 40 |
+| Rayonnement du corps noir | `5.67*A*T^4` | 5/5 | 5/5 | 50 | 5/5 | 5/5 | 76 |
+| **Total** | | **83 %** | **95 %** | 44 | **79 %** | **96 %** | 50 |
 
-Durée moyenne par découverte : 1.4 s. Arrêts « convaincu » sur une forme fausse : 9 (actif), 11 (aléatoire).
+Durée moyenne par découverte : 2.3 s. Verdicts « établie » sur une forme fausse : 0 (actif), 1 (aléatoire).
 
-<details><summary>Formes fausses (20)</summary>
+**L'agent sait-il quand il se trompe ?** Son verdict, comparé à la vérité qu'il ne voit pas (stratégie « agent ») :
 
-| Loi | Mode | Graine | Trouvé | Erreur domaine | Erreur extrapolation | Arrêt |
+| Verdict de l'agent | Nombre | Forme réellement bonne | Forme fausse |
+|---|---:|---:|---:|
+| établie | 50 | 50 | 0 |
+| empirique | 18 | 16 | 2 |
+| incertaine | 7 | 5 | 2 |
+
+<details><summary>Formes fausses (7)</summary>
+
+| Loi | Mode | Graine | Trouvé | Erreur domaine | Erreur extrapolation | Verdict de l'agent |
 |---|---|---:|---|---:|---:|---|
-| lentille | actif | 2 | `(sin((b^0.1956 − a^(1/3) / 4)^2.411))·a^(3/4)` | 4.40 % | 8.08 % | convaincu |
-| relativite | actif | 1 | `exp(7·v^19 / 4) + (0.3714·v + 2/3)^12` | 1.63 % | 1.61 % | convaincu |
-| relativite | actif | 2 | `exp(5·v^13 / 3) + v^(5/2)` | 3.77 % | 3.86 % | convaincu |
-| relativite | actif | 4 | `v^2.73 + exp(π·v^12 / 2)` | 1.91 % | 1.89 % | convaincu |
-| relativite | actif | 5 | `exp(v^3 + v^22.86)` | 3.58 % | 3.52 % | convaincu |
-| relativite | aléatoire | 1 | `v^2.708 + exp(3·v^12 / 2)` | 2.47 % | 2.52 % | convaincu |
-| relativite | aléatoire | 2 | `exp(5·v^13 / 3) + v^(5/2)` | 3.77 % | 3.86 % | convaincu |
-| relativite | aléatoire | 4 | `exp((v + v^29.58)^3)` | 34.05 % | 35.92 % | convaincu |
-| relativite | aléatoire | 5 | `exp(v^3)` | 26.83 % | 27.67 % | convaincu |
-| amorti | aléatoire | 5 | `(π/2 − t^(1/4))·cos(3·t)` | 9.94 % | 20.84 % | convaincu |
-| saturation | actif | 1 | `0.9571·x` | 2.33 % | 54.90 % | convaincu |
-| saturation | actif | 2 | `0.9699·x` | 2.29 % | 58.46 % | convaincu |
-| saturation | actif | 3 | `x − 0.03253·x^1.785` | 1.76 % | 0.52 % | convaincu |
-| saturation | actif | 4 | `0.9533·x` | 2.87 % | 53.85 % | convaincu |
-| saturation | aléatoire | 1 | `0.9615·x` | 1.93 % | 56.12 % | convaincu |
-| saturation | aléatoire | 2 | `0.97·x` | 2.30 % | 58.47 % | convaincu |
-| saturation | aléatoire | 3 | `0.9555·x` | 2.54 % | 54.45 % | convaincu |
-| saturation | aléatoire | 4 | `0.9568·x` | 2.37 % | 54.81 % | convaincu |
-| saturation | aléatoire | 5 | `0.9633·x` | 1.88 % | 56.61 % | convaincu |
-| coulomb-ecran | aléatoire | 5 | `1 / (exp(r) − 0.7786)^(3/2)` | 3.61 % | 3.30 % | convaincu |
+| relativite | actif | 1 | `exp(7·v^19 / 4) + (0.3714·v + 2/3)^12` | 1.63 % | 1.61 % | incertaine |
+| relativite | actif | 2 | `exp(5·v^13 / 3) + v^(5/2)` | 3.77 % | 3.86 % | empirique |
+| relativite | actif | 5 | `v^(3/2) / (−5·log(v))^0.6433 + 1` | 0.80 % | 0.81 % | empirique |
+| relativite | aléatoire | 1 | `1 / cos(π·v^1.137 / 2)^0.4794` | 1.60 % | 1.61 % | incertaine |
+| relativite | aléatoire | 4 | `exp(π·v^12 / 2) + v^2.742` | 1.99 % | 1.97 % | incertaine |
+| relativite | aléatoire | 5 | `exp(v^3)` | 26.83 % | 27.67 % | établie |
+| saturation | actif | 3 | `x − 0.03253·x^1.785` | 1.76 % | 0.52 % | incertaine |
 
 </details>
+
+## Terra incognita : systèmes sans formule exacte
+
+Seul le micro-mécanisme est codé (une équation différentielle intégrée pas à pas). Il n'y a pas de « bonne forme » à retrouver : on juge la loi proposée sur 400 simulations neuves. Bruit de mesure 1 %.
+
+| Système | Graine | Loi proposée par l'agent | Erreur domaine | Erreur extrapolation | Verdict de l'agent | Exp. |
+|---|---:|---|---:|---:|---|---:|
+| Portée avec traînée de l’air | 1 | `R = (0.003316·(52.43 / k^0.2227 − v − 11)·(v + 5/2) − 0.01374 / k)^(7/4)` | 2.86 % | 16.14 % | incertaine | 76 |
+| Portée avec traînée de l’air | 2 | `R = v^2 / ((v^2·k)^0.8636 + 9.459)` | 0.49 % | 1.04 % | empirique | 39 |
+| Portée avec traînée de l’air | 3 | `R = (v^1.32 − 1.894·(k + v)) / (v·k − 9·k / 2 + 0.3817) + 5` | 2.03 % | 4.72 % | incertaine | 76 |
+| Pendule aux grands angles | 1 | `T = 0.408 / (1 / θ^2.087 − 0.01873·θ) + 2π` | 0.23 % | 0.82 % | incertaine | 71 |
+| Pendule aux grands angles | 2 | `T = 0.005105·θ^6 + 0·θ^20 + 0.4181·θ^2.055 + 2π` | 0.25 % | 0.23 % | incertaine | 80 |
+| Pendule aux grands angles | 3 | `T = θ^2·((−1 / ((θ − 3.292)·4))^(2/3) + 0.182) + 2π` | 0.30 % | 0.22 % | empirique | 75 |
+| Cycle proies–prédateurs | 1 | `T = (6.173 − 0.1515·(x − 1.605)·sin(a)) / a^0.5078 + x^1.319 − x` | 0.89 % | 5.04 % | incertaine | 80 |
+| Cycle proies–prédateurs | 2 | `T = (x^1.242 − x)·(1 / a^0.7909 + a)^0.2137 + 6.212 / a^0.507` | 1.38 % | 1.57 % | incertaine | 80 |
+| Cycle proies–prédateurs | 3 | `T = 28.28 / ((x^(3/4) + 5 / a)·a^(3/2)) + 0.5487·x^(4/3) + 1` | 0.93 % | 3.59 % | incertaine | 74 |
+| Ressort durcissant | 1 | `T = (0.04549·cos(π·(β^0.2179 − 0.1139)·√(A) / 2 − 1/2) + 1.062)^18` | 1.28 % | 3.92 % | empirique | 70 |
+| Ressort durcissant | 2 | `T = exp(A^1.07·(1.227 / A − 0.5788·β^0.5229)) / cos(β^0.02387) + 1.21` | 1.66 % | 3.58 % | incertaine | 76 |
+| Ressort durcissant | 3 | `T = 2π·(sin((4 − 4·(β / (1 / A^2 + β))^0.4099)^(1/3)))^(π/2)` | 0.45 % | 0.65 % | empirique | 77 |
 
