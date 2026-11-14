@@ -154,3 +154,97 @@ suites qui avançaient côte à côte sans se toucher.
 
 Rien de tout cela n'a été confronté à ce qui est publié sur cette suite. Tant que ce n'est pas fait, ce sont des
 résultats vérifiés par le calcul, pas des découvertes.
+
+## Quatrième tour — pourquoi 38,9 % de multiples de 3 : un modèle sans paramètre
+
+Écrit le 14 novembre 2026. La partie « modèle » a été mise au point sur la suite déjà calculée (donc après coup) ;
+la partie « prédictions » porte sur des suites que je n'ai jamais calculées.
+
+**Le modèle.** Dans la classe piège, la moitié `m` du terme suit `m → m + d(m)`. On ne retient de `m` que son résidu
+modulo `3^j` ; tout le reste est supposé quelconque. Pour chaque résidu, on prend des entiers impairs ordinaires de
+ce résidu, on leur applique un pas, et on note le résidu d'arrivée : cela donne une chaîne de Markov, dont on calcule
+la répartition d'équilibre. Aucun nombre n'est ajusté sur la suite (`bench/b1-tour4.js`, fonction `predire`).
+
+| Mémoire du modèle | Part des multiples de 3 prédite |
+|---|---:|
+| aucune (entiers ordinaires) | 0,3333 |
+| résidu modulo 3 | 0,3939 |
+| résidu modulo 9 | 0,3880 |
+| résidu modulo 27 | 0,3883 |
+| résidu modulo 81 | 0,3887 |
+| **mesuré sur la suite** | **0,3891** (rangs 10⁶ à 10⁷) ; **0,3887** (rangs 10⁷ à 3·10⁷) |
+
+Dès qu'il se souvient du résidu modulo 9, le modèle retombe sur la valeur mesurée, à un millième près (son bruit
+d'échantillonnage est du même ordre). Le second biais de la suite n'a donc rien de mystérieux : c'est la mémoire
+3-adique d'un pas `m + d(m)`, et rien d'autre de mesurable.
+
+**Suites sœurs.** Pour `k` impair, la suite `a → a + k·d(a)` garde les lemmes 1 et 2 (le pas `k·d(a)` a la parité
+de `d(a)`, et `a = 2m` donne `2(m + k·d(m))`). Remarque immédiate : `a + k·d(a)` a le même reste que `a` modulo `k`,
+donc pour `k ≥ 2` des départs de restes différents ne se rejoignent jamais — la confluence observée pour `k = 1`
+est propre à ce cas.
+
+**Prédictions, écrites avant de calculer ces suites.** Le même modèle, appliqué au pas `m + k·d(m)`, donne modulo 9
+puis modulo 27 : `k = 5` → 0,3880 et 0,3877 ; `k = 7` → 0,3882 et 0,3885 ; `k = 11` → 0,3878 et 0,3874 ;
+`k = 13` → 0,3882 et 0,3886. Il annonce donc **la même part, environ 0,388, pour toutes ces suites**.
+
+| | Mesure, départ 1, rangs 10⁶ à 10⁷ | Prédiction | Réfutée si |
+|---|---|---|---|
+| **S1** | part des `m` multiples de 3, pour `k` = 5, 7, 11, 13 | entre 0,384 et 0,392 pour chacune | une seule hors de l'intervalle |
+| **S2** | part des termes dans la classe « 2 modulo 4 », mêmes suites | au moins 0,98 pour chacune | une seule en dessous |
+
+Calcul unique : `node bench/b1-tour4.js test`.
+
+## Résultat du quatrième tour
+
+Calcul unique du 14 novembre 2026 (`node bench/b1-tour4.js test`, 100 secondes, sortie `bench/b1-tour4.json`).
+
+| Suite | Prédit (modulo 27) | Mesuré | Part dans la classe piège |
+|---|---:|---:|---:|
+| `a → a + 5·d(a)` | 0,3877 | **0,3879** | 1,0000 |
+| `a → a + 7·d(a)` | 0,3885 | **0,3885** | 0,9989 |
+| `a → a + 11·d(a)` | 0,3874 | **0,3885** | 1,0000 |
+| `a → a + 13·d(a)` | 0,3886 | **0,3887** | 1,0000 |
+
+**S1 et S2 confirmées.** Les quatre parts tombent dans l'intervalle annoncé, à un millième au plus de la valeur
+prédite, sur neuf millions de termes chacune. Pour trois des quatre suites, pas un seul terme ne sort du piège
+entre les rangs 10⁶ et 10⁷.
+
+Ce que cela établit, par le calcul : dans toute cette famille, les moitiés des termes sont multiples de 3 environ
+38,85 fois sur cent, au lieu de 33,33, et un modèle sans paramètre le prédit. La valeur exacte de cette constante
+— la répartition d'équilibre d'une chaîne 3-adique — n'est pas calculée ici en forme close.
+
+Ajouts au bilan :
+
+| Énoncé | Statut |
+|---|---|
+| La sur-représentation des multiples de 3 vient de la mémoire 3-adique d'un pas | modèle sans paramètre, **confirmé** sur quatre suites jamais calculées auparavant |
+| `a → a + k·d(a)` conserve le reste modulo `k` : pas de confluence générale pour `k ≥ 2` | **démontré** (immédiat) |
+| Valeur exacte de la constante 0,3885… | **ouvert** |
+| Explication du coefficient 1,05 de la loi de vitesse | **ouvert** (la sur-représentation des multiples de 3 en explique une partie, non chiffrée proprement) |
+
+## Confrontation à ce qui est publié (14 novembre 2026)
+
+L'encyclopédie des suites d'entiers (oeis.org) a été lue une fois l'accès réseau ouvert : fiches A064491, A165494,
+A165495, A165496, A165930, A062249. Rien d'autre n'a été consulté.
+
+**Déjà connu — je ne l'ai pas découvert :**
+
+- La suite est recensée (A064491). Les deux questions que je croyais poser sont un **problème de Claudia Spiro,
+  1977** : une suite partie d'un autre terme rejoint-elle toujours celle-ci ? La parité change-t-elle une infinité de
+  fois ? La fiche les donne comme questions, sans réponse.
+- Le mécanisme du piège est connu depuis 2009 : trois fiches de Hugo van der Sanden étudient ce qui se passe quand la
+  suite atteint le double d'un carré impair, passe par des multiples de 4, puis retombe ou entame une série de termes
+  impairs. Mes lemmes 1 et 2 sont donc, au mieux, une redécouverte.
+- La croissance en `n·ln n` est conjecturée sur la fiche (Adams-Watters, 2008), sans constantes.
+
+**Non trouvé sur ces fiches — ce qui pourrait être nouveau, sans garantie :**
+
+- les mesures : 99,85 % des termes dans la classe piège, un seul retour aux impairs entre les rangs 10⁷ et 3·10⁷ ;
+- la loi de vitesse empirique (pas moyen `1,05·ln a + 2,08`), vérifiée hors de sa plage d'ajustement ;
+- la sur-représentation des multiples de 3 (0,3885), son modèle sans paramètre et sa vérification sur les suites
+  sœurs `a → a + k·d(a)` ;
+- la confluence vérifiée depuis 10⁸ (16 départs).
+
+« Non trouvé sur six fiches » ne veut pas dire inédit : je n'ai lu ni articles ni actes de colloques. Les deux
+questions de 1977 restent ouvertes ; mes calculs vont dans le sens « oui » pour la confluence, et mon raisonnement
+dans le sens « oui, mais de plus en plus rarement » pour la parité. Ni l'un ni l'autre n'est une preuve.
