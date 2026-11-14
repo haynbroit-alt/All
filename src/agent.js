@@ -32,14 +32,34 @@ export function rank(front, n, sigma, varY, names) {
   return hs.filter((h) => (seen.has(h.text) ? false : seen.add(h.text)));
 }
 
+/**
+ * Règles de doute du mode « données fournies » (G4). Signaux, tous sans expérience nouvelle :
+ *  second    : écart relatif, hors du domaine des données, entre ma loi et un second avis crédible (non écarté) ;
+ *  rivales   : écart relatif maximal, hors du domaine, avec mes rivales dont le score est à moins de 10 du mien ;
+ *  bootstrap : écart relatif maximal, hors du domaine, avec la loi de forme différente qui l'emporte quand on
+ *              réajuste les hypothèses sur des rééchantillons des données.
+ * Renvoie true si la règle commande de douter.
+ */
+export const DOUTE_REGLES = ['R1', 'R2', 'R3'];
+export function doutePassif(s, regle) {
+  if (!s || !regle) return false;
+  const r1 = s.second > 0.05;
+  if (regle === 'R1') return r1;
+  if (regle === 'R2') return r1 || s.rivales > 0.5;
+  if (regle === 'R3') return r1 || s.bootstrap > 0.5;
+  return false;
+}
+
 export class Agent {
   /**
    * @param world  monde à explorer (voir worlds.js) ; null en mode « données fournies ».
    * @param o      budget : nombre max d'expériences ; mode : 'actif' | 'aléatoire' ;
-   *               effort : mutations explorées par cycle ; autoApprove : accepte seul les extensions de domaine.
+   *               effort : mutations explorées par cycle ; autoApprove : accepte seul les extensions de domaine ;
+   *               doute : règle de doute en mode « données fournies » (null = ancien verdict ; 'R1' | 'R2' | 'R3').
    */
-  constructor(world, { seed = 1, budget = 80, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40 } = {}) {
+  constructor(world, { seed = 1, budget = 80, mode = 'actif', effort = 1500, autoApprove = true, data = null, maxCycles = 40, doute = null } = {}) {
     this.world = world;
+    this.doute = doute;
     this.mode = mode;
     this.budget = budget;
     this.effort = effort;
@@ -303,6 +323,49 @@ export class Agent {
     return true;
   }
 
+  /**
+   * Signaux de doute du mode « données fournies » (voir doutePassif), calculés sur les seules données reçues.
+   * Générateur aléatoire propre : la recherche et la loi rendue n'en sont pas affectées.
+   */
+  _signauxPassifs(regle) {
+    const b = this.bilan, hs = this.hyps, top = hs[0], X = this.X, y = this.y, n = y.length;
+    const all = regle === 'toutes';
+    const s = { second: b.second.weak ? 0 : b.second.dOut, rivales: null, bootstrap: null };
+    if (!all && regle !== 'R2' && regle !== 'R3') return s;
+    const r = rng(this.seed * 7333 + 17);
+    const dom = this.names.map((_, j) => { const c = X.map((p) => p[j]); return [Math.min(...c), Math.max(...c)]; });
+    const wide = dom.map(([lo, hi]) => [lo, lo + (hi - lo) * 1.5]);
+    const sig = Math.sqrt(top.mse) || 1e-9;
+    const pts = [];
+    for (let t = 0; pts.length < 300 && t < 30000; t++) { const x = wide.map(([a, c]) => a + r() * (c - a)); if (!x.every((v, j) => v <= dom[j][1])) pts.push(x); }
+    const rel = (e1, e2) => {
+      let m = 0;
+      for (const x of pts) {
+        const f1 = evalPoint(e1, x), f2 = evalPoint(e2, x);
+        if (!isFinite(f1) || !isFinite(f2)) { m = Math.max(m, 1); continue; }
+        m = Math.max(m, Math.abs(f1 - f2) / (0.5 * (Math.abs(f1) + Math.abs(f2)) + 3 * sig));
+      }
+      return m;
+    };
+    if (all || regle === 'R2') {
+      s.rivales = 0;
+      for (let i = 1; i < hs.length; i++) if (hs[i].score - top.score < 10) s.rivales = Math.max(s.rivales, rel(top.expr, hs[i].expr));
+    }
+    if (all || regle === 'R3') {
+      s.bootstrap = 0;
+      const k0 = shapeKey(top.expr);
+      for (let t = 0; t < 30; t++) {
+        const bi = Array.from({ length: n }, () => Math.floor(r() * n));
+        const data = makeData(bi.map((i) => X[i]), bi.map((i) => y[i]));
+        const fr = hs.map((h) => { const e = clone(h.expr); return { e, mse: fitConstants(e, data, 20), cx: h.cx }; }).filter((m) => isFinite(m.mse));
+        const mu = data.y.reduce((a, c) => a + c, 0) / n, varY = data.y.reduce((a, c) => a + (c - mu) ** 2, 0) / n || 1;
+        const w = rank(fr, n, 0, varY, this.names)[0];
+        if (w && shapeKey(w.expr) !== k0) s.bootstrap = Math.max(s.bootstrap, rel(top.expr, w.expr));
+      }
+    }
+    return s;
+  }
+
   /** Verdict gradué. L'agent ne dit « établie » que si rien ne l'autorise à douter. */
   _verdict() {
     const b = this.bilan || (this.bilan = { notes: ['aucune contre-expertise n\'a pu être menée'] });
@@ -311,6 +374,14 @@ export class Agent {
       b.verdict = b.pass ? 'empirique' : 'incertaine';
       b.why = b.pass ? 'Compatible avec les données et confirmée par un second avis, mais aucune expérience n\'a pu la mettre à l\'épreuve.'
         : 'Deux recherches indépendantes donnent des lois différentes sur ces données.';
+      if (this.doute && b.second && top) {
+        b.verdictAncien = b.verdict;
+        b.doute = this._signauxPassifs(this.doute);
+        if (b.verdict === 'empirique' && doutePassif(b.doute, this.doute)) {
+          b.verdict = 'incertaine';
+          b.why = 'Compatible avec les données, mais des lois presque aussi crédibles sur ces mêmes données divergent hors de leur domaine : la forme n\'est pas établie.';
+        }
+      }
       return;
     }
     if (!b.pass || b.law !== top.text && shapeKey(top.expr) !== this._auditShape) {
