@@ -295,4 +295,28 @@ Calcul unique : `node bench/b1-limite.js suite 1001`.
 
 ## Résultat du cinquième tour
 
-(complété après le calcul)
+Calcul unique du 14 novembre 2026 (`node bench/b1-limite.js suite 1001`, 6 minutes, sortie `bench/b1-suite-k1001.json`).
+Dernier terme : 215 160 542 598. Les neuf millions de termes sont tous dans la classe piège.
+
+**S3 confirmée : 0,3877**, dans l'intervalle annoncé (0,3860 à 0,3885) et au milieu de ce que donnait le modèle
+(0,3868 à 0,3881).
+
+| Suite | Taille des termes (`ln a` moyen) | Part des multiples de 3 |
+|---|---:|---:|
+| `k = 1`, rangs 10⁴ à 10⁵ | 13,5 | 0,3911 |
+| `k = 1`, rangs 3·10⁶ à 10⁷ | 18,7 | 0,3889 |
+| `k = 5` à `13` | 20 à 22 | 0,3879 à 0,3887 |
+| `k = 1001` | 25,3 | **0,3877** |
+| limite du modèle, mélange parfait | infini | 0,3841 |
+
+La part baisse bien quand les termes grossissent, dans le sens et à peu près au rythme prédits. Réserve : l'écart
+observé entre les tailles accessibles est d'un millième, du même ordre que le bruit du modèle ; une seule suite ne
+suffit pas à établir la dérive, et la limite 0,3841 reste hors de portée de tout calcul.
+
+Ajouts au bilan :
+
+| Énoncé | Statut |
+|---|---|
+| Dans le modèle à mélange parfait, la part des multiples de 3 vaut 0,384077 | **calculé exactement** (produit sur les premiers, puis équilibre d'une chaîne) |
+| La valeur mesurée, 0,3885, est un régime intermédiaire qui dérive vers cette limite | raisonnement ; **une prédiction confirmée** (`k = 1001`), marge faible |
+| La suite se comporte comme son modèle à toutes les tailles | **ouvert** |
