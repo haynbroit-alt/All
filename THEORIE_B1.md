@@ -248,3 +248,75 @@ A165495, A165496, A165930, A062249. Rien d'autre n'a été consulté.
 « Non trouvé sur six fiches » ne veut pas dire inédit : je n'ai lu ni articles ni actes de colloques. Les deux
 questions de 1977 restent ouvertes ; mes calculs vont dans le sens « oui » pour la confluence, et mon raisonnement
 dans le sens « oui, mais de plus en plus rarement » pour la parité. Ni l'un ni l'autre n'est une preuve.
+
+## Cinquième tour — 0,3885 n'est pas une constante
+
+Écrit le 14 novembre 2026. Exploration, puis une prédiction écrite avant le calcul (`bench/b1-limite.js`).
+
+**La limite, calculée exactement dans le modèle.** Si le reste de `m` (ce qui n'est pas sa puissance de 3) était
+parfaitement mélangé — son résidu et celui de son nombre de diviseurs indépendants et uniformes — le modèle se
+réduirait à une chaîne sur la seule valuation 3-adique `e`. Avec `m = 3^e·u` et `g` la puissance de 3 dans `d(u)` :
+si `v₃(e+1) + g > e` la valuation reste `e` ; si elle est plus petite, elle devient `v₃(e+1) + g` ; en cas d'égalité
+elle reste `e` une fois sur deux, sinon monte de `j` avec probabilité `(1/2)(2/3)(1/3)^(j−1)`. La loi de `g` est un
+produit sur les nombres premiers `p ≥ 5` : 0,923603 ; 0,074098 ; 0,002262 ; 0,000036… L'équilibre de cette chaîne
+donne **une part de multiples de 3 égale à 0,384077**.
+
+**Pourquoi on mesure 0,3885 et non 0,3841.** Le mélange supposé n'a pas lieu aux tailles accessibles. Parmi les `u`
+dont `d(u)` n'est pas multiple de 3, `d(u)` modulo 9 devrait valoir 1, 2, 4, 5, 7, 8 une fois sur six chacun ; on
+mesure :
+
+| `u` voisin de | 1 | 2 | 4 | 5 | 7 | 8 |
+|---|---:|---:|---:|---:|---:|---:|
+| 2·10⁵ | 0,001 | 0,259 | 0,456 | 0,001 | 0,041 | 0,241 |
+| 10⁸ | 0,002 | 0,175 | 0,387 | 0,018 | 0,111 | 0,308 |
+| 10¹⁰ | 0,005 | 0,139 | 0,345 | 0,035 | 0,150 | 0,325 |
+| mélange parfait | 0,167 | 0,167 | 0,167 | 0,167 | 0,167 | 0,167 |
+
+La raison est simple : un entier ordinaire a deux, trois ou quatre facteurs premiers, donc 4, 8 ou 16 diviseurs,
+et ces valeurs ne se répartissent sur les six résidus que lorsque le nombre de facteurs premiers devient grand —
+ce qui croît comme `ln ln` de la taille. La valeur 0,3885 est donc un **régime intermédiaire** qui dérive très
+lentement vers 0,3841. Raisonnement, pas preuve : ni la vitesse du mélange ni l'égalité entre la suite et son
+modèle ne sont démontrées.
+
+**Le modèle évalué par taille** (tirage au hasard de `m` dans `[X, 2X]`, mémoire modulo 9 puis 27 ; bruit
+d'environ 0,001) : 0,3884 et 0,3893 vers `X` = 2·10⁵ ; 0,3884 et 0,3886 vers 3·10⁷ ; 0,3876 et 0,3884 vers 10⁹ ;
+0,3878 et 0,3868 vers 10¹⁰. Sur la suite elle-même, les tranches successives donnaient 0,3911 ; 0,3898 ; 0,3895 ;
+0,3889 ; 0,3887 : même sens, même ordre de grandeur.
+
+**Prédiction, écrite avant le calcul.** La suite `a → a + 1001·d(a)`, partie de 1, atteint en dix millions de pas
+des termes mille fois plus grands que la suite d'origine. Pour ces tailles (`m` entre 3·10¹⁰ et 2·10¹¹) le modèle
+donne 0,3868 à 0,3881.
+
+| | Mesure, rangs 10⁶ à 10⁷ | Prédiction | Réfutée si |
+|---|---|---|---|
+| **S3** | part des `m` multiples de 3 pour `k` = 1001 | entre 0,3860 et 0,3885 — donc **plus basse** que les 0,3889 de la suite d'origine | hors de cet intervalle |
+
+Calcul unique : `node bench/b1-limite.js suite 1001`.
+
+## Résultat du cinquième tour
+
+Calcul unique du 14 novembre 2026 (`node bench/b1-limite.js suite 1001`, 6 minutes, sortie `bench/b1-suite-k1001.json`).
+Dernier terme : 215 160 542 598. Les neuf millions de termes sont tous dans la classe piège.
+
+**S3 confirmée : 0,3877**, dans l'intervalle annoncé (0,3860 à 0,3885) et au milieu de ce que donnait le modèle
+(0,3868 à 0,3881).
+
+| Suite | Taille des termes (`ln a` moyen) | Part des multiples de 3 |
+|---|---:|---:|
+| `k = 1`, rangs 10⁴ à 10⁵ | 13,5 | 0,3911 |
+| `k = 1`, rangs 3·10⁶ à 10⁷ | 18,7 | 0,3889 |
+| `k = 5` à `13` | 20 à 22 | 0,3879 à 0,3887 |
+| `k = 1001` | 25,3 | **0,3877** |
+| limite du modèle, mélange parfait | infini | 0,3841 |
+
+La part baisse bien quand les termes grossissent, dans le sens et à peu près au rythme prédits. Réserve : l'écart
+observé entre les tailles accessibles est d'un millième, du même ordre que le bruit du modèle ; une seule suite ne
+suffit pas à établir la dérive, et la limite 0,3841 reste hors de portée de tout calcul.
+
+Ajouts au bilan :
+
+| Énoncé | Statut |
+|---|---|
+| Dans le modèle à mélange parfait, la part des multiples de 3 vaut 0,384077 | **calculé exactement** (produit sur les premiers, puis équilibre d'une chaîne) |
+| La valeur mesurée, 0,3885, est un régime intermédiaire qui dérive vers cette limite | raisonnement ; **une prédiction confirmée** (`k = 1001`), marge faible |
+| La suite se comporte comme son modèle à toutes les tailles | **ouvert** |
