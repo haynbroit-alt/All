@@ -230,3 +230,6 @@ sur les jeux réels.
 2. R1 tenu face à GALILÉE jeu par jeu ; **incertain** face à GALILÉE réuni.
 3. R2 tenu.
 4. **N-simulé tenu mais par une marge bien plus faible** que face à Operon réuni ; **N-réel non établi**.
+
+Code (`bench/commun-reels.js`, `bench/commun-operon.py --seulement-normalise`) vérifié sur le jeu de rang 0 seulement
+(Ecdat/Accident) ; le passage complet le refait à l'identique. Rien n'a été changé après l'avoir vu.
