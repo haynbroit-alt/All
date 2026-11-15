@@ -121,3 +121,47 @@ Constats confirmés :
 - Corriger ou non les constats 2 et 3 avant le test (changement de méthode, à remesurer sur 1 à 100).
 - Budget d'Operon pour C2 : 20 s et trois graines par ajustement, comme SOTA-LOIS-2, demanderaient plus de 50 heures
   sur les petits jeux ; 2 s et une graine par jeu, 20 s pour les jeux réunis : environ 5 heures. À fixer ici.
+
+## Décisions du propriétaire et corrections — écrites avant le code de correction et avant le test
+
+Décisions du 15 novembre 2026 : plafond global relevé ; les deux défauts de méthode sont corrigés **avant** le test.
+
+### Mesure principale
+
+- **C1, C3 et C4 se calculent sans la bibliothèque de formes** (le module ne part que des formes trouvées par la
+  recherche du moteur). La variante avec bibliothèque est calculée dans **la même exécution**, sur les mêmes mondes
+  et les mêmes calculs de GALILÉE, et publiée à côté, jamais à la place.
+- **C2 (Operon)** : Operon 0.6.2, longueur plafonnée à 15 nœuds, fonctions de SOTA-LOIS-2 ; **2 secondes et une
+  graine par petit jeu, 20 secondes et une graine pour les jeux réunis**. Le réglage de SOTA-LOIS-2 (20 s, trois
+  graines par ajustement) demanderait plus de 50 heures sur ces milliers de petits jeux ; mesuré sur deux mondes de
+  mise au point : 29 s pour 11 jeux, 107 s pour 47. Operon est désavantagé par ce budget réduit : c'est dit.
+  Une prédiction non définie compte comme une erreur infinie, pour toutes les méthodes.
+
+### Correction A — constantes simples produites par la recherche
+
+La recherche fige une constante sur une valeur simple (2, ½…) quand elle en est proche. Une telle constante est
+commune à tous les jeux par construction. Désormais :
+
+- elle compte comme **constante commune** au même titre qu'une constante libre partagée (correction B ci-dessous
+  décide si elle est utile) ;
+- pour C3, la forme rendue est réajustée **toutes constantes libérées**, et la condition « pas plus de constantes
+  que la forme vraie » compte toutes les constantes de la forme rendue, libres ou figées, sauf celles figées à 0, 1
+  ou −1.
+
+### Correction B — une constante commune doit servir
+
+Le verdict exigeait « au moins une constante partagée » ; un décalage partagé quasi nul suffisait (les deux fausses
+rétentions de C4 en mise au point). Désormais il exige **au moins une constante commune utile**. Une constante
+commune est utile si la **retirer** fait monter le critère :
+
+- retirer = la remplacer par l'élément neutre de son opération (0 pour un terme de `+` ou le terme retranché d'un
+  `−` ; 1 pour un facteur de `×`, un diviseur, un exposant), réajuster les autres constantes avec le même partage,
+  et retrancher du critère le coût de deux nœuds (la constante et son opération, devenue inutile) ;
+- une constante qui ne peut pas se retirer ainsi (sous une fonction, numérateur, base d'une puissance, terme dont on
+  retranche) est tenue pour utile ;
+- tout se calcule sur les points vus.
+
+### Ce qui ne change pas
+
+Les seuils (60 %, 90 %, 5 %), les mondes, le découpage, les graines. Après correction, la mise au point est refaite
+sur les graines 1 à 100 et publiée ici avant le test, que ses chiffres soient meilleurs ou pires.
