@@ -1,0 +1,196 @@
+9001 commun   K=13 bruit=0.1 logistique    RETENUE(TPM s=1) forme=non (x·(0.09123·x + 0.04924·cos(x)))^1.197 [recherche:jeu] | commun 0.108 parJeu 3.66 réuni 1.47 témoin 0.937 | 3307 ms
+9001 sans-loi K=52 bruit=0.1               non retenue(tpm s=0) forme=- exp(0.2015·x + 1.621) [recherche:jeu] | commun 0.908 parJeu — réuni — témoin 0.603 | 3281 ms
+9002 commun   K=12 bruit=0.1 droite        non retenue(tpm s=0) forme=non (x + 2)^1.222 [recherche:réunis] | commun 0.474 parJeu 0.795 réuni 0.433 témoin 0.324 | 2210 ms
+9002 sans-loi K=53 bruit=0.2               non retenue(tpm s=0) forme=- 24.4·exp(−7.846 / x) [recherche:jeu] | commun 3.02 parJeu — réuni — témoin 1.74 | 5262 ms
+9003 commun   K=19 bruit=0.15 logistique    non retenue(TpM s=0) forme=non 11.49·exp(−6 / x) [recherche:jeu] | commun 0.0906 parJeu 6.22 réuni 0.582 témoin 0.102 | 2199 ms
+9003 sans-loi K=52 bruit=0.05               non retenue(TpM s=0) forme=- 2.476·x^0.5071 [recherche:jeu] | commun 0.0954 parJeu — réuni — témoin 0.112 | 4932 ms
+9004 commun   K=41 bruit=0.15 droite        RETENUE(TPm s=1) forme=non 12.85·exp(−9 / (x·2)) + 3.552 [recherche:réunis-normalisés] | commun 0.804 parJeu 1.49 réuni 5.41 témoin 0.867 | 3495 ms
+9004 sans-loi K=35 bruit=0.1               non retenue(tpm s=0) forme=- (x − 0.2312) / x^(3/4) + 2.954 [recherche:jeu] | commun 0.545 parJeu — réuni — témoin 0.527 | 2167 ms
+9005 commun   K=28 bruit=0.1 logistique    non retenue(TpM s=0) forme=non 0.1545·x^1.969 [recherche:jeu] | commun 0.0703 parJeu 0.468 réuni 3.44 témoin 0.0765 | 2314 ms
+9005 sans-loi K=27 bruit=0.05               non retenue(TpM s=0) forme=- π·x^2.192 / 2 + 9.395 [recherche:jeu] | commun 0.186 parJeu — réuni — témoin 0.221 | 1808 ms
+9006 commun   K=11 bruit=0.05 droite        RETENUE(TPM s=1) forme=oui 0.8961·x + 0.7094 [recherche:jeu] | commun 0.0318 parJeu 0.297 réuni 3.94 témoin 0.0400 | 1235 ms
+9006 sans-loi K=14 bruit=0.05               non retenue(tpm s=0) forme=- 4.879·x^1.338 [recherche:jeu] | commun 0.658 parJeu — réuni — témoin 0.0943 | 1715 ms
+9007 commun   K=17 bruit=0.1 exponentielle non retenue(tPm s=1) forme=non (2.359·x − 2) / x^1.833 [recherche:réunis-normalisés] | commun 1.41e+3 parJeu Infinity réuni 26.3 témoin 0.463 | 1381 ms
+9007 sans-loi K=41 bruit=0.1               non retenue(tpM s=1) forme=- (x + 5/3)·(0.1407 − 0.006347·sin(x)) / x^0.2642 [recherche:réunis] | commun 3.91 parJeu — réuni — témoin 0.644 | 2505 ms
+9008 commun   K=11 bruit=0.05 puissance     non retenue(TPM s=0) forme=oui 1.487 / x^1.401 [recherche:réunis] | commun 0.00702 parJeu 1.71 réuni 21.2 témoin 0.331 | 1716 ms
+9008 sans-loi K=51 bruit=0.2               non retenue(tpm s=0) forme=- 0.8145·x + 1.82 [recherche:réunis-normalisés] | commun 2.45 parJeu — réuni — témoin 2.35 | 3813 ms
+9009 commun   K=53 bruit=0.05 logistique    non retenue(TpM s=0) forme=non 184.1·exp(−13.11 / x) / x [recherche:réunis] | commun 0.0628 parJeu 0.447 réuni 0.313 témoin 0.130 | 10015 ms
+9009 sans-loi K=25 bruit=0.15               non retenue(tpm s=0) forme=- 0.651·x + 0.5817 [recherche:jeu] | commun 0.736 parJeu — réuni — témoin 0.736 | 2066 ms
+9010 commun   K=25 bruit=0.1 puissance     non retenue(TpM s=2) forme=non 3.284 / x^0.8071 + 0.1039 [recherche:jeu] | commun 0.167 parJeu 2.22 réuni 1.88 témoin 0.759 | 2845 ms
+9010 sans-loi K=59 bruit=0.1               non retenue(tpm s=0) forme=- 2.476 / x + 0.03712·x − 0.4037 [recherche:jeu] | commun 1.52 parJeu — réuni — témoin 0.973 | 4138 ms
+9011 commun   K=57 bruit=0.2 logistique    non retenue(TpM s=2) forme=non 0.2647·sin(4·x / 3) − 5.236·cos(0.2525·x) + 5 [recherche:jeu] | commun 0.364 parJeu Infinity réuni 0.446 témoin 0.893 | 6809 ms
+9011 sans-loi K=10 bruit=0.1               non retenue(Tpm s=0) forme=- exp(0.2391·x − 0.3106) [recherche:jeu] | commun 0.176 parJeu — réuni — témoin 0.202 | 1111 ms
+9012 commun   K=33 bruit=0.1 logistique    non retenue(TpM s=1) forme=non 46.7·exp(−13.29 / x) + 0.007352·x [recherche:jeu] | commun 304 parJeu 3.44e+6 réuni 5.50 témoin 1.16e+3 | 7195 ms
+9012 sans-loi K= 9 bruit=0.05               non retenue(tpM s=1) forme=- x^1.293·(1.077 − 0.0826·x) [recherche:jeu] | commun 0.738 parJeu — réuni — témoin 0.271 | 1134 ms
+9013 commun   K=33 bruit=0.2 droite        RETENUE(TPM s=1) forme=non 1.29·(x + 4/3)^0.7856 [recherche:jeu] | commun 0.599 parJeu 1.08 réuni 4.14 témoin 0.665 | 3586 ms
+9013 sans-loi K=12 bruit=0.15               non retenue(TPm s=0) forme=- 3.381·x^0.3212 [recherche:jeu] | commun 0.966 parJeu — réuni — témoin 1.05 | 2086 ms
+9014 commun   K=60 bruit=0.15 puissance     non retenue(TPM s=0) forme=non x^0.5554 [recherche:jeu] | commun 0.402 parJeu 0.763 réuni 15.5 témoin 0.433 | 6795 ms
+9014 sans-loi K= 5 bruit=0.1               non retenue(tpm s=0) forme=- (0.1843·x − 1/2)^(7/4) + 0.223 [recherche:jeu] | commun Infinity parJeu — réuni — témoin 0.385 | 596 ms
+9015 commun   K=12 bruit=0.1 exponentielle RETENUE(TPM s=1) forme=oui 4.25·exp(0.1902·x) [recherche:réunis] | commun 0.128 parJeu 0.198 réuni 2.81 témoin 0.148 | 2160 ms
+9015 sans-loi K=34 bruit=0.2               non retenue(tpm s=1) forme=- 6.117 − 10.59·x·exp(−0.8003·x) [recherche:réunis-normalisés] | commun 0.875 parJeu — réuni — témoin 0.812 | 2547 ms
+9016 commun   K=34 bruit=0.1 exponentielle RETENUE(TPm s=2) forme=non (x + 6.905) / (x + 3.9) − 0.08636·x [recherche:jeu] | commun 0.356 parJeu 1.68 réuni 35.2 témoin 0.431 | 3187 ms
+9016 sans-loi K=47 bruit=0.05               non retenue(TpM s=1) forme=- 0.1726·(18.05 − x) / x^0.1548 [recherche:jeu] | commun 0.192 parJeu — réuni — témoin 0.214 | 4215 ms
+9017 commun   K=17 bruit=0.15 logistique    non retenue(TpM s=0) forme=non 24.49·exp(−16.24 / x) [recherche:jeu] | commun 0.251 parJeu 762 réuni 1.18 témoin 16.5 | 2985 ms
+9017 sans-loi K=38 bruit=0.2               non retenue(tpM s=1) forme=- 3.474 / x^0.6432 + 0.003224·x [recherche:jeu] | commun 9.29e+13 parJeu — réuni — témoin 0.831 | 3131 ms
+9018 commun   K=60 bruit=0.15 puissance     RETENUE(TPM s=0) forme=oui 3.855 / x^(5/3) [recherche:jeu] | commun 0.152 parJeu 0.538 réuni 5.97 témoin 0.582 | 7815 ms
+9018 sans-loi K=25 bruit=0.1               non retenue(Tpm s=0) forme=- 0.1107·x^2 + 0.3094 [recherche:jeu] | commun 5.48 parJeu — réuni — témoin 5.90 | 2209 ms
+9019 commun   K=13 bruit=0.2 puissance     RETENUE(TPM s=0) forme=non sin(π / x^1.945) [recherche:jeu] | commun 6.15 parJeu 21.4 réuni 13.3 témoin 14.9 | 1434 ms
+9019 sans-loi K=22 bruit=0.15               non retenue(tpm s=0) forme=- 0.8235·x − 1.247 [recherche:jeu] | commun 0.448 parJeu — réuni — témoin 0.448 | 2056 ms
+9020 commun   K= 5 bruit=0.05 saturation    non retenue(TPM s=0) forme=non log((x + x)^1.59) [recherche:jeu] | commun 0.260 parJeu 9.27 réuni 1.06 témoin 2.25 | 1084 ms
+9020 sans-loi K=47 bruit=0.2               non retenue(tpm s=0) forme=- 3.06·exp(−0.9973 / x^2) [recherche:jeu] | commun 0.917 parJeu — réuni — témoin 0.536 | 3114 ms
+9021 commun   K=52 bruit=0.05 puissance     RETENUE(TPM s=0) forme=oui 0.8748 / x^(2/3) [recherche:réunis] | commun 0.0577 parJeu 0.602 réuni 36.5 témoin 0.171 | 6282 ms
+9021 sans-loi K=40 bruit=0.15               non retenue(TpM s=1) forme=- x^0.3627·(4.006 − 6.363e-4·sin(π·x + x)) [recherche:jeu] | commun 0.653 parJeu — réuni — témoin 1.09 | 3050 ms
+9022 commun   K=33 bruit=0.1 logistique    non retenue(TpM s=1) forme=non 64.44·exp(−31.8 / x^(4/3)) + 0.03318 [recherche:jeu] | commun 0.0686 parJeu Infinity réuni 3.85 témoin 0.204 | 2953 ms
+9022 sans-loi K=12 bruit=0.1               RETENUE(TPm s=1) forme=- 16·(x^0.2609 − 1.158) / x^0.005069 [recherche:jeu] | commun 0.303 parJeu — réuni — témoin 0.368 | 1193 ms
+9023 commun   K=59 bruit=0.05 saturation    non retenue(TpM s=0) forme=non 1.424·log(x) + 0.9628 [recherche:jeu] | commun 0.644 parJeu 1.89 réuni 4.11 témoin 0.712 | 5822 ms
+9023 sans-loi K=13 bruit=0.1               non retenue(Tpm s=0) forme=- 16.63·exp(−7 / x) + 0.3358 [recherche:réunis-normalisés] | commun 0.157 parJeu — réuni — témoin 0.158 | 1308 ms
+9024 commun   K=54 bruit=0.2 droite        non retenue(TPm s=0) forme=non x + 4.766 [recherche:jeu] | commun 0.835 parJeu 1.98 réuni 1.54 témoin 0.925 | 5007 ms
+9024 sans-loi K=10 bruit=0.2               non retenue(tpm s=1) forme=- (71900 − 8105·x) / (exp(x) + 1.442e5) [recherche:réunis-normalisés] | commun 4.43 parJeu — réuni — témoin 4.30 | 1194 ms
+9025 commun   K=57 bruit=0.2 saturation    RETENUE(TPm s=0) forme=non 9.22·exp(−4 / (x·3)) [recherche:jeu] | commun 1.12 parJeu 1.87 réuni 18.2 témoin 1.25 | 7450 ms
+9025 sans-loi K= 8 bruit=0.2               non retenue(tpm s=1) forme=- −2.44 / (x^0.5812·(3/4 − x − 4.425)) [recherche:réunis-normalisés] | commun 0.352 parJeu — réuni — témoin 0.319 | 1448 ms
+9026 commun   K=23 bruit=0.05 saturation    RETENUE(TPM s=2) forme=non 6.249 − 5.629·exp(−0.2225·x) [recherche:réunis-normalisés] | commun 0.138 parJeu 0.637 réuni 1.33 témoin 0.169 | 3075 ms
+9026 sans-loi K=19 bruit=0.1               RETENUE(TPM s=0) forme=- 5.044 − 23.41 / (x + 5) [recherche:jeu] | commun 0.649 parJeu — réuni — témoin 0.707 | 2458 ms
+9027 commun   K= 7 bruit=0.15 droite        non retenue(tpm s=1) forme=non exp(0.155·(x + 10.98)) [recherche:réunis-normalisés] | commun 1.70 parJeu 1.09 réuni 0.893 témoin 1.00 | 942 ms
+9027 sans-loi K=54 bruit=0.1               non retenue(TpM s=0) forme=- 0.6329·x^0.4972 [recherche:jeu] | commun 0.462 parJeu — réuni — témoin 0.560 | 4075 ms
+9028 commun   K=48 bruit=0.2 droite        RETENUE(TPm s=0) forme=non (x + 2)^0.6778 [recherche:réunis] | commun 0.554 parJeu 1.01 réuni 11.7 témoin 0.569 | 4963 ms
+9028 sans-loi K=11 bruit=0.2               non retenue(Tpm s=0) forme=- x^1.185 + 6.277 [recherche:jeu] | commun 0.526 parJeu — réuni — témoin 0.536 | 1485 ms
+9029 commun   K=60 bruit=0.15 puissance     non retenue(Tpm s=0) forme=non π·x^1.624 / 2 + 0.6287 [recherche:jeu] | commun 0.195 parJeu 0.761 réuni 8.41 témoin 0.209 | 6444 ms
+9029 sans-loi K=33 bruit=0.2               non retenue(tpm s=0) forme=- 1.464·x − 3.425 [recherche:jeu] | commun 4.34 parJeu — réuni — témoin 4.34 | 2454 ms
+9030 commun   K=29 bruit=0.2 droite        RETENUE(TPm s=1) forme=oui 0.365·x + 0.5785 [recherche:jeu] | commun 0.940 parJeu 1.92 réuni 4.28 témoin 0.981 | 2933 ms
+9030 sans-loi K=58 bruit=0.1               non retenue(tpm s=1) forme=- 0.2497·(π − 1.508·cos(0.3694·x))^2 [recherche:jeu] | commun 1.02 parJeu — réuni — témoin 0.947 | 4683 ms
+9031 commun   K=30 bruit=0.05 exponentielle RETENUE(TPM s=1) forme=oui 3.923·exp(−0.1239·x) [recherche:jeu] | commun 0.129 parJeu 0.997 réuni 83.5 témoin 0.169 | 5155 ms
+9031 sans-loi K=60 bruit=0.15               non retenue(Tpm s=0) forme=- 1.418·x − 3.488 [recherche:jeu] | commun 0.720 parJeu — réuni — témoin 0.720 | 4037 ms
+9032 commun   K=28 bruit=0.1 puissance     non retenue(TpM s=0) forme=non 11.14 / (x + 1.971) [recherche:jeu] | commun 0.305 parJeu 0.565 réuni 3.40 témoin 0.358 | 2766 ms
+9032 sans-loi K=19 bruit=0.1               non retenue(tPm s=0) forme=- log(x^1.454) + 2.287 [recherche:réunis-normalisés] | commun 6.12 parJeu — réuni — témoin 2.56 | 1904 ms
+9033 commun   K=35 bruit=0.15 logistique    non retenue(tpM s=0) forme=non x·(0.1915·x − 2.474e-5·x·exp(x)) [recherche:jeu] | commun 1.28 parJeu 0.410 réuni 0.573 témoin 0.260 | 3303 ms
+9033 sans-loi K=13 bruit=0.1               non retenue(tpm s=0) forme=- 1.174·x^0.8571 [recherche:jeu] | commun 0.327 parJeu — réuni — témoin 0.314 | 1778 ms
+9034 commun   K=23 bruit=0.15 exponentielle RETENUE(TPM s=1) forme=oui 4.622·exp(−0.2373·x) [recherche:jeu] | commun 0.306 parJeu 1.23 réuni 0.516 témoin 0.485 | 4958 ms
+9034 sans-loi K=49 bruit=0.15               non retenue(tpm s=0) forme=- 0.6036·exp(0.3941·x) [recherche:jeu] | commun 0.527 parJeu — réuni — témoin 0.510 | 2710 ms
+9035 commun   K=45 bruit=0.2 droite        RETENUE(TPm s=0) forme=non 3.568·x^(2/3) [recherche:réunis] | commun 0.892 parJeu 1.56 réuni 1.15 témoin 0.898 | 4989 ms
+9035 sans-loi K=18 bruit=0.1               non retenue(TpM s=0) forme=- 4.145·x^0.7192 [recherche:jeu] | commun 0.175 parJeu — réuni — témoin 0.248 | 1783 ms
+9036 commun   K=26 bruit=0.15 logistique    non retenue(TpM s=0) forme=non 46.58·exp(−16.64 / x) [recherche:jeu] | commun 0.145 parJeu Infinity réuni 0.236 témoin 0.610 | 4567 ms
+9036 sans-loi K=42 bruit=0.1               non retenue(TPM s=0) forme=- 0.06758·x^2.362 [recherche:jeu] | commun 0.505 parJeu — réuni — témoin 0.511 | 3084 ms
+9037 commun   K=51 bruit=0.15 droite        RETENUE(TPm s=1) forme=non x^0.8966 + 4.551 [recherche:jeu] | commun 0.736 parJeu 1.15 réuni 2.01 témoin 0.752 | 5417 ms
+9037 sans-loi K=55 bruit=0.1               non retenue(TpM s=0) forme=- 1.264 / x^0.7214 [recherche:jeu] | commun 0.364 parJeu — réuni — témoin 0.410 | 4520 ms
+9038 commun   K=14 bruit=0.05 puissance     RETENUE(TPM s=1) forme=oui 3.836·x^1.604 [recherche:jeu] | commun 0.0538 parJeu 0.802 réuni 65.2 témoin 0.0675 | 2529 ms
+9038 sans-loi K=18 bruit=0.1               non retenue(tPM s=0) forme=- 1.827 / x^0.497 [recherche:jeu] | commun 0.373 parJeu — réuni — témoin 0.283 | 2735 ms
+9039 commun   K=46 bruit=0.15 saturation    non retenue(TPm s=0) forme=non log(x) + 2.323 [recherche:jeu] | commun 0.714 parJeu 1.15 réuni 1.94 témoin 0.778 | 11209 ms
+9039 sans-loi K=16 bruit=0.2               non retenue(TPm s=0) forme=- 1.086·x − 1.639 [recherche:jeu] | commun 1.17 parJeu — réuni — témoin 1.17 | 1373 ms
+9040 commun   K=28 bruit=0.15 droite        non retenue(TpM s=0) forme=non 0.882·x^(2/3) [recherche:jeu] | commun 1.88 parJeu 4.21 réuni 18.5 témoin 2.69 | 3471 ms
+9040 sans-loi K=35 bruit=0.1               non retenue(tpM s=1) forme=- 2.439 / x^0.2432 − 0.02033·cos(x) [recherche:jeu] | commun 0.598 parJeu — réuni — témoin 0.376 | 2621 ms
+9041 commun   K= 8 bruit=0.2 puissance     non retenue(TpM s=1) forme=non 1.16 / x + 0.1105 [recherche:jeu] | commun 1.28 parJeu 2.16 réuni 2.94 témoin 1.49 | 1618 ms
+9041 sans-loi K=18 bruit=0.15               non retenue(tpm s=0) forme=- exp(x)·(0.1007 / x − 0.01191) + 2.275 [recherche:jeu] | commun 0.929 parJeu — réuni — témoin 0.538 | 2382 ms
+9042 commun   K=29 bruit=0.1 logistique    non retenue(TpM s=0) forme=non 13·exp(−8.453 / x^1.358) [recherche:jeu] | commun 0.153 parJeu 1.46 réuni 55.8 témoin 0.380 | 2507 ms
+9042 sans-loi K= 5 bruit=0.1               non retenue(tpm s=0) forme=- 0.559·x^0.3188 [recherche:jeu] | commun 0.264 parJeu — réuni — témoin 0.221 | 745 ms
+9043 commun   K=32 bruit=0.05 saturation    RETENUE(TPM s=1) forme=non 0.3468 / (1 / x^0.6293 + 0.01248·x) [recherche:réunis-normalisés] | commun 0.172 parJeu 1.25 réuni 2.70 témoin 0.239 | 4415 ms
+9043 sans-loi K=12 bruit=0.2               RETENUE(TPM s=0) forme=- 6.915·exp(−11 / (x·2)) + 0.912 [recherche:réunis-normalisés] | commun 1.02 parJeu — réuni — témoin 1.04 | 1634 ms
+9044 commun   K=28 bruit=0.1 droite        RETENUE(TPM s=1) forme=non 0.003328·sin(4·x) + 0.2246·x + π [recherche:jeu] | commun 0.323 parJeu 1.14 réuni 12.5 témoin 0.363 | 3053 ms
+9044 sans-loi K=14 bruit=0.1               non retenue(TPM s=0) forme=- 0.6803·x^1.62 [recherche:jeu] | commun 0.122 parJeu — réuni — témoin 0.152 | 1284 ms
+9045 commun   K=25 bruit=0.15 puissance     RETENUE(TPM s=1) forme=oui 0.8246 / x^1.359 [recherche:jeu] | commun 0.240 parJeu 0.555 réuni 14.8 témoin 0.637 | 1998 ms
+9045 sans-loi K=51 bruit=0.1               non retenue(TpM s=1) forme=- 2·(x^8 + 3.591e6)^0.1097·x^0.06041 / 3 [recherche:jeu] | commun 0.303 parJeu — réuni — témoin 0.425 | 4487 ms
+9046 commun   K=15 bruit=0.2 puissance     non retenue(TPm s=0) forme=oui 2.646·x [recherche:jeu] | commun 1.25 parJeu 2.70 réuni 29.7 témoin 1.34 | 2013 ms
+9046 sans-loi K=27 bruit=0.05               non retenue(TPM s=0) forme=- 0.4762·x^1.405 [recherche:jeu] | commun 0.139 parJeu — réuni — témoin 0.320 | 1573 ms
+9047 commun   K=21 bruit=0.15 logistique    non retenue(TpM s=0) forme=non 12.07·exp(−243 / x^π) [recherche:jeu] | commun 0.163 parJeu 1.36 réuni 2.46 témoin 0.343 | 3317 ms
+9047 sans-loi K=52 bruit=0.2               non retenue(tpm s=0) forme=- 6.566·x^0.4237 − 5/3 [recherche:jeu] | commun 0.822 parJeu — réuni — témoin 0.744 | 6451 ms
+9048 commun   K=20 bruit=0.15 logistique    non retenue(TpM s=1) forme=non 6.253·exp(−8.159 / x^(5/3)) + 0.1474 [recherche:jeu] | commun 0.164 parJeu 0.835 réuni 0.395 témoin 0.320 | 2406 ms
+9048 sans-loi K=12 bruit=0.15               non retenue(TpM s=1) forme=- 84.26·exp(−29.31 / x^(7/4)) + 8.433 [recherche:jeu] | commun 3.84 parJeu — réuni — témoin 4.03 | 1568 ms
+9049 commun   K=37 bruit=0.05 puissance     RETENUE(TPM s=1) forme=oui 4.59·x^1.295 [recherche:jeu] | commun 0.0364 parJeu 0.484 réuni 11.2 témoin 0.0485 | 3607 ms
+9049 sans-loi K=44 bruit=0.15               non retenue(tPm s=0) forme=- 3.044·x^0.5798 [recherche:réunis-normalisés] | commun 0.642 parJeu — réuni — témoin 0.567 | 3462 ms
+9050 commun   K= 6 bruit=0.05 exponentielle RETENUE(TPM s=1) forme=oui exp(1.523 − 0.3473·x) [recherche:jeu] | commun 0.0157 parJeu 0.900 réuni 4.57 témoin 0.0708 | 1087 ms
+9050 sans-loi K=38 bruit=0.15               non retenue(TpM s=0) forme=- exp(0.8186 − 0.6495 / x) [recherche:jeu] | commun 6.54 parJeu — réuni — témoin 13.8 | 3388 ms
+— variante avec bibliothèque —
+{
+ "C1": {
+  "contreParJeu": {
+   "victoires": 46,
+   "defaites": 4,
+   "p": 2.2308910274659866e-10,
+   "tenu": true
+  },
+  "contreReuni": {
+   "victoires": 42,
+   "defaites": 8,
+   "p": 5.81777902297631e-7,
+   "tenu": true
+  },
+  "tenu": true
+ },
+ "C3": {
+  "mondes5pc": 12,
+  "formeVraie": 9,
+  "taux": 0.75,
+  "seuil": 0.6,
+  "tenu": true
+ },
+ "C3tousBruits": {
+  "mondes": 50,
+  "formeVraie": 38
+ },
+ "C3parmiRetenues": {
+  "retenues": 31,
+  "formeVraie": 29
+ },
+ "C4": {
+  "mondes": 50,
+  "nonRetenue": 49,
+  "taux": 0.98,
+  "seuil": 0.9,
+  "nonRetenueSansGarde": 15,
+  "tenu": true
+ },
+ "communRetenue": 31,
+ "contreTemoin": {
+  "victoires": 43,
+  "defaites": 7,
+  "p": 1.049338713698944e-7,
+  "tenu": true
+ }
+}
+— mesure principale, sans bibliothèque —
+{
+ "C1": {
+  "contreParJeu": {
+   "victoires": 48,
+   "defaites": 2,
+   "p": 1.1333156635373598e-12,
+   "tenu": true
+  },
+  "contreReuni": {
+   "victoires": 45,
+   "defaites": 5,
+   "p": 2.104926011270436e-9,
+   "tenu": true
+  },
+  "tenu": true
+ },
+ "C3": {
+  "mondes5pc": 12,
+  "formeVraie": 7,
+  "taux": 0.5833333333333334,
+  "seuil": 0.6,
+  "tenu": false
+ },
+ "C3tousBruits": {
+  "mondes": 50,
+  "formeVraie": 13
+ },
+ "C3parmiRetenues": {
+  "retenues": 23,
+  "formeVraie": 11
+ },
+ "C4": {
+  "mondes": 50,
+  "nonRetenue": 47,
+  "taux": 0.94,
+  "seuil": 0.9,
+  "nonRetenueSansGarde": 27,
+  "tenu": true
+ },
+ "communRetenue": 23,
+ "contreTemoin": {
+  "victoires": 46,
+  "defaites": 4,
+  "p": 2.2308910274659866e-10,
+  "tenu": true
+ }
+}

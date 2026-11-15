@@ -143,6 +143,39 @@ function critere(sse, jeux, vs, nPartage, nPropre, forme) {
   return s + (nPartage + size(forme) - libres(forme).length) * LN(N);
 }
 
+/** Constantes d'un arbre avec leur opération parente et leur côté, dans l'ordre de `constants` (correction B). */
+function positions(e, op = null, cote = null, out = []) {
+  if (e.t === 'c') out.push({ c: e, op, cote });
+  else if (e.t === 'u') positions(e.a, 'u', 'a', out);
+  else if (e.t === 'b') { positions(e.a, e.op, 'a', out); positions(e.b, e.op, 'b', out); }
+  return out;
+}
+/** Élément neutre qui « retire » une constante à cette place, ou null si elle ne peut pas se retirer ainsi. */
+const neutre = (op, cote) => (op === '+' || (op === '-' && cote === 'b') ? 0 : op === '*' || ((op === '/' || op === '^') && cote === 'b') ? 1 : null);
+
+/**
+ * Correction B (PROTOCOLE_G5.md) : une constante commune — libre et partagée, ou figée sur une valeur simple par la
+ * recherche (commune à tous les jeux par construction, correction A) — est utile si la retirer (la remplacer par
+ * l'élément neutre de son opération, réajuster le reste avec le même partage, retrancher le coût de deux nœuds) fait
+ * monter le critère. Une constante qui ne peut pas se retirer ainsi est tenue pour utile. Points vus seulement.
+ */
+export function constantesCommunesUtiles(loi, jeux) {
+  const vs = jeux.map((j) => echelle(j.y)), N = jeux.reduce((a, j) => a + j.x.length, 0), L0 = libres(loi.copies[0]);
+  const detail = positions(loi.copies[0]).map((p, k) => {
+    const j = L0.indexOf(p.c);
+    if (j >= 0 && !loi.partage[j]) return null;                       // constante propre à chaque jeu : pas commune
+    const nv = neutre(p.op, p.cote);
+    if (nv === null) return { k, valeur: p.c.v, figee: j < 0, retirable: false, utile: true };
+    const copies = loi.copies.map(copier);
+    for (const e of copies) { const q = positions(e)[k].c; q.v = nv; q.libre = false; }
+    const partage = j < 0 ? loi.partage : loi.partage.filter((_, i) => i !== j), nsp = partage.filter(Boolean).length;
+    const sse = ajusterConjoint(copies, partage, jeux, vs);
+    const sans = sse.every(isFinite) ? critere(sse, jeux, vs, nsp, partage.length - nsp, copies[0]) - 2 * LN(N) : Infinity;
+    return { k, valeur: p.c.v, figee: j < 0, retirable: true, critereSans: sans, utile: sans > loi.critere };
+  }).filter(Boolean);
+  return { utiles: detail.filter((d) => d.utile).length, communes: detail.length, detail };
+}
+
 /** Formes candidates (clé → { e, origine }). */
 function candidats(jeux, o) {
   const r = rng(o.graine * 131 + 17), out = new Map();
@@ -235,9 +268,11 @@ export function chercherLoiCommune(jeux, opts = {}) {
   const rival = jeux.reduce((a, j, g) => a + LN(top.length)
     + Math.min(...top.map((n) => terme(n.sse0[g], j.x.length, vs[g], libres(n.e).length))), 0)
     + Math.max(...top.map((n) => size(n.e) - libres(n.e).length)) * LN(N);
-  return { forme: b.copies[0], partage: b.partage, copies: b.copies, critere: b.critere, origine: b.origine,
+  const loi = { forme: b.copies[0], partage: b.partage, copies: b.copies, critere: b.critere, origine: b.origine,
     marge: rival - b.critere, candidates: notes.length, ecartees,
     classement: notes.slice(0, 8).map((n) => ({ cle: cleForme(n.e), critere: n.critere, partage: n.partage, origine: n.origine })) };
+  loi.communes = constantesCommunesUtiles(loi, jeux);
+  return loi;
 }
 
 /** Témoins jeu par jeu : droite et constante ajustées sur les points vus. */
@@ -261,8 +296,8 @@ export function erreurCote(predicteurs, vus, cotes) {
 /**
  * Verdict honnête. « retenue » seulement si les trois conditions tiennent :
  *  - sur les points mis de côté, erreur moyenne de la loi < celle de la droite ET < celle de la constante (jeu par jeu) ;
- *  - la loi dépend de x (une constante, même partagée, n'est pas une loi) et a au moins une constante partagée
- *    (sinon rien n'est commun hormis l'écriture) ;
+ *  - la loi dépend de x (une constante, même partagée, n'est pas une loi) et a au moins une constante commune utile
+ *    (corrections A et B du protocole : libre partagée ou figée par la recherche, et dont le retrait coûte) ;
  *  - sur les points vus, le critère préfère la loi commune au modèle « une forme par jeu » (marge > 0).
  * `majorite` (la loi bat le meilleur témoin dans plus de la moitié des jeux) est rendu à titre d'information.
  */
@@ -273,8 +308,8 @@ export function verdict(loi, vus, cotes) {
   const gagnes = eL.parJeu.filter((v, g) => v < Math.min(eD.parJeu[g], eC.parJeu[g])).length;
   const bat = !!loi && isFinite(eL.moyenne) && eL.moyenne < eD.moyenne && eL.moyenne < eC.moyenne;
   const partagees = loi ? loi.partage.filter(Boolean).length : 0, preferee = !!loi && loi.marge > 0;
-  const dependDeX = !!loi && usesVar(loi.forme, 0);
-  return { retenue: bat && partagees >= 1 && preferee && dependDeX, dependDeX, batTemoins: bat, partagees, communePreferee: preferee,
+  const dependDeX = !!loi && usesVar(loi.forme, 0), communesUtiles = loi?.communes ? loi.communes.utiles : 0;
+  return { retenue: bat && communesUtiles >= 1 && preferee && dependDeX, dependDeX, batTemoins: bat, partagees, communesUtiles, communePreferee: preferee,
     marge: loi ? loi.marge : null, majorite: gagnes > vus.length / 2, jeuxGagnes: gagnes,
     erreurs: { loi: eL, droite: eD, constante: eC } };
 }

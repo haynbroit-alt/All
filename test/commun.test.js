@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { rng } from '../src/fit.js';
 import { mettreDeCote, chercherLoiCommune, verdict, loiCommune, cleForme, marquer, libres, copier, predire } from '../src/commun.js';
-import { B, C, V } from '../src/expr.js';
+import { B, C, V, constants } from '../src/expr.js';
 
 // K jeux y = a_g · x^b, b partagé, a propre à chaque jeu, bruit multiplicatif.
 function jeuxPuissance(K, b, bruit, graine) {
@@ -59,4 +59,18 @@ test('loi commune : y sans lien avec x, non retenue', () => {
     });
     assert.equal(loiCommune(jeux, { graine }).retenue, false);
   }
+});
+
+test('correction B : une constante commune ne compte que si la retirer coûte', () => {
+  // exposant partagé : le retirer (x^b → x) dégrade le critère ; il compte
+  const r = rng(11);
+  const jeux = Array.from({ length: 6 }, () => {
+    const a = 1 + 4 * r(), x = Array.from({ length: 12 }, () => 0.5 + 4 * r());
+    return { x, y: x.map((v) => a * v ** 0.7 * (1 + 0.02 * r.normal())) };
+  });
+  const loi = chercherLoiCommune(jeux, { graine: 11 });
+  assert.ok(loi.communes.utiles >= 1, 'au moins une constante commune utile');
+  for (const d of loi.communes.detail) if (d.retirable) assert.ok(Number.isFinite(d.critereSans) || d.critereSans === Infinity);
+  // le détail ne compte que des constantes communes : jamais plus que partagées + figées
+  assert.ok(loi.communes.communes <= constants(loi.forme).length);
 });

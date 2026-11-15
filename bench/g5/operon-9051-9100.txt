@@ -1,0 +1,82 @@
+9051 commun K 13 | operon par jeu 1.695 | réuni 282.221 | commun 0.44739424815047796 | 36.7 s
+9052 commun K 50 | operon par jeu None | réuni 3.265 | commun 0.12198315729699971 | 117.7 s
+9053 commun K 40 | operon par jeu 15.494 | réuni 26.649 | commun 0.28587150881702533 | 100.2 s
+9054 commun K 39 | operon par jeu 9.321 | réuni 2.999 | commun 1.4892091888532561 | 92.1 s
+9055 commun K 15 | operon par jeu 25.303 | réuni 429.354 | commun 0.5175169302908437 | 38.9 s
+9056 commun K 14 | operon par jeu 225971.971 | réuni 18.254 | commun 0.6223084187627922 | 34.5 s
+9057 commun K 9 | operon par jeu 0.633 | réuni 0.515 | commun 0.20961565068295576 | 23.8 s
+9058 commun K 48 | operon par jeu 1.1658955410666841e+50 | réuni 190.825 | commun 0.6108345702243361 | 111.0 s
+9059 commun K 17 | operon par jeu 2.066 | réuni 1.435 | commun 0.16752414472000082 | 42.7 s
+9060 commun K 39 | operon par jeu None | réuni 29.318 | commun 0.3031489626558937 | 90.8 s
+9061 commun K 16 | operon par jeu 0.962 | réuni 10.297 | commun 0.17489261200577003 | 42.9 s
+9062 commun K 17 | operon par jeu 1.878 | réuni 2.45 | commun 0.14704836269054122 | 43.6 s
+9063 commun K 23 | operon par jeu 146.956 | réuni 33.96 | commun 0.16495592546068205 | 56.3 s
+9064 commun K 49 | operon par jeu 10.383 | réuni 4.302 | commun 0.616908748636894 | 118.3 s
+9065 commun K 48 | operon par jeu 0.784 | réuni 4.786 | commun 0.15139453812276854 | 115.2 s
+9066 commun K 41 | operon par jeu 77.88 | réuni 1.415 | commun 0.147200386486128 | 96.6 s
+9067 commun K 44 | operon par jeu 47.483 | réuni 6.371 | commun 0.758304443399285 | 100.8 s
+9068 commun K 16 | operon par jeu 2.301 | réuni 0.094 | commun 0.06996053317829054 | 42.7 s
+9069 commun K 6 | operon par jeu 3.112 | réuni 6.796 | commun 1.0113173481597928 | 17.8 s
+9070 commun K 6 | operon par jeu 0.846 | réuni 13.348 | commun 0.11305839572244747 | 18.0 s
+9071 commun K 60 | operon par jeu 133.834 | réuni 1.545 | commun 0.12120856016299818 | 140.3 s
+9072 commun K 33 | operon par jeu 0.371 | réuni 12.385 | commun 0.17363351439085448 | 86.2 s
+9073 commun K 59 | operon par jeu None | réuni 2.102 | commun 2.9904598300315035 | 134.8 s
+9074 commun K 54 | operon par jeu None | réuni 3.672 | commun 0.1776487850579164 | 128.3 s
+9075 commun K 46 | operon par jeu None | réuni 2.904 | commun 0.5390796144679451 | 106.0 s
+9076 commun K 25 | operon par jeu None | réuni 2.237 | commun 0.6507138072557366 | 62.8 s
+9077 commun K 36 | operon par jeu 50.552 | réuni 4.502 | commun 2.042132227496454 | 84.9 s
+9078 commun K 53 | operon par jeu 8.87 | réuni 0.105 | commun 0.06195874938980304 | 126.3 s
+9079 commun K 26 | operon par jeu None | réuni 9.92 | commun 0.01737384746402882 | 61.8 s
+9080 commun K 31 | operon par jeu 3.102 | réuni 4.456 | commun 0.8439303864081018 | 74.2 s
+9081 commun K 35 | operon par jeu 20.065 | réuni 6.15 | commun 0.23005469197139533 | 84.7 s
+9082 commun K 51 | operon par jeu 0.686 | réuni 2.859 | commun 0.12721259849722483 | 118.8 s
+9083 commun K 37 | operon par jeu 7.871 | réuni 1.686 | commun 0.9050589560871823 | 87.1 s
+9084 commun K 37 | operon par jeu 1.461 | réuni 3.83 | commun 0.318635327028074 | 86.9 s
+9085 commun K 39 | operon par jeu None | réuni 56.075 | commun 0.09627088875296506 | 91.9 s
+9086 commun K 39 | operon par jeu 60.027 | réuni 15.31 | commun 0.3765106827265073 | 98.2 s
+9087 commun K 12 | operon par jeu 3.526 | réuni 4.634 | commun 0.07428008890729822 | 30.4 s
+9088 commun K 20 | operon par jeu 2.637 | réuni 44.256 | commun 0.8474736559937132 | 48.4 s
+9089 commun K 38 | operon par jeu None | réuni 16.977 | commun 1.076475887261404 | 89.9 s
+9090 commun K 20 | operon par jeu 0.122 | réuni 1.663 | commun 0.0349152601458835 | 49.0 s
+9091 commun K 59 | operon par jeu 59.141 | réuni 11.698 | commun 0.0547357658050771 | 138.3 s
+9092 commun K 13 | operon par jeu 3.062 | réuni 29.244 | commun 0.34732164893537976 | 37.2 s
+9093 commun K 27 | operon par jeu None | réuni 22.545 | commun 1.079335149908278 | 66.6 s
+9094 commun K 12 | operon par jeu 6.162 | réuni 4.408 | commun 0.497426521466034 | 30.6 s
+9095 commun K 23 | operon par jeu 3.261 | réuni 15.413 | commun 0.712330420306054 | 54.8 s
+9096 commun K 54 | operon par jeu 179.314 | réuni 1.857 | commun 0.2300301958920478 | 123.1 s
+9097 commun K 58 | operon par jeu 2.85 | réuni 12.312 | commun 0.14621570635365794 | 132.5 s
+9098 commun K 15 | operon par jeu 8.199 | réuni 1.05 | commun 0.11957267125850085 | 38.8 s
+9099 commun K 7 | operon par jeu 27.511 | réuni 18.773 | commun 3.4335558159855055 | 19.6 s
+9100 commun K 17 | operon par jeu None | réuni 36.399 | commun 0.3006771356827922 | 42.3 s
+{
+ "principale": {
+  "contreOperonParJeu": {
+   "victoires": 50,
+   "defaites": 0,
+   "p": 8.881784197001252e-16,
+   "tenu": true
+  },
+  "contreOperonReuni": {
+   "victoires": 49,
+   "defaites": 1,
+   "p": 4.529709940470639e-14,
+   "tenu": true
+  },
+  "tenu": true
+ },
+ "bibliotheque": {
+  "contreOperonParJeu": {
+   "victoires": 50,
+   "defaites": 0,
+   "p": 8.881784197001252e-16,
+   "tenu": true
+  },
+  "contreOperonReuni": {
+   "victoires": 49,
+   "defaites": 1,
+   "p": 4.529709940470639e-14,
+   "tenu": true
+  },
+  "tenu": true
+ }
+}
