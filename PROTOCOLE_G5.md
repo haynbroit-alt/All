@@ -78,3 +78,46 @@ Les seuils ne seront pas retouchés. Un critère manqué est publié comme tel.
 - Les mondes à réponse connue sont tirés par nous : un succès y vaut moins que sur les données réelles groupées.
 - Le budget de calcul de GALILÉE dans le GARDIEN (`Tr/gardien.json`) ne couvre pas à la fois ce module et son
   banc : **le code ne commence qu'après décision du propriétaire sur le plafond**.
+
+---
+
+## Code écrit et relu — état avant le test (15 novembre 2026)
+
+Le plafond a été relevé par le propriétaire (`Tr/gardien.json`). Code ajouté, aucun fichier existant modifié :
+`src/commun.js`, `bench/commun.js`, `bench/commun-jeux.js`, `test/commun.test.js` (28 tests passent). Mise au point
+sur les graines 1 à 100 seulement ; **les graines 9001 à 9200 n'ont jamais été exécutées.**
+
+### Mesures de mise au point (graines 1 à 100, 100 mondes à loi commune, 100 sans)
+
+- C1 : loi commune devant GALILÉE jeu par jeu 100 fois sur 100, devant GALILÉE réuni 98 fois, devant le meilleur
+  témoin 98 fois. Erreurs médianes : 0,28 ; 1,47 ; 4,57 ; 0,53.
+- C3, forme vraie à 5 % de bruit : 21 sur 22 **avec** la bibliothèque de formes, **7 sur 22 sans** (seuil 60 %).
+- C4, mondes sans loi commune déclarés « non retenue » : 98 sur 100 (gardes réglées sur les graines 1 à 40,
+  confirmées sur 41 à 100).
+
+### Relecture contradictoire (quatre relecteurs, chaque constat grave attaqué par un cinquième)
+
+Pas de fuite des points mis de côté (vérifié en les remplaçant par du bruit : rien ne change). Comparaisons
+équitables : mêmes points, même normalisation, GALILÉE lancé avec ses réglages par défaut. Résultats
+reproductibles à l'identique. C5 vérifié : `bench/run.js` rend les mêmes essais avec et sans le module.
+
+Constats confirmés :
+
+1. **Bloquant — la bibliothèque contient exactement les cinq formes qui génèrent les mondes.** C3 mesure alors un
+   choix dans une liste qui contient la réponse, pas une découverte : 95 % avec elle, 32 % sans elle. GALILÉE et
+   Operon, eux, ne la reçoivent pas.
+2. Important — les constantes que la recherche fige sur une valeur simple (2, ½…) ne comptent pas comme partagées
+   et ne sont pas réajustées : la recherche est désavantagée face à la bibliothèque.
+3. Mineur — la garde « au moins une constante partagée » est satisfaite par un décalage partagé quasi nul : les
+   deux fausses rétentions de C4 en viennent.
+4. Mineur — la garde des graines de test se contournait par une graine non entière ou supérieure à 2³². **Corrigé** :
+   seules 1 à 100 et, avec `G5_TEST`, 9001 à 9200 sont acceptées.
+5. Mineur — l'ajustement conjoint ne minimise pas exactement le critère qui le juge.
+
+### À décider avant le test, par écrit, sans toucher aux seuils
+
+- Mesure principale de C3 (et de C1 sur mondes à réponse connue) : **sans la bibliothèque**, celle avec étant
+  publiée à côté. C'est ma recommandation : avec elle, C3 ne mesure pas ce que le protocole appelle découvrir.
+- Corriger ou non les constats 2 et 3 avant le test (changement de méthode, à remesurer sur 1 à 100).
+- Budget d'Operon pour C2 : 20 s et trois graines par ajustement, comme SOTA-LOIS-2, demanderaient plus de 50 heures
+  sur les petits jeux ; 2 s et une graine par jeu, 20 s pour les jeux réunis : environ 5 heures. À fixer ici.
