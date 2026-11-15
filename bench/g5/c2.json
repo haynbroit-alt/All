@@ -1,0 +1,51 @@
+{
+ "protocole": "PROTOCOLE_G5.md",
+ "C2": {
+  "principale": {
+   "contreOperonParJeu": {
+    "victoires": 200,
+    "defaites": 0,
+    "p": 6.223015277861142e-61
+   },
+   "contreOperonReuni": {
+    "victoires": 189,
+    "defaites": 11,
+    "p": 2.560608937985755e-43
+   },
+   "tenu": true,
+   "inverse_par_jeu": {
+    "victoires": 0,
+    "defaites": 200,
+    "p": 1.0
+   },
+   "inverse_reuni": {
+    "victoires": 11,
+    "defaites": 189,
+    "p": 1.0
+   }
+  },
+  "bibliotheque": {
+   "contreOperonParJeu": {
+    "victoires": 198,
+    "defaites": 2,
+    "p": 1.250888301002868e-56
+   },
+   "contreOperonReuni": {
+    "victoires": 187,
+    "defaites": 13,
+    "p": 5.902269534005446e-41
+   },
+   "tenu": true,
+   "inverse_par_jeu": {
+    "victoires": 2,
+    "defaites": 198,
+    "p": 1.0
+   },
+   "inverse_reuni": {
+    "victoires": 13,
+    "defaites": 187,
+    "p": 1.0
+   }
+  }
+ }
+}
