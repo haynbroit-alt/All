@@ -1,0 +1,17 @@
+36 car/States.csv                   K= 6 non retenue | commun 1.65 parJeu 7.17 réuni 0.773 témoin 1.65 | 6.4 s
+37 datasets/OrchardSprays.csv       K= 8 non retenue | commun 1.74 parJeu 2.31 réuni 1.71 témoin 2.24 | 6.6 s
+38 datasets/esoph.csv               K= 6 RETENUE | commun 0.610 parJeu 0.677 réuni 1.19 témoin 0.686 | 2.3 s
+39 gap/PD.csv                       K= 5 non retenue | commun 641 parJeu 0.924 réuni 0.898 témoin 0.884 | 4.3 s
+40 gap/mhtdata.csv                  K=60 non retenue | commun 0.00 parJeu 0.00 réuni 0.000408 témoin 0.00 | 53.9 s
+41 ggplot2/diamonds.csv             K= 5 RETENUE | commun 0.00686 parJeu 0.00810 réuni 0.00927 témoin 0.0402 | 12.8 s
+42 ggplot2/midwest.csv              K= 5 non retenue | commun 0.972 parJeu 0.941 réuni 0.976 témoin 0.941 | 3.9 s
+43 ggplot2/movies.csv               K=14 RETENUE | commun 0.0357 parJeu 0.321 réuni 0.0624 témoin 0.244 | 7.0 s
+44 ggplot2/mpg.csv                  K=12 non retenue | commun 1.75 parJeu 1.62 réuni 2.07 témoin 1.65 | 16.9 s
+45 ggplot2/msleep.csv               K= 5 non retenue | commun 147 parJeu 161 réuni 2.93e+4 témoin 147 | 5.7 s
+46 lme4/VerbAgg.csv                 K=24 non retenue | commun 1.03 parJeu 1.03 réuni 1.03 témoin 1.04 | 22.9 s
+47 plm/Gasoline.csv                 K=18 non retenue | commun 0.00512 parJeu 0.726 réuni 8.76 témoin 0.0468 | 36.2 s
+48 plm/Males.csv                    K=12 non retenue | commun 1.27 parJeu 1.25 réuni 1.36 témoin 1.27 | 13.5 s
+49 plm/Produc.csv                   K=48 RETENUE | commun 0.763 parJeu 1.65 réuni 2.38 témoin 1.26 | 92.8 s
+50 plm/SumHes.csv                   K=60 non retenue | commun 0.671 parJeu 1.15 réuni 26.1 témoin 0.885 | 115.6 s
+51 plyr/baseball.csv                K=60 non retenue | commun 1.23 parJeu ∞ réuni 44.1 témoin 1.23 | 59.8 s
+52 pscl/AustralianElectionPolling.csv K= 5 non retenue | commun 0.932 parJeu 0.973 réuni 3.39 témoin 0.932 | 4.4 s

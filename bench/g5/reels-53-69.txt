@@ -1,0 +1,17 @@
+53 pscl/UKHouseOfCommons.csv        K=45 non retenue | commun 1.06 parJeu 3.06 réuni 1.98 témoin 0.768 | 40.6 s
+54 pscl/politicalInformation.csv    K= 5 non retenue | commun 1.21 parJeu 1.61 réuni 1.20 témoin 1.23 | 4.5 s
+55 pscl/presidentialElections.csv   K=51 non retenue | commun 1.08 parJeu 1.21 réuni 1.31 témoin 1.06 | 74.5 s
+56 pscl/prussian.csv                K=14 non retenue | commun 1.10 parJeu 1.24 réuni 1.10 témoin 1.24 | 5.4 s
+57 psych/msq.csv                    K=39 non retenue | commun 1.02 parJeu 1.00 réuni 1.97e+29 témoin 1.07 | 27.0 s
+58 rpart/car.test.frame.csv         K= 5 non retenue | commun 1.32 parJeu 1.33 réuni 1.49 témoin 1.13 | 6.6 s
+59 rpart/car90.csv                  K= 5 RETENUE | commun 0.511 parJeu 0.889 réuni 0.549 témoin 0.577 | 8.0 s
+60 rpart/cu.summary.csv             K= 5 non retenue | commun 4.78 parJeu 16.9 réuni 0.597 témoin 6.75 | 6.1 s
+61 rpart/solder.csv                 K=10 non retenue | commun 0.476 parJeu 0.475 réuni 0.622 témoin 0.482 | 8.5 s
+62 survival/cgd.csv                 K=11 non retenue | commun 1.20 parJeu 1.30 réuni 1.03 témoin 1.20 | 7.7 s
+63 survival/flchain.csv             K=13 non retenue | commun ∞ parJeu 0.00 réuni 0.00 témoin 0.00 | 9.1 s
+64 vcd/Baseball.csv                 K=11 non retenue | commun 4.66 parJeu 12.0 réuni 5.65 témoin 3.86 | 8.8 s
+65 vcd/Bundesliga.csv               K=52 non retenue | commun 0.946 parJeu 0.946 réuni 60.0 témoin 0.946 | 32.4 s
+66 vcd/Hitters.csv                  K= 7 non retenue | commun 2.08 parJeu 2.11 réuni 4.29 témoin 1.47 | 8.1 s
+67 vcd/JointSports.csv              K= 5 non retenue | commun 1.11 parJeu 2.10 réuni 1.11 témoin 1.32 | 3.1 s
+68 vcd/Suicide.csv                  K= 9 non retenue | commun 1.20 parJeu 1.33 réuni 1.20 témoin 1.30 | 10.2 s
+69 vcd/VonBort.csv                  K=14 non retenue | commun 0.974 parJeu 1.09 réuni 0.973 témoin 1.09 | 4.5 s

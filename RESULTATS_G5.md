@@ -83,3 +83,53 @@ par jeu** (180 mondes sur 200).
 2. Avant toute vente de cette capacité : la mesurer sur les jeux réels groupés.
 3. Le C3 sans bibliothèque reste à améliorer : la recherche du moteur ne retrouve presque jamais la saturation ni la
    logistique.
+
+## 8. Jeux réels groupés et Operon normalisé (protocole « Jeux réels groupés », écrit avant tout ajustement)
+
+70 jeux de Rdatasets retenus par une règle mécanique (liste figée `bench/g5/reels-liste.json`) ; au plus 60 groupes
+de 40 lignes. Sorties : `bench/g5/reels-*.json`, `bench/g5/reels-operon-*.json`, `bench/g5/normalise-*.json` ;
+critères : `bench/g5/reels-criteres.json`. Aucune panne.
+
+| Critère | Résultat | Verdict |
+|---|---|---|
+| **R1** — mieux que GALILÉE jeu par jeu | 50 jeux contre 18 (p ≈ 7·10⁻⁵) | **tenu** |
+| **R1** — mieux que GALILÉE réuni | 48 contre 22 (p ≈ 0,001) | **tenu** |
+| **R2** — mieux qu'Operon jeu par jeu | 63 contre 5 | **tenu** |
+| **R2** — mieux qu'Operon réuni | 53 contre 15 | **tenu** |
+| **N-réel** — mieux qu'Operon réuni normalisé | 53 contre 15 (p ≈ 2·10⁻⁶) | **tenu** |
+| **N-simulé** — mieux qu'Operon réuni normalisé, 200 mondes du test | 195 contre 5 | **tenu** |
+
+**Ce qui n'est pas tenu, et compte le plus** : sur les jeux réels, la loi commune **ne fait pas mieux qu'une droite
+ou une constante ajustée groupe par groupe** — 39 jeux contre 29 (p = 0,14), non établi. Erreurs médianes : loi
+commune 1,06 ; meilleur témoin 1,09 ; GALILÉE jeu par jeu 1,27 ; GALILÉE réuni 1,42 ; Operon normalisé 1,54 ;
+Operon réuni 2,87 ; Operon jeu par jeu 3,15. Une erreur supérieure à 1 veut dire : moins bien, sur les points mis
+de côté, que la moyenne des points vus. Sur la plupart de ces couples de colonnes, il n'y a presque rien à prédire.
+
+- La loi est « retenue » sur **10 jeux sur 70** (14 %). Plusieurs de ces lois sont douteuses : des sinus sans
+  raison physique (par exemple `sin(0,148 / (x − 1902)^4)` sur un jeu de films). Le verdict, honnête sur les mondes
+  simulés (98 %), **laisse passer sur des données réelles des formes qu'un humain refuserait** : à ne pas livrer sans
+  relecture.
+- Les deux lois retenues les plus plausibles portent sur des diamants : prix en puissance du poids (`10 550·x^1,69`),
+  ce qui est la relation connue.
+- Variante avec bibliothèque : mêmes conclusions (face au meilleur témoin, 39 contre 27, non établi).
+
+### Attendus, relus
+
+| Attendu | Constat |
+|---|---|
+| Retenue sur moins de 30 % des jeux réels | 14 % — **juste** |
+| R1 tenu face à GALILÉE jeu par jeu, incertain face au réuni | tenu les deux — **juste**, prudent pour le second |
+| R2 tenu | **juste** |
+| N-simulé tenu, mais de bien moins que face à Operon réuni | 195 contre 5, pas moins — **faux** |
+| N-réel non établi | tenu, 53 contre 15 — **faux** |
+
+### Ce que cela change
+
+1. **La capacité est réelle et différenciante face aux outils de régression symbolique** : sur données réelles
+   comme simulées, la loi commune prédit mieux que GALILÉE seul et qu'Operon, même aidé d'une échelle par groupe.
+2. **Elle ne bat pas encore l'outil le plus simple sur données réelles** : une droite par groupe fait aussi bien. Sur
+   des données où une loi existe vraiment (mondes simulés), elle le bat nettement ; sur des couples de colonnes pris
+   au hasard, non. Le terrain qui tranchera est celui de son usage : des ventes de plusieurs produits d'une même
+   entreprise.
+3. **Le verdict doit être durci pour les données réelles** avant toute livraison : refuser les formes périodiques
+   sans justification, ou exiger qu'une loi retenue batte aussi le meilleur témoin sur les points mis de côté.

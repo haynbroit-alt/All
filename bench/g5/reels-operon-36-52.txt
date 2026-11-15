@@ -1,0 +1,61 @@
+36 reel K 6 | operon par jeu 2.938 | réuni 2.163 | normalisé 2.274 | commun 1.6540064818289333 | 23.0 s
+37 reel K 8 | operon par jeu 8.643 | réuni 2.525 | normalisé 2.619 | commun 1.7382242297958275 | 27.7 s
+38 reel K 6 | operon par jeu 1.582 | réuni 0.864 | normalisé 0.731 | commun 0.6104653463395212 | 26.0 s
+39 reel K 5 | operon par jeu None | réuni None | normalisé None | commun 641.4356384415601 | 23.3 s
+40 reel K 60 | operon par jeu None | réuni None | normalisé None | commun 0 | 160.3 s
+41 reel K 5 | operon par jeu 0.017 | réuni 0.013 | normalisé 0.089 | commun 0.006861143049417448 | 33.5 s
+42 reel K 5 | operon par jeu 1.601 | réuni 1.641 | normalisé 1.264 | commun 0.9724214122231747 | 25.3 s
+43 reel K 14 | operon par jeu None | réuni None | normalisé None | commun 0.03571428563977082 | 42.6 s
+44 reel K 12 | operon par jeu 1.165 | réuni 1.374 | normalisé 1.063 | commun 1.7461798389076624 | 39.9 s
+45 reel K 5 | operon par jeu 156.303 | réuni 58452.637 | normalisé 152.74 | commun 147.29129500877315 | 22.5 s
+46 reel K 24 | operon par jeu 1.691 | réuni 1.005 | normalisé 1.022 | commun 1.031888749623723 | 86.9 s
+47 reel K 18 | operon par jeu 0.012 | réuni 8.041 | normalisé 0.323 | commun 0.005115355208886098 | 54.0 s
+48 reel K 12 | operon par jeu 2.046 | réuni 1.329 | normalisé 1.294 | commun 1.2694017965108622 | 44.9 s
+49 reel K 48 | operon par jeu 1.615 | réuni 1.638 | normalisé 0.802 | commun 0.7625709032745897 | 128.6 s
+50 reel K 60 | operon par jeu 0.94 | réuni 26.977 | normalisé 1.49 | commun 0.6709955159751639 | 160.4 s
+51 reel K 60 | operon par jeu None | réuni None | normalisé None | commun 1.228639583068044 | 160.4 s
+52 reel K 5 | operon par jeu 0.971 | réuni 5.241 | normalisé 1.854 | commun 0.9323452264707035 | 23.6 s
+{
+ "principale": {
+  "contreOperonParJeu": {
+   "victoires": 16,
+   "defaites": 1,
+   "p": 0.0001373291015625,
+   "tenu": true
+  },
+  "contreOperonReuni": {
+   "victoires": 15,
+   "defaites": 2,
+   "p": 0.0011749267578125,
+   "tenu": true
+  },
+  "tenu": true,
+  "contreOperonReuniNormalise": {
+   "victoires": 15,
+   "defaites": 2,
+   "p": 0.0011749267578125,
+   "tenu": true
+  }
+ },
+ "bibliotheque": {
+  "contreOperonParJeu": {
+   "victoires": 16,
+   "defaites": 1,
+   "p": 0.0001373291015625,
+   "tenu": true
+  },
+  "contreOperonReuni": {
+   "victoires": 15,
+   "defaites": 2,
+   "p": 0.0011749267578125,
+   "tenu": true
+  },
+  "tenu": true,
+  "contreOperonReuniNormalise": {
+   "victoires": 15,
+   "defaites": 2,
+   "p": 0.0011749267578125,
+   "tenu": true
+  }
+ }
+}
