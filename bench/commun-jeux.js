@@ -17,7 +17,7 @@
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-function lireCsv(texte) {
+export function lireCsv(texte) {
   const lignes = [];
   let champ = '', ligne = [], guillemets = false;
   for (let i = 0; i < texte.length; i++) {

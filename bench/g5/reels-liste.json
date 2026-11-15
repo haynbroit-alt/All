@@ -1,0 +1,568 @@
+{
+ "protocole": "G5",
+ "regle": "bench/commun-jeux.js (en tête)",
+ "date": "2026-11-15T21:37:35.028Z",
+ "fichiersLus": 1514,
+ "jeux": [
+  {
+   "fichier": "Ecdat/Accident.csv",
+   "reponse": "acc",
+   "explicative": "months",
+   "facteur": "type",
+   "groupes": 5,
+   "lignes": 34
+  },
+  {
+   "fichier": "Ecdat/Car.csv",
+   "reponse": "station6",
+   "explicative": "college",
+   "facteur": "choice",
+   "groupes": 6,
+   "lignes": 4654
+  },
+  {
+   "fichier": "Ecdat/Caschool.csv",
+   "reponse": "mathscr",
+   "explicative": "distcod",
+   "facteur": "county",
+   "groupes": 34,
+   "lignes": 398
+  },
+  {
+   "fichier": "Ecdat/Cigarette.csv",
+   "reponse": "taxs",
+   "explicative": "year",
+   "facteur": "state",
+   "groupes": 48,
+   "lignes": 528
+  },
+  {
+   "fichier": "Ecdat/Diamond.csv",
+   "reponse": "price",
+   "explicative": "carat",
+   "facteur": "colour",
+   "groupes": 6,
+   "lignes": 308
+  },
+  {
+   "fichier": "Ecdat/Garch.csv",
+   "reponse": "sf",
+   "explicative": "date",
+   "facteur": "day",
+   "groupes": 5,
+   "lignes": 1867
+  },
+  {
+   "fichier": "Ecdat/Gasoline.csv",
+   "reponse": "lcarpcap",
+   "explicative": "year",
+   "facteur": "country",
+   "groupes": 18,
+   "lignes": 342
+  },
+  {
+   "fichier": "Ecdat/HI.csv",
+   "reponse": "wght",
+   "explicative": "whrswk",
+   "facteur": "education",
+   "groupes": 6,
+   "lignes": 22272
+  },
+  {
+   "fichier": "Ecdat/Heating.csv",
+   "reponse": "pb.hp",
+   "explicative": "idcase",
+   "facteur": "depvar",
+   "groupes": 5,
+   "lignes": 900
+  },
+  {
+   "fichier": "Ecdat/Journals.csv",
+   "reponse": "oclc",
+   "explicative": "libprice",
+   "facteur": "pub",
+   "groupes": 8,
+   "lignes": 120
+  },
+  {
+   "fichier": "Ecdat/Males.csv",
+   "reponse": "wage",
+   "explicative": "nr",
+   "facteur": "industry",
+   "groupes": 12,
+   "lignes": 4360
+  },
+  {
+   "fichier": "Ecdat/Mathlevel.csv",
+   "reponse": "chemistcourse",
+   "explicative": "sat",
+   "facteur": "mathlevel",
+   "groupes": 7,
+   "lignes": 609
+  },
+  {
+   "fichier": "Ecdat/PSID.csv",
+   "reponse": "kids",
+   "explicative": "intnum",
+   "facteur": "married",
+   "groupes": 7,
+   "lignes": 4856
+  },
+  {
+   "fichier": "Ecdat/Produc.csv",
+   "reponse": "unemp",
+   "explicative": "year",
+   "facteur": "state",
+   "groupes": 48,
+   "lignes": 816
+  },
+  {
+   "fichier": "Ecdat/Schooling.csv",
+   "reponse": "exp76",
+   "explicative": "ed76",
+   "facteur": "mar76",
+   "groupes": 5,
+   "lignes": 3000
+  },
+  {
+   "fichier": "Ecdat/SumHes.csv",
+   "reponse": "sr",
+   "explicative": "year",
+   "facteur": "country",
+   "groupes": 125,
+   "lignes": 3250
+  },
+  {
+   "fichier": "Ecdat/Tuna.csv",
+   "reponse": "price.pw",
+   "explicative": "Tuna.hid",
+   "facteur": "Tuna.choice",
+   "groupes": 5,
+   "lignes": 13705
+  },
+  {
+   "fichier": "HSAUR/Forbes2000.csv",
+   "reponse": "marketvalue",
+   "explicative": "rank",
+   "facteur": "country",
+   "groupes": 37,
+   "lignes": 1960
+  },
+  {
+   "fichier": "HSAUR/skulls.csv",
+   "reponse": "nh",
+   "explicative": "mb",
+   "facteur": "epoch",
+   "groupes": 5,
+   "lignes": 150
+  },
+  {
+   "fichier": "HistData/Guerry.csv",
+   "reponse": "Pop1831",
+   "explicative": "dept",
+   "facteur": "Region",
+   "groupes": 5,
+   "lignes": 85
+  },
+  {
+   "fichier": "HistData/Langren.all.csv",
+   "reponse": "Longitude",
+   "explicative": "Year",
+   "facteur": "Name",
+   "groupes": 6,
+   "lignes": 30
+  },
+  {
+   "fichier": "HistData/OldMaps.csv",
+   "reponse": "long",
+   "explicative": "point",
+   "facteur": "name",
+   "groupes": 11,
+   "lignes": 468
+  },
+  {
+   "fichier": "HistData/Prostitutes.csv",
+   "reponse": "mon",
+   "explicative": "Year",
+   "facteur": "month",
+   "groupes": 12,
+   "lignes": 516
+  },
+  {
+   "fichier": "MASS/Aids2.csv",
+   "reponse": "age",
+   "explicative": "diag",
+   "facteur": "T.categ",
+   "groupes": 8,
+   "lignes": 2843
+  },
+  {
+   "fichier": "MASS/Cars93.csv",
+   "reponse": "Weight",
+   "explicative": "Min.Price",
+   "facteur": "Manufacturer",
+   "groupes": 5,
+   "lignes": 32
+  },
+  {
+   "fichier": "MASS/Rabbit.csv",
+   "reponse": "Dose",
+   "explicative": "BPchange",
+   "facteur": "Run",
+   "groupes": 10,
+   "lignes": 60
+  },
+  {
+   "fichier": "MASS/UScereal.csv",
+   "reponse": "potassium",
+   "explicative": "calories",
+   "facteur": "mfr",
+   "groupes": 5,
+   "lignes": 62
+  },
+  {
+   "fichier": "MASS/fgl.csv",
+   "reponse": "Fe",
+   "explicative": "RI",
+   "facteur": "type",
+   "groupes": 6,
+   "lignes": 214
+  },
+  {
+   "fichier": "MASS/immer.csv",
+   "reponse": "Y2",
+   "explicative": "Y1",
+   "facteur": "Loc",
+   "groupes": 6,
+   "lignes": 30
+  },
+  {
+   "fichier": "MASS/painters.csv",
+   "reponse": "Expression",
+   "explicative": "Composition",
+   "facteur": "School",
+   "groupes": 6,
+   "lignes": 46
+  },
+  {
+   "fichier": "Zelig/coalition2.csv",
+   "reponse": "crisis",
+   "explicative": "duration",
+   "facteur": "country",
+   "groupes": 13,
+   "lignes": 301
+  },
+  {
+   "fichier": "Zelig/homerun.csv",
+   "reponse": "playerstatus",
+   "explicative": "gameno",
+   "facteur": "month",
+   "groupes": 6,
+   "lignes": 312
+  },
+  {
+   "fichier": "Zelig/macro.csv",
+   "reponse": "trade",
+   "explicative": "year",
+   "facteur": "country",
+   "groupes": 14,
+   "lignes": 350
+  },
+  {
+   "fichier": "car/Blackmoor.csv",
+   "reponse": "exercise",
+   "explicative": "age",
+   "facteur": "subject",
+   "groupes": 82,
+   "lignes": 410
+  },
+  {
+   "fichier": "car/Migration.csv",
+   "reponse": "popd71",
+   "explicative": "migrants",
+   "facteur": "source",
+   "groupes": 10,
+   "lignes": 90
+  },
+  {
+   "fichier": "car/Ornstein.csv",
+   "reponse": "interlocks",
+   "explicative": "assets",
+   "facteur": "sector",
+   "groupes": 10,
+   "lignes": 248
+  },
+  {
+   "fichier": "car/States.csv",
+   "reponse": "pay",
+   "explicative": "pop",
+   "facteur": "region",
+   "groupes": 6,
+   "lignes": 40
+  },
+  {
+   "fichier": "datasets/OrchardSprays.csv",
+   "reponse": "colpos",
+   "explicative": "decrease",
+   "facteur": "treatment",
+   "groupes": 8,
+   "lignes": 64
+  },
+  {
+   "fichier": "datasets/esoph.csv",
+   "reponse": "ncontrols",
+   "explicative": "ncases",
+   "facteur": "agegp",
+   "groupes": 6,
+   "lignes": 88
+  },
+  {
+   "fichier": "gap/PD.csv",
+   "reponse": "apoe4",
+   "explicative": "aon",
+   "facteur": "snca",
+   "groupes": 5,
+   "lignes": 300
+  },
+  {
+   "fichier": "gap/mhtdata.csv",
+   "reponse": "end",
+   "explicative": "pos",
+   "facteur": "gene",
+   "groupes": 2325,
+   "lignes": 48282
+  },
+  {
+   "fichier": "ggplot2/diamonds.csv",
+   "reponse": "z",
+   "explicative": "carat",
+   "facteur": "cut",
+   "groupes": 5,
+   "lignes": 53940
+  },
+  {
+   "fichier": "ggplot2/midwest.csv",
+   "reponse": "inmetro",
+   "explicative": "PID",
+   "facteur": "state",
+   "groupes": 5,
+   "lignes": 437
+  },
+  {
+   "fichier": "ggplot2/movies.csv",
+   "reponse": "Short",
+   "explicative": "year",
+   "facteur": "title",
+   "groupes": 14,
+   "lignes": 77
+  },
+  {
+   "fichier": "ggplot2/mpg.csv",
+   "reponse": "hwy",
+   "explicative": "displ",
+   "facteur": "manufacturer",
+   "groupes": 12,
+   "lignes": 223
+  },
+  {
+   "fichier": "ggplot2/msleep.csv",
+   "reponse": "bodywt",
+   "explicative": "sleep_total",
+   "facteur": "order",
+   "groupes": 5,
+   "lignes": 57
+  },
+  {
+   "fichier": "lme4/VerbAgg.csv",
+   "reponse": "id",
+   "explicative": "Anger",
+   "facteur": "item",
+   "groupes": 24,
+   "lignes": 7584
+  },
+  {
+   "fichier": "plm/Gasoline.csv",
+   "reponse": "lcarpcap",
+   "explicative": "year",
+   "facteur": "country",
+   "groupes": 18,
+   "lignes": 342
+  },
+  {
+   "fichier": "plm/Males.csv",
+   "reponse": "wage",
+   "explicative": "nr",
+   "facteur": "industry",
+   "groupes": 12,
+   "lignes": 4360
+  },
+  {
+   "fichier": "plm/Produc.csv",
+   "reponse": "unemp",
+   "explicative": "year",
+   "facteur": "state",
+   "groupes": 48,
+   "lignes": 816
+  },
+  {
+   "fichier": "plm/SumHes.csv",
+   "reponse": "sr",
+   "explicative": "year",
+   "facteur": "country",
+   "groupes": 125,
+   "lignes": 3250
+  },
+  {
+   "fichier": "plyr/baseball.csv",
+   "reponse": "gidp",
+   "explicative": "year",
+   "facteur": "id",
+   "groupes": 960,
+   "lignes": 16322
+  },
+  {
+   "fichier": "pscl/AustralianElectionPolling.csv",
+   "reponse": "sampleSize",
+   "explicative": "ALP",
+   "facteur": "org",
+   "groupes": 5,
+   "lignes": 239
+  },
+  {
+   "fichier": "pscl/UKHouseOfCommons.csv",
+   "reponse": "v3",
+   "explicative": "y1",
+   "facteur": "county",
+   "groupes": 45,
+   "lignes": 428
+  },
+  {
+   "fichier": "pscl/politicalInformation.csv",
+   "reponse": "id",
+   "explicative": "age",
+   "facteur": "y",
+   "groupes": 5,
+   "lignes": 1792
+  },
+  {
+   "fichier": "pscl/presidentialElections.csv",
+   "reponse": "year",
+   "explicative": "demVote",
+   "facteur": "state",
+   "groupes": 51,
+   "lignes": 1046
+  },
+  {
+   "fichier": "pscl/prussian.csv",
+   "reponse": "year",
+   "explicative": "y",
+   "facteur": "corp",
+   "groupes": 14,
+   "lignes": 280
+  },
+  {
+   "fichier": "psych/msq.csv",
+   "reponse": "TOD24",
+   "explicative": "active",
+   "facteur": "exper",
+   "groupes": 39,
+   "lignes": 2789
+  },
+  {
+   "fichier": "rpart/car.test.frame.csv",
+   "reponse": "HP",
+   "explicative": "Price",
+   "facteur": "Type",
+   "groupes": 5,
+   "lignes": 57
+  },
+  {
+   "fichier": "rpart/car90.csv",
+   "reponse": "Width",
+   "explicative": "Disp",
+   "facteur": "Country",
+   "groupes": 5,
+   "lignes": 94
+  },
+  {
+   "fichier": "rpart/cu.summary.csv",
+   "reponse": "Mileage",
+   "explicative": "Price",
+   "facteur": "Reliability",
+   "groupes": 5,
+   "lignes": 49
+  },
+  {
+   "fichier": "rpart/solder.csv",
+   "reponse": "skips",
+   "explicative": "Panel",
+   "facteur": "PadType",
+   "groupes": 10,
+   "lignes": 720
+  },
+  {
+   "fichier": "survival/cgd.csv",
+   "reponse": "status",
+   "explicative": "id",
+   "facteur": "center",
+   "groupes": 11,
+   "lignes": 195
+  },
+  {
+   "fichier": "survival/flchain.csv",
+   "reponse": "death",
+   "explicative": "age",
+   "facteur": "chapter",
+   "groupes": 13,
+   "lignes": 2158
+  },
+  {
+   "fichier": "vcd/Baseball.csv",
+   "reponse": "sal87",
+   "explicative": "atbat86",
+   "facteur": "name1",
+   "groupes": 11,
+   "lignes": 66
+  },
+  {
+   "fichier": "vcd/Bundesliga.csv",
+   "reponse": "Year",
+   "explicative": "HomeGoals",
+   "facteur": "HomeTeam",
+   "groupes": 52,
+   "lignes": 14018
+  },
+  {
+   "fichier": "vcd/Hitters.csv",
+   "reponse": "Errors",
+   "explicative": "Putouts",
+   "facteur": "Positions",
+   "groupes": 7,
+   "lignes": 154
+  },
+  {
+   "fichier": "vcd/JointSports.csv",
+   "reponse": "year",
+   "explicative": "Freq",
+   "facteur": "opinion",
+   "groupes": 5,
+   "lignes": 40
+  },
+  {
+   "fichier": "vcd/Suicide.csv",
+   "reponse": "age",
+   "explicative": "Freq",
+   "facteur": "method",
+   "groupes": 9,
+   "lignes": 306
+  },
+  {
+   "fichier": "vcd/VonBort.csv",
+   "reponse": "year",
+   "explicative": "deaths",
+   "facteur": "corps",
+   "groupes": 14,
+   "lignes": 280
+  }
+ ]
+}

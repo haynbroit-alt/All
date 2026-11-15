@@ -1,0 +1,100 @@
+{
+ "principale": {
+  "R1_parJeu": {
+   "victoires": 50,
+   "defaites": 18,
+   "p": 6.541938077099227e-05
+  },
+  "R1_reuni": {
+   "victoires": 48,
+   "defaites": 22,
+   "p": 0.001273782449126979
+  },
+  "R2_operonParJeu": {
+   "victoires": 63,
+   "defaites": 5,
+   "p": 3.8255314714630284e-14
+  },
+  "R2_operonReuni": {
+   "victoires": 53,
+   "defaites": 15,
+   "p": 2.057985167197465e-06
+  },
+  "N_reel": {
+   "victoires": 53,
+   "defaites": 15,
+   "p": 2.057985167197465e-06
+  },
+  "temoin": {
+   "victoires": 39,
+   "defaites": 29,
+   "p": 0.13749519808550026
+  },
+  "N_reel_inverse": {
+   "victoires": 15,
+   "defaites": 53,
+   "p": 0.9999994451371637
+  },
+  "temoin_inverse": {
+   "victoires": 29,
+   "defaites": 39,
+   "p": 0.9090949727322033
+  },
+  "retenues": 10,
+  "mediane": 1.0610822029175606
+ },
+ "bibliotheque": {
+  "R1_parJeu": {
+   "victoires": 50,
+   "defaites": 16,
+   "p": 1.664117508516031e-05
+  },
+  "R1_reuni": {
+   "victoires": 48,
+   "defaites": 20,
+   "p": 0.00045719536064377914
+  },
+  "R2_operonParJeu": {
+   "victoires": 65,
+   "defaites": 5,
+   "p": 1.1076764200692365e-14
+  },
+  "R2_operonReuni": {
+   "victoires": 55,
+   "defaites": 15,
+   "p": 8.262599238989955e-07
+  },
+  "N_reel": {
+   "victoires": 56,
+   "defaites": 14,
+   "p": 2.1514200657679638e-07
+  },
+  "temoin": {
+   "victoires": 39,
+   "defaites": 27,
+   "p": 0.08764289722151765
+  },
+  "N_reel_inverse": {
+   "victoires": 14,
+   "defaites": 56,
+   "p": 0.9999999485502927
+  },
+  "temoin_inverse": {
+   "victoires": 27,
+   "defaites": 39,
+   "p": 0.9455715177951419
+  },
+  "retenues": 10,
+  "mediane": 1.0532669499662917
+ },
+ "N_simule": {
+  "victoires": 195,
+  "defaites": 5,
+  "p": 1.6190222767422942e-51
+ },
+ "N_simule_bibliotheque": {
+  "victoires": 192,
+  "defaites": 8,
+  "p": 3.576236364054487e-47
+ }
+}
