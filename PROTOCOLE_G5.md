@@ -191,3 +191,42 @@ sur les graines 1 à 100 et publiée ici avant le test, que ses chiffres soient 
 fois, découpée en quatre tranches lancées ensemble (9001-9050, 9051-9100, 9101-9150, 9151-9200). Puis Operon sur les
 mondes à loi commune : `bench/commun-operon.py bench/g5/operon.json bench/g5/test-*.json`. Les jeux réels groupés et
 le cas d'usage viennent ensuite, liste figée avant tout ajustement.
+
+## Jeux réels groupés et comparaison plus juste avec Operon — écrit avant tout ajustement
+
+Le propriétaire m'a laissé les choix (15 novembre 2026). Rien n'a été ajusté sur ces jeux avant ce paragraphe.
+
+### Terrain réel
+
+- **Liste figée** : `bench/g5/reels-liste.json`, produite par `bench/commun-jeux.js` (règle écrite en tête du script,
+  figée telle quelle) sur les 1 514 CSV de Rdatasets : **70 jeux**. La règle est mécanique : elle retient aussi des
+  couples de colonnes sans rapport, et c'est voulu — on ne choisit pas ses jeux.
+- Par jeu : au plus **60 groupes** (ceux qui ont le plus de lignes, à égalité l'ordre du nom) et au plus **40 lignes
+  par groupe** (tirées au hasard, graine = rang du jeu dans la liste), pour rester dans le cadre des « petits jeux »
+  et borner le calcul. Points mis de côté : `mettreDeCote`, comme pour les mondes simulés.
+- Méthodes : loi commune sans bibliothèque (principale) et avec ; GALILÉE jeu par jeu et réuni ; droite et constante
+  par jeu ; Operon jeu par jeu et réuni (budget du protocole).
+
+### Une comparaison plus juste avec Operon
+
+Le test l'a montré : Operon réuni ne peut pas représenter une échelle propre à chaque jeu. Ajout d'un concurrent,
+**Operon réuni normalisé** : les y vus de chaque jeu sont divisés par leur moyenne, Operon (20 s, une graine) ajuste
+une seule formule sur l'ensemble, et chaque prédiction est remultipliée par la moyenne du jeu. C'est la même aide que
+reçoit la loi commune quand elle cherche sur des jeux normalisés. Il est calculé sur les 200 mondes du test **et**
+sur les jeux réels.
+
+### Critères (test des signes unilatéral à 5 %)
+
+- **R1** — sur les jeux réels, la loi commune (sans bibliothèque) prédit mieux que GALILÉE jeu par jeu **et** réuni.
+- **R2** — sur les jeux réels, mieux qu'Operon jeu par jeu **et** réuni.
+- **N** — mieux qu'Operon réuni normalisé, sur les mondes du test (**N-simulé**) et sur les jeux réels (**N-réel**).
+- Donnés sans critère : part des jeux réels où la loi est « retenue » ; face au meilleur témoin ; variante avec
+  bibliothèque.
+
+### Attendus, écrits avant tout calcul
+
+1. La loi n'est « retenue » que sur une minorité de jeux réels (moins de 30 %) : la plupart des couples de colonnes
+   n'ont pas de forme commune.
+2. R1 tenu face à GALILÉE jeu par jeu ; **incertain** face à GALILÉE réuni.
+3. R2 tenu.
+4. **N-simulé tenu mais par une marge bien plus faible** que face à Operon réuni ; **N-réel non établi**.
