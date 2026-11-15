@@ -165,3 +165,29 @@ commune est utile si la **retirer** fait monter le critère :
 
 Les seuils (60 %, 90 %, 5 %), les mondes, le découpage, les graines. Après correction, la mise au point est refaite
 sur les graines 1 à 100 et publiée ici avant le test, que ses chiffres soient meilleurs ou pires.
+
+### Mise au point refaite après les corrections A et B (graines 1 à 100, sans GALILÉE)
+
+`node bench/commun.js --graines a-b --sans-galilee --les-deux`, quatre tranches. Rien n'a été réglé de plus.
+
+| | Sans bibliothèque (mesure principale) | Avec bibliothèque |
+|---|---|---|
+| C3 — forme vraie à 5 % de bruit (seuil 60 %) | **8 sur 22 (36 %)** | 21 sur 22 (95 %) |
+| C3 — tous bruits | 32 sur 100 | 80 sur 100 |
+| C4 — mondes sans loi refusés (seuil 90 %) | **100 sur 100** | 100 sur 100 |
+| Lois communes retenues | 64 sur 100 | 80 sur 100 |
+| Erreur médiane (meilleur témoin : 0,53) | 0,29 | 0,28 |
+
+- Les deux fausses rétentions de C4 ont disparu (graines 5 et 68 : un décalage partagé quasi nul n'est plus compté).
+- Sans bibliothèque, C3 passe de 7 à 8 sur 22 : la correction A ne change presque rien. **C3 sera vraisemblablement
+  manqué au test** dans sa mesure principale. Ce qui reste fort sans bibliothèque est la **prédiction** (erreur
+  médiane 0,29 contre 0,53 pour le meilleur témoin, devant lui dans 92 mondes sur 100), pas la **reconnaissance**
+  de la forme.
+- Temps du module : 3,2 s par monde (médiane).
+
+### Exécution du test
+
+`G5_TEST=exécution-unique node bench/commun.js --graines a-b --les-deux --sortie bench/g5/test-a-b.json`, en une seule
+fois, découpée en quatre tranches lancées ensemble (9001-9050, 9051-9100, 9101-9150, 9151-9200). Puis Operon sur les
+mondes à loi commune : `bench/commun-operon.py bench/g5/operon.json bench/g5/test-*.json`. Les jeux réels groupés et
+le cas d'usage viennent ensuite, liste figée avant tout ajustement.
